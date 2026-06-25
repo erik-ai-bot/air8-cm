@@ -3742,33 +3742,8 @@ function fillAir8Fields(db, product, oaDays) {
   // Buyer master data from Google Sheet
   // Fill new Credit Limits section fields
   if (db.air8_insurance) { sv('cla-insurer', db.air8_insurance); sv('cla-air8-insco', db.air8_insurance); }
-  // Credit Limits — use GROUP SUMS if parent group found, else single-buyer data
-  function toM(v) { return v && v > 0 ? (v / 1000000).toFixed(4) : ''; }
-  // Override with group sums when available
-  var clData = db;
-  if (window._groupSums && window._groupSums._group) {
-    clData = Object.assign({}, db, window._groupSums);
-    window._groupSums = null; // consume once
-  }
-  if (clData.has_refactoring || clData.refactoring_bank) {
-    // Refactoring: fill bank name, existing (BE sum) and refactored utilization (BL sum)
-    if (clData.refactoring_bank) sv('cl-refactor-bank', clData.refactoring_bank);
-    var rfEx = document.getElementById('cl-refactor-exist');
-    var rfRef = document.getElementById('cl-refactor-refactored'); // "Refactored" column = BL utilization
-    if (rfEx && clData.refactoring_exist) rfEx.value = toM(clData.refactoring_exist);
-    if (rfRef && clData.refactoring_util) rfRef.value = toM(clData.refactoring_util);
-  }
-  if (!clData.has_refactoring) {
-    // NORMAL INSURANCE: fill credit limits table (summed for group)
-    if (clData.cl_secured_exist) { var sel = document.getElementById('cla-secured-exist'); if(sel) sel.value = toM(clData.cl_secured_exist); }
-    if (clData.cl_secured_util) { var sul = document.getElementById('cla-secured-util'); if(sul) sul.value = toM(clData.cl_secured_util); }
-    if (clData.cl_residual_exist) { var rel = document.getElementById('cla-residual-exist'); if(rel) rel.value = toM(clData.cl_residual_exist); }
-    if (clData.cl_residual_util) { var rul = document.getElementById('cla-residual-util'); if(rul) rul.value = toM(clData.cl_residual_util); }
-    if (clData.cl_clean_exist !== undefined) { var cel = document.getElementById('cla-clean-exist'); if(cel) cel.value = toM(clData.cl_clean_exist); }
-    if (clData.cl_clean_util !== undefined) { var cul = document.getElementById('cla-clean-util'); if(cul) cul.value = toM(clData.cl_clean_util); }
-    if (clData.credit_ins_limit) { var cil = document.getElementById('cla-air8-ins'); if(cil) cil.value = toM(clData.credit_ins_limit); }
-  }  // end normal insurance block
-  if (typeof calcCLATotals === 'function') calcCLATotals();
+  // Credit limit auto-fill from buyer data — DISABLED for now (logic saved, will enable later)
+  // All calculations are in BUYER_MASTER (worker) and sums returned via /buyer-group API
   if (db.air8_limit_total_usdm) {
     var limitRaw = parseFloat(db.air8_limit_total_usdm) || 0;
     // Google Sheet stores in USD dollars — convert to millions
