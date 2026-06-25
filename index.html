@@ -1145,9 +1145,9 @@
 
   <!-- SECTION 8: RECOMMENDATION -->
   <div class="section">
-    <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
-      <span><span class="num">8</span> RECOMMENDATION AND ACTION PLAN</span>
-      <select class="editable keep-color" id="s8-status" onchange="updateStatusBadge()" style="font-weight:700;font-size:12px;border-radius:6px;padding:3px 8px;border:none;cursor:pointer;margin-left:12px;">
+    <div class="section-title" style="position:relative;">
+      <span class="num">8</span> RECOMMENDATION AND ACTION PLAN
+      <select class="editable keep-color" id="s8-status" onchange="updateStatusBadge()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-weight:700;font-size:11px;border-radius:5px;padding:2px 6px;border:none;cursor:pointer;max-width:130px;">
         <option value="new">🆕 New</option>
         <option value="renewal">📋 Renewal</option>
         <option value="grow">📈 Grow</option>
@@ -1651,20 +1651,21 @@ function deleteApItem(btn) {
 
 // ── AUTO STATUS based on CM mode + limit config ──────────────────────
 function autoSetStatus() {
-  var mode = document.getElementById('cm-mode')?.value || 'new';
-  var limit = parseFloat(document.getElementById('cfg-limit')?.value) || 0;
-  var limitFrom = parseFloat(document.getElementById('cfg-limit-from')?.value) || 0;
-  var s8 = document.getElementById('s8-status');
-  if (!s8) return;
-  var newStatus;
-  if (mode === 'new') {
-    newStatus = 'new';
-  } else if (mode === 'renewal') {
-    if (limitFrom > 0 && limit > limitFrom) newStatus = 'grow';
-    else if (limitFrom > 0 && limit < limitFrom) newStatus = 'reduction';
-    else newStatus = 'maintain';
-  }
-  if (newStatus) { s8.value = newStatus; if (typeof updateStatusBadge === 'function') updateStatusBadge(); }
+  try {
+    var mode = document.getElementById('cm-mode')?.value || 'new';
+    var limit = parseFloat(document.getElementById('cfg-limit')?.value) || 0;
+    var limitFrom = parseFloat(document.getElementById('cfg-limit-from')?.value) || 0;
+    var s8 = document.getElementById('s8-status');
+    if (!s8) return;
+    var newStatus;
+    if (mode === 'new') { newStatus = 'new'; }
+    else if (mode === 'renewal') {
+      if (limitFrom > 0 && limit > limitFrom) newStatus = 'grow';
+      else if (limitFrom > 0 && limit < limitFrom) newStatus = 'reduction';
+      else newStatus = 'maintain';
+    }
+    if (newStatus) { s8.value = newStatus; if (typeof updateStatusBadge === 'function') updateStatusBadge(); }
+  } catch(e) { console.warn('autoSetStatus error:', e); }
 }
 
 // ── ADD ROW to financial metrics table ──────────────────────────────
