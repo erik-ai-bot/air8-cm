@@ -2842,6 +2842,54 @@ async function loadDraft(id) {
   } catch(e) { alert('Failed to load draft: ' + e.message); }
 }
 
+
+// ── GROUP APPENDIX ────────────────────────────────────────────────────
+async function loadGroupAppendix(buyerGroup) {
+  if (!buyerGroup) return;
+  try {
+    const resp = await fetch(CM_API + '/buyer-group?group=' + encodeURIComponent(buyerGroup));
+    const data = await resp.json();
+    if (!data.found || !data.buyers || data.buyers.length === 0) return;
+    
+    var section = document.getElementById('appendix-section');
+    var tbody = document.getElementById('appendix-tbody');
+    var groupNameEl = document.getElementById('appendix-group-name');
+    var dateEl = document.getElementById('appendix-date');
+    
+    if (!section || !tbody) return;
+    
+    groupNameEl.textContent = data.group || buyerGroup;
+    dateEl.textContent = 'Date: ' + new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}).replace(/ /g,'-');
+    
+    tbody.innerHTML = '';
+    var totalInsured = 0, totalInsurance = 0;
+    
+    data.buyers.forEach(function(b) {
+      var insured = parseFloat((b.insured_arp_limit||'').replace(/[^0-9.]/g,'')) || 0;
+      var insurance = parseFloat((b.insurance_limit_usd||'').replace(/[^0-9.]/g,'')) || 0;
+      totalInsured += insured;
+      totalInsurance += insurance;
+      
+      var fmt = function(n) { return n > 0 ? n.toLocaleString('en-US') : '—'; };
+      var tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #e2e8f0';
+      tr.innerHTML = '<td style="padding:7px 10px;">' + (b.name||'') + '</td>' +
+        '<td style="padding:7px 10px;text-align:right;">' + fmt(insured) + '</td>' +
+        '<td style="padding:7px 10px;text-align:right;">' + fmt(insurance) + '</td>' +
+        '<td style="padding:7px 10px;">' + (b.insurance_company||'') + '</td>' +
+        '<td style="padding:7px 10px;">' + (b.funder||'') + '</td>';
+      tbody.appendChild(tr);
+    });
+    
+    // Totals
+    var fmt2 = function(n) { return n > 0 ? n.toLocaleString('en-US') : '—'; };
+    document.getElementById('appendix-total-insured').textContent = fmt2(totalInsured);
+    document.getElementById('appendix-total-insurance').textContent = fmt2(totalInsurance);
+    
+    section.style.display = 'block';
+  } catch(e) { console.warn('Appendix load failed:', e); }
+}
+
 // Close dropdown on outside click
 document.addEventListener('click', e => {
   try {
@@ -3267,6 +3315,9 @@ async function generateCM() {
     calculateAir8Metrics(buyer);
     fillAir8Fields(buyer, product, oaDays);
     applyRatingColors();
+    // Load group appendix if buyer has a parent group
+    var _grp = buyer.buyer_group || buyer.air8_entities || '';
+    if (_grp && typeof loadGroupAppendix === 'function') loadGroupAppendix(_grp);
     // Auto-generate Request 1 if credit config has limit set (from buyer master)
     setTimeout(function() {
       var limitEl = document.getElementById('cfg-limit');
@@ -4195,6 +4246,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sb) { sb.classList.add('open'); document.body.classList.add('sidebar-open'); }
   if (btn) btn.classList.add('active');
 });
+
+<!-- APPENDIX: GROUP EXPOSURE -->
+<div class="section" id="appendix-section" style="display:none;">
+  <div class="section-title"><span class="num" style="background:#475569;">A</span> APPENDIX — GROUP EXPOSURE</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-size:13px;">
+      <span style="color:#64748b;font-weight:600;">Parent Group:</span>
+      <span id="appendix-group-name" style="font-weight:700;color:#0f172a;margin-left:8px;">—</span>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;" id="appendix-date"></div>
+  </div>
+  <table id="appendix-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="background:#1e3a5f;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Obligor</th>
+        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insured ARP Limit</th>
+        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insurance Limit (USD)</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Insurance Company</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Funder</th>
+      </tr>
+    </thead>
+    <tbody id="appendix-tbody">
+    </tbody>
+    <tfoot id="appendix-tfoot" style="background:#dbeafe;">
+      <tr>
+        <td style="padding:8px 10px;font-weight:700;color:#1e40af;">Total</td>
+        <td id="appendix-total-insured" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
+        <td id="appendix-total-insurance" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
 </script>
 </body>
 </html>
