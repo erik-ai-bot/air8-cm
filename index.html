@@ -2109,21 +2109,22 @@ async function exportAndSave() {
   if (fileNameBase) {
     document.title = fileNameBase + ' CM ' + date;
   }
-  // Auto-save to Notion on export (override if exists)
-  if (buyer) {
+  // Auto-save to Notion on export — always replaces most recent draft
+  const saveBuyer = fileNameBase; // use obligor parent or buyer name
+  if (saveBuyer) {
     try {
       const cmData = collectFormState();
       const rating = document.getElementById('h-risk-proposed')?.value || '';
       let overrideId = window._lastDraftId || null;
       if (!overrideId) {
-        const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
+        const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(saveBuyer));
         const { drafts } = await resp.json();
         if (drafts?.[0]) overrideId = drafts[0].id;
       }
       await fetch(CM_API + '/drafts/save', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ buyer, cmData, rating, status:'Final', overrideId })
+        body: JSON.stringify({ buyer: saveBuyer, cmData, rating, status:'Final', overrideId })
       });
     } catch(e) { /* ignore save errors on export */ }
   }
