@@ -3479,8 +3479,15 @@ async function generateCM() {
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({buyer: analyticsName || val, product, oa_days: oaDays, ciq_data: null, prev_cm: prevCmSnippet})
       });
-      financials = await finRes.json();
-      if (financials.error) throw new Error(financials.error);
+      try {
+        financials = await finRes.json();
+        if (financials.error) throw new Error(financials.error);
+      } catch(jsonErr) {
+        // AI returned malformed JSON — still proceed with profile/db data only
+        console.warn('Financials parse failed:', jsonErr.message);
+        financials = { buyer_name: analyticsName || val, buyer_group: analyticsName || val };
+        if (msg) { msg.innerHTML = '⚠️ Financial data unavailable — filling profile & rating data only.'; msg.style.display = 'block'; }
+      }
     }
 
     // Step 3: AI analysis (~20-25s, own request < 30s limit)
@@ -3540,13 +3547,19 @@ async function generateCM() {
     }
 
   } catch(e) {
-    clearForm();
-    const nameEl = document.getElementById('h-buyer-group');
-    if (nameEl) nameEl.value = val;
+    // On error: still fill whatever db data we have (profile, rating, score)
+    if (typeof dbData !== 'undefined' && dbData.air8_fields) {
+      try {
+        var fallbackBuyer = Object.assign({ buyer_name: val, buyer_group: val }, dbData.air8_fields);
+        calculateAir8Metrics(fallbackBuyer);
+        fillAir8Fields(fallbackBuyer, product, oaDays);
+        applyRatingColors();
+      } catch(fe) { console.warn('Fallback fill failed:', fe); }
+    }
     if (msg) {
       var errMsg = e.message || 'Unknown error';
-      if (errMsg === 'Failed to fetch' || errMsg.includes('fetch')) errMsg = 'Network error — retrying failed. Check connection or try again.';
-      msg.innerHTML = '\u26a0\ufe0f ' + errMsg.slice(0,120);
+      if (errMsg === 'Failed to fetch' || errMsg.includes('fetch')) errMsg = 'Network error — check connection.';
+      msg.innerHTML = '⚠️ ' + errMsg.slice(0,150) + ' (profile data filled where available)';
       msg.style.display = 'block';
     }
   } finally {
