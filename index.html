@@ -594,26 +594,29 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Financial table PDF: match on-screen appearance exactly */
+    /* Financial table PDF: auto layout matches screen proportions */
     #tbl-metrics {
-      table-layout: fixed !important;
+      table-layout: auto !important;
       width: 100% !important;
       font-size: 8px !important;
     }
-    #tbl-metrics th { padding: 2px 3px !important; font-size: 8px !important; }
-    #tbl-metrics td { padding: 2px 3px !important; font-size: 8px !important; vertical-align: top !important; }
-    /* Number columns */
-    #tbl-metrics .num-cell { width: 7% !important; min-width: 0 !important; }
-    #tbl-metrics .pct-cell { width: 5% !important; min-width: 0 !important; }
-    #tbl-metrics .label { width: 12% !important; min-width: 0 !important; }
-    /* KH column: same as screen, text wraps, cell expands naturally */
+    #tbl-metrics th, #tbl-metrics td { 
+      padding: 2px 4px !important; 
+      font-size: 8px !important; 
+      vertical-align: top !important; 
+    }
+    /* Number/pct columns: set max-width so they stay compact */
+    #tbl-metrics .num-cell { max-width: 70px !important; }
+    #tbl-metrics .pct-cell { max-width: 55px !important; }
+    #tbl-metrics .label { max-width: 130px !important; min-width: 80px !important; }
+    /* KH column: no max-width — takes remaining space (like on screen) */
     td.highlight-cell, #kh-pl, #kh-bs, #kh-cf {
-      width: 24% !important;
       font-size: 7.5px !important;
       white-space: normal !important;
       word-break: break-word !important;
       vertical-align: top !important;
       line-height: 1.4 !important;
+      min-width: 200px !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -622,9 +625,6 @@
       background: #dbeafe !important; color: #1e40af !important; font-weight: 700 !important;
       -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
     }
-    /* Allow table rows to break across pages */
-    #tbl-metrics tr { page-break-inside: auto !important; }
-    /* Hide the separate KH print section */
     .kh-print-section { display: none !important; }
     .add-row-btn, .del-row-btn { display: none !important; }
     * { font-size: 9px !important; line-height: 1.4 !important; font-family: Arial, sans-serif !important; }
