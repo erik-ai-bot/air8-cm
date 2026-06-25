@@ -778,13 +778,13 @@
         Current: <select class="editable" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;" onchange="applyRatingColors()">
           <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
         </select>
-        <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;">
+        <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
       <span class="risk-badge proposed">
         Proposed: <select class="editable" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;" onchange="applyRatingColors()">
           <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
         </select>
-        <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;">
+        <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
     </div>
   </div>
@@ -872,9 +872,9 @@
           <div class="r-label">Air8 Obligor Rating</div>
           <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
             <span style="font-size:11px;color:#9ca3af;">Current:</span>
-            <input type="text" class="editable" id="s2-air8-current" placeholder="-/-" style="width:60px;text-align:center;font-weight:700;font-size:13px;color:#b45309;">
+            <span id="s2-air8-current" style="display:inline-block;min-width:52px;text-align:center;font-weight:700;font-size:13px;border-radius:4px;padding:2px 8px;">-/-</span>
             <span style="font-size:11px;color:#9ca3af;">→ Proposed:</span>
-            <input type="text" class="editable" id="s2-air8-proposed" placeholder="-/-" style="width:60px;text-align:center;font-weight:700;font-size:13px;color:#15803d;">
+            <span id="s2-air8-proposed" style="display:inline-block;min-width:52px;text-align:center;font-weight:700;font-size:13px;border-radius:4px;padding:2px 8px;">-/-</span>
           </div>
         </div>
       </div>
@@ -1633,8 +1633,7 @@ function loadBuyer(key) {
   document.getElementById('s2-sp').value = b.sp_rating || '';
   document.getElementById('s2-moodys').value = b.moodys_rating || '';
   document.getElementById('s2-fitch').value = b.fitch_rating || '';
-  document.getElementById('s2-air8-current').value = (b.risk_category_current || '') + '/' + (b.risk_current_score || '');
-  document.getElementById('s2-air8-proposed').value = (b.risk_category_proposed || '') + '/' + (b.risk_proposed_score || '');
+  // s2-air8-current and s2-air8-proposed are read-only spans — updated via applyRatingColors()
 
   // Section 1 quick-fill
   document.getElementById('s1-req-product').value = 'AR Discounting';
@@ -3120,12 +3119,19 @@ function applyRatingColors() {
     el.style.borderRadius = '4px'; el.style.border = 'none';
     if (extra) { el.style.padding = extra.pad || ''; el.style.textAlign = extra.align || ''; }
   }
+  // Build rating/score text for s2 spans
+  var curScore = document.getElementById('h-risk-current-score')?.value || '';
+  var propScore = document.getElementById('h-risk-proposed-score')?.value || '';
+  var curTxt2 = (curR || '-') + '/' + (curScore || '-');
+  var propTxt2 = (propR || '-') + '/' + (propScore || '-');
   // Current-only elements
   styleEl('h-risk-current', cC, cT, {pad:'1px 6px'});
-  styleEl('s2-air8-current', cC, cT, {align:'center'});
+  var s2cEl = document.getElementById('s2-air8-current');
+  if (s2cEl) { s2cEl.textContent = curTxt2; s2cEl.style.background = cC; s2cEl.style.color = cT; s2cEl.style.fontWeight = '700'; }
   // Proposed-only elements
   styleEl('h-risk-proposed', pC, pT, {pad:'1px 6px'});
-  styleEl('s2-air8-proposed', pC, pT, {align:'center'});
+  var s2pEl = document.getElementById('s2-air8-proposed');
+  if (s2pEl) { s2pEl.textContent = propTxt2; s2pEl.style.background = pC; s2pEl.style.color = pT; s2pEl.style.fontWeight = '700'; }
   styleEl('s8-current', pC, pT, {pad:'1px 6px'});
   // Section 7 read-only displays — current and proposed independently
   var s7c = document.getElementById('s7-rating-current-display');
@@ -3317,7 +3323,7 @@ function fillAir8Fields(db, product, oaDays) {
     const el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
-    else if (el.contentEditable === 'true') el.textContent = String(val);
+    else el.textContent = String(val); // handles SPAN and contenteditable
   }
   // Helper: format with thousands separator (inputs are now type=text so commas work)
   function b(v) { if (v == null || v === 0) return ''; var n = parseFloat(v); if (isNaN(n)) return ''; var s = n % 1 === 0 ? n.toLocaleString('en-US') : n.toLocaleString('en-US',{maximumFractionDigits:2}); return s; }
