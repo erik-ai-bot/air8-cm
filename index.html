@@ -180,18 +180,6 @@
   .cs-green:hover { background: rgba(16,185,129,.24); }
   .cs-status { font-size: 10px; color: #8b5cf6; margin-top: 6px; min-height: 14px; line-height: 1.4; word-break: break-word; }
   .cs-status.cs-green-text { color: #10b981; }
-  /* Date inputs: always display YYYY/MM/DD regardless of locale */
-  input[type="date"] {
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  /* Force YYYY/MM/DD display order using pseudo-elements */
-  input[type="date"]::-webkit-datetime-edit { display: flex; }
-  input[type="date"]::-webkit-datetime-edit-year-field { order: 1; }
-  input[type="date"]::-webkit-datetime-edit-text:nth-of-type(1) { order: 2; content: '/'; }
-  input[type="date"]::-webkit-datetime-edit-month-field { order: 3; }
-  input[type="date"]::-webkit-datetime-edit-text:nth-of-type(2) { order: 4; content: '/'; }
-  input[type="date"]::-webkit-datetime-edit-day-field { order: 5; }
 
   /* Status dropdown: options must be readable (dark text on light dropdown bg) */
   #s8-status option { color: #0f172a; background: #ffffff; font-weight: 600; }
@@ -804,7 +792,7 @@
     <div class="header-grid">
       <div class="header-row">
         <span class="header-label">Date</span>
-        <span class="header-value"><input type="date" class="editable" id="h-date"></span>
+        <span class="header-value"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-date-hidden').showPicker?document.getElementById('h-date-hidden').showPicker():document.getElementById('h-date-hidden').click()"><input type="date" id="h-date-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-date').value=v.replace(/-/g,'/');}"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Approval Level</span>
@@ -842,11 +830,11 @@
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Last</span>
-        <span class="header-value"><input type="date" class="editable" id="h-review-last"></span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-review-last-hidden').showPicker?document.getElementById('h-review-last-hidden').showPicker():document.getElementById('h-review-last-hidden').click()"><input type="date" id="h-review-last-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-review-last').value=v.replace(/-/g,'/');}"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Next</span>
-        <span class="header-value"><input type="date" class="editable" id="h-review-next"></span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-review-next-hidden').showPicker?document.getElementById('h-review-next-hidden').showPicker():document.getElementById('h-review-next-hidden').click()"><input type="date" id="h-review-next-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-review-next').value=v.replace(/-/g,'/');}"></span>
       </div>
     </div>
 
@@ -1910,7 +1898,7 @@ function loadBuyer(key) {
   if (!b) { alert('Buyer not found.'); return; }
 
   // Header
-  document.getElementById('h-date').value = new Date().toISOString().split('T')[0].replace(/-/g,'/');
+  setDateField('h-date', new Date().toISOString().split('T')[0]);
   document.getElementById('h-buyer-group').value = b.buyer_group || '';
   document.getElementById('h-buyer-name').value = b.buyer_name || '';
   // Market cap — normalise number to formatted string (e.g. 762 → "~USD 762B")
@@ -2997,6 +2985,16 @@ async function loadGroupAppendix(buyerGroup) {
   } catch(e) { console.warn('Appendix load failed:', e); }
 }
 
+// Helper: set a date field (text+hidden combo) to YYYY/MM/DD
+function setDateField(id, isoValue) {
+  var vis = document.getElementById(id);
+  var hid = document.getElementById(id + '-hidden');
+  if (!isoValue) return;
+  var fmt = isoValue.replace(/-/g, '/');
+  if (vis) vis.value = fmt;
+  if (hid) hid.value = isoValue;
+}
+
 function deleteAppendixRow(btn) {
   var r = btn;
   while (r && r.tagName !== 'TR') r = r.parentNode;
@@ -3772,8 +3770,13 @@ function fillAir8Fields(db, product, oaDays) {
     if (val === undefined || val === null || val === '') return;
     const el = document.getElementById(id);
     if (!el) return;
+    // Date fields: use setDateField helper if hidden counterpart exists
+    if (el.type === 'text' && document.getElementById(id + '-hidden')) {
+      if (typeof setDateField === 'function') setDateField(id, String(val).replace(/\//g,'-'));
+      return;
+    }
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
-    else el.textContent = String(val); // handles SPAN and contenteditable
+    else el.textContent = String(val);
   }
   // Helper: format with thousands separator (inputs are now type=text so commas work)
   function b(v) { if (v == null || v === 0) return ''; var n = parseFloat(v); if (isNaN(n)) return ''; var s = n % 1 === 0 ? n.toLocaleString('en-US') : n.toLocaleString('en-US',{maximumFractionDigits:2}); return s; }
