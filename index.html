@@ -594,29 +594,38 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Financial table in PDF: hide KH column from numbers table, show as separate section */
+    /* Financial table PDF: match on-screen appearance exactly */
     #tbl-metrics {
       table-layout: fixed !important;
       width: 100% !important;
-      font-size: 8.5px !important;
+      font-size: 8px !important;
     }
-    #tbl-metrics th { padding: 3px 5px !important; font-size: 8.5px !important; }
-    #tbl-metrics td { padding: 2px 5px !important; font-size: 8.5px !important; vertical-align: middle !important; }
-    /* Hide KH column in the numbers table — it gets its own section below */
-    td.highlight-cell, th.left:last-child { display: none !important; }
-    #kh-pl, #kh-bs, #kh-cf { display: none !important; }
-    /* Number columns: proportional */
-    #tbl-metrics .num-cell { width: 9% !important; min-width: 0 !important; }
-    #tbl-metrics .pct-cell { width: 7% !important; min-width: 0 !important; }
-    #tbl-metrics .label { width: 16% !important; min-width: 0 !important; }
+    #tbl-metrics th { padding: 2px 3px !important; font-size: 8px !important; }
+    #tbl-metrics td { padding: 2px 3px !important; font-size: 8px !important; vertical-align: top !important; }
+    /* Number columns */
+    #tbl-metrics .num-cell { width: 7% !important; min-width: 0 !important; }
+    #tbl-metrics .pct-cell { width: 5% !important; min-width: 0 !important; }
+    #tbl-metrics .label { width: 12% !important; min-width: 0 !important; }
+    /* KH column: same as screen, text wraps, cell expands naturally */
+    td.highlight-cell, #kh-pl, #kh-bs, #kh-cf {
+      width: 24% !important;
+      font-size: 7.5px !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      vertical-align: top !important;
+      line-height: 1.4 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     /* Group header rows */
     #tbl-metrics tr.group-row td { 
       background: #dbeafe !important; color: #1e40af !important; font-weight: 700 !important;
       -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
     }
-    /* Show KH highlights as a separate compact text block after the table */
-    .kh-print-section { display: block !important; margin-top: 8px !important; font-size: 8px !important; }
-    .kh-print-section h4 { font-size: 8.5px !important; font-weight: 700 !important; color: #1e40af !important; margin-bottom: 3px !important; }
+    /* Allow table rows to break across pages */
+    #tbl-metrics tr { page-break-inside: auto !important; }
+    /* Hide the separate KH print section */
+    .kh-print-section { display: none !important; }
     .add-row-btn, .del-row-btn { display: none !important; }
     * { font-size: 9px !important; line-height: 1.4 !important; font-family: Arial, sans-serif !important; }
     table { font-size: 9px !important; border-collapse: collapse !important; }
