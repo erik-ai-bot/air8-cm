@@ -940,150 +940,9 @@
     <span style="margin-left:10px;color:#94a3b8;font-style:italic;" id="source-date"></span>
   </div>
 
-  <!-- SECTION 4: CREDIT LIMITS -->
+  <!-- SECTION 4: LIQUIDITY METRICS -->
   <div class="section">
-    <div class="section-title"><span class="num">4</span> CREDIT LIMITS</div>
-
-    <!-- Main credit limits table matching Excel layout -->
-    <div style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;">A — Air8 ARP Insured Limits</div>
-    <div style="overflow-x:auto;">
-    <table style="width:100%;font-size:11px;border-collapse:collapse;border:1px solid #e2e8f0;">
-      <!-- Header row -->
-      <tr style="background:#f1f5f9;">
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;font-size:10px;width:80px;">(US$'m)</td>
-        <td colspan="3" style="padding:4px 8px;border:1px solid #e2e8f0;font-size:10px;font-style:italic;color:#64748b;text-align:center;">(To list by subsidiaries, if applicable)</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Insurer</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" id="cla-insurer" placeholder="e.g. Allianz, ECIC" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Buyer payment term</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" id="cl-payment-term" placeholder="OA 90 days from shipment" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-      <!-- Sub-header -->
-      <tr style="background:#f1f5f9;">
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;"></td>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:70px;">Existing</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:70px;">Current<br>utilization</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:70px;">Proposed</th>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;color:#64748b;">Credit Insurance Limit *</td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-ins-limit" placeholder="0.0" style="width:70px;font-size:11px;border:none;background:transparent;text-align:right;"></td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;color:#64748b;">Financing term</td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" id="cl-fin-term" placeholder="90 days" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-      <!-- Secured row -->
-      <tr>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;background:#f1f5f9;">Secured</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-secured-exist" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-secured-util" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-secured-prop" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Advance Rate</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-advance-rate" placeholder="90" style="width:45px;font-size:11px;border:none;background:transparent;text-align:right;">%</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Supplier Credit Days</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-supplier-days" placeholder="90" style="width:50px;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-      <!-- Residual row -->
-      <tr>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;background:#f1f5f9;">Residual</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-residual-exist" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-residual-util" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-residual-prop" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">TCS Rate</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-tcs-rate" placeholder="10" style="width:45px;font-size:11px;border:none;background:transparent;text-align:right;">%</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Payment History / Delay Days</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-pmt-delay" placeholder="0" style="width:50px;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-      <!-- Clean row -->
-      <tr>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;background:#f1f5f9;">Clean</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-clean-exist" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-clean-util" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" id="cla-clean-prop" placeholder="-" oninput="calcCLATotals()" style="width:62px;text-align:right;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Past 12 mth GMV</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-gmv" placeholder="0.0" style="width:70px;font-size:11px;border:none;background:transparent;text-align:right;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;">Dilution rate</td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-dilution" placeholder="0.0" style="width:45px;font-size:11px;border:none;background:transparent;text-align:right;">%</td>
-      </tr>
-      <!-- Total row -->
-      <tr style="font-weight:700;">
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;background:#f1f5f9;">Total</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;" id="cla-total-exist">-</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;" id="cla-total-util">-</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;" id="cla-total-prop">-</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;color:#64748b;">Forecast 12 mth GMV</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;"><input type="number" class="editable" id="cl-forecast-gmv" placeholder="0.0" style="width:70px;font-size:11px;border:none;background:transparent;text-align:right;"></td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;color:#64748b;">Peak / Average WC</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;"><span style="display:flex;gap:4px;align-items:center;"><input type="number" class="editable" id="cl-peak-wc" placeholder="0.0" style="width:52px;font-size:11px;border:none;background:transparent;text-align:right;"><span style="color:#94a3b8;">/</span><input type="number" class="editable" id="cl-avg-wc" placeholder="0.0" style="width:52px;font-size:11px;border:none;background:transparent;text-align:right;"></span></td>
-      </tr>
-      <!-- Extra metadata rows -->
-      <tr>
-        <td colspan="4" style="padding:3px 8px;border:1px solid #e2e8f0;font-size:10px;font-style:italic;color:#64748b;" id="cl-ins-note">* Insurance: <input type="text" class="editable" style="font-size:10px;border:none;background:transparent;width:300px;" placeholder="Insurance application is in progress, with approval expected shortly."></td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;color:#64748b;">Air8 Customer Since</td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" id="cl-since" placeholder="e.g. Feb-2024" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;color:#64748b;">LF Customer Since</td>
-        <td style="padding:3px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" id="cl-lf-since" placeholder="e.g. Aug-1997" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-    </table>
-    </div>
-
-    <!-- Refactoring Limits -->
-    <div style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 5px;">Refactoring Limits</div>
-    <div style="overflow-x:auto;">
-    <table style="width:100%;font-size:11px;border-collapse:collapse;border:1px solid #e2e8f0;">
-      <tr style="background:#f1f5f9;">
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;background:#f1f5f9;color:#334155;width:160px;">(US$'m)</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:80px;">Existing</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:80px;">Refactored</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;text-align:center;background:#f1f5f9;color:#334155;width:80px;">Proposed</th>
-        <th style="padding:5px 8px;border:1px solid #e2e8f0;font-weight:600;background:#f1f5f9;color:#334155;">Remarks</th>
-      </tr>
-      <tr>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;background:transparent;"><input type="text" class="editable" id="cl-refactor-bank" placeholder="e.g. Deutsche Bank" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" placeholder="-" style="width:68px;font-size:11px;text-align:right;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" placeholder="-" style="width:68px;font-size:11px;text-align:right;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;text-align:right;"><input type="number" class="editable" placeholder="-" style="width:68px;font-size:11px;text-align:right;border:none;background:transparent;"></td>
-        <td style="padding:4px 8px;border:1px solid #e2e8f0;"><input type="text" class="editable" placeholder="Remarks" style="width:100%;font-size:11px;border:none;background:transparent;"></td>
-      </tr>
-      <tr style="font-weight:700;">
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;background:transparent;">Total</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;">-</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;">-</td>
-        <td style="padding:5px 8px;border:1px solid #e2e8f0;text-align:right;">-</td>
-        <td></td>
-      </tr>
-    </table>
-    </div>
-  </div>
-
-  <!-- SECTION 5: KEY FINANCIAL METRICS -->
-  <div class="section">
-    <div class="section-title"><span class="num">5</span> KEY FINANCIAL METRICS</div>
-    <!-- Ratio inputs hidden (r-interest, r-ca, r-cl kept as hidden inputs) -->
-    <input type='hidden' id='r-interest'><input type='hidden' id='r-ca'><input type='hidden' id='r-cl'>
-    <div style="overflow-x:auto;">
-      <table id="tbl-metrics">
-        <thead>
-          <tr>
-            <th class="left" style="min-width:130px;">(US$'m)</th>
-            <th style="min-width:72px;" id="th-fy1" contenteditable="true" title="Click to edit period label">FY2022</th>
-            <th style="min-width:72px;" id="th-fy2" contenteditable="true" title="Click to edit period label">FY2023</th>
-            <th style="min-width:72px;" id="th-fy3" contenteditable="true" title="Click to edit period label">FY2024</th>
-            <th class="annual-yoy1" id="th-yoy1-label" style="background:#374151;min-width:60px;">23 vs 22%</th>
-            <th style="background:#374151;min-width:60px;" id="th-yoy2">24 vs 23%</th>
-            <th class="q-col" style="min-width:72px;" id="th-q-cur" contenteditable="true" title="Click to edit">Latest Q</th>
-            <th class="q-col" style="min-width:72px;" id="th-q-ly" contenteditable="true" title="Click to edit">Same Q LY</th>
-            <th class="q-col" style="background:#374151;min-width:55px;">% Chg</th>
-            <th class="left" style="min-width:220px;white-space:normal;background:#1a1a2e;">Key Highlights</th>
-
-          </tr>
-        </thead>
-        <tbody id="metrics-body">
-          <!-- generated by JS -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- SECTION 6: LIQUIDITY METRICS -->
-  <div class="section">
-    <div class="section-title"><span class="num">6</span> LIQUIDITY METRICS</div>
+    <div class="section-title"><span class="num">4</span> LIQUIDITY METRICS</div>
     <table>
       <thead>
         <tr>
@@ -1116,9 +975,9 @@
     </table>
   </div>
 
-  <!-- SECTION 7: OBLIGOR RATINGS -->
+  <!-- SECTION 5: OBLIGOR RATINGS -->
   <div class="section">
-    <div class="section-title"><span class="num">7</span> OBLIGOR RATINGS</div>
+    <div class="section-title"><span class="num">5</span> OBLIGOR RATINGS</div>
     <div style="display:flex;align-items:center;gap:24px;margin-bottom:14px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:12px;font-weight:600;color:#64748b;">Credit Score:</span>
@@ -1138,9 +997,9 @@
       data-placeholder="Propose risk cat of 'X' / Reaffirm risk cat of 'X' based on FYxx. Compare with external rating. State if different from last approved. Justify the score components: profitability, leverage, liquidity, management quality, market position."></div>
   </div>
 
-  <!-- SECTION 8: RECOMMENDATION -->
+  <!-- SECTION 6: RECOMMENDATION -->
   <div class="section">
-    <div class="section-title"><span class="num">8</span> RECOMMENDATION AND ACTION PLAN</div>
+    <div class="section-title"><span class="num">6</span> RECOMMENDATION AND ACTION PLAN</div>
     <div class="rec-status-wrap">
       <span style="font-size:12px;font-weight:600;color:#64748b;">Status:</span>
       <select class="editable" id="s8-status" onchange="updateStatusBadge()" style="font-weight:700;font-size:13px;width:auto;">
@@ -1199,9 +1058,9 @@
     </div>
   </div>
 
-  <!-- SECTION 9: KEY RISKS & MITIGANTS -->
+  <!-- SECTION 7: KEY RISKS & MITIGANTS -->
   <div class="section">
-    <div class="section-title"><span class="num">9</span> KEY RISKS &amp; MITIGANTS</div>
+    <div class="section-title"><span class="num">7</span> KEY RISKS &amp; MITIGANTS</div>
     <table class="risk-table">
       <thead>
         <tr>
@@ -1295,7 +1154,7 @@ function calcHighlightsYoY() {
   });
 }
 
-// ===== SECTION 5: METRICS TABLE =====
+// ===== SECTION 5 [removed]: METRICS TABLE =====
 const METRIC_ROWS = [
   { id: 'rev', label: 'Turnover', group: 'P&L', placeholder: 'Drivers for revenue growth/flat/decline. Highlight extraordinary items. Outlook for next 12-18 months including tariff impacts.' },
   { id: 'gp', label: 'GP', group: 'P&L', placeholder: '' },
@@ -3614,7 +3473,7 @@ function fillAir8Fields(db, product, oaDays) {
     if (highlightDiv) highlightDiv.textContent = text;
   });
 
-  // ── SECTION 4 — Credit Limits ──
+  // ── SECTION 4 [removed] ──
   sv('cla-air8-insco', db.air8_insurance || '');
   sv('cla-air8-tenor', db.air8_tenor_days || oaDays);
   sv('cla-air8-ar', db.air8_advance_ratio_pct || '');
@@ -3629,7 +3488,7 @@ function fillAir8Fields(db, product, oaDays) {
   const totEl = document.getElementById('cla-total-prop');
   if (totEl) totEl.value = db.air8_limit_total_usdm || '';
 
-  // ── SECTION 6 — Liquidity Headroom ──
+  // ── SECTION 4 — Liquidity Headroom ──
   var lhArr = db.facility_headroom || null;
   if (lhArr) {
     // Fill each year independently — don't skip if some years are 0/null
@@ -3691,13 +3550,13 @@ function fillAir8Fields(db, product, oaDays) {
   var liqKHEl = document.getElementById('liq-kh');
   if (liqKHEl && db.liquidity_note && !liqKHEl.textContent.trim()) liqKHEl.textContent = db.liquidity_note;
 
-  // ── SECTION 7 — Obligor Rating ──
+  // ── SECTION 5 — Obligor Rating ──
   sv('s7-score', db.air8_score || '');
   sv('s7-rationale', db.obligor_rationale || '');
   // Section 7 rating dropdowns — use risk_category_current/proposed if available, else fall back to rcat
   // s7 displays updated via applyRatingColors() which reads from h-risk-current/proposed
 
-  // ── SECTION 8 — Recommendation ──
+  // ── SECTION 4 — Recommendation ──
   sv('s8-status', db.rec_status || 'Maintain');
   if (typeof updateStatusBadge === 'function') updateStatusBadge();
   // Fill the 4 anonymous rich-area divs inside section 8
@@ -3713,7 +3572,7 @@ function fillAir8Fields(db, product, oaDays) {
     if (ap2 && ap[1]) ap2.textContent = ap[1];
   }
 
-  // ── SECTION 9 — Key Risks & Mitigants ──
+  // ── SECTION 5 — Key Risks & Mitigants ──
   if (db.risks && db.risks.length) {
     const riskRows = db.risks.map(r => ({
       level: r.level || 'Low',
