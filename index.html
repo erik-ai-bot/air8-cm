@@ -1149,15 +1149,15 @@
   <div class="section">
     <div class="section-title" style="position:relative;">
       <span class="num">8</span> RECOMMENDATION AND ACTION PLAN
-      <select class="editable keep-color" id="s8-status" onchange="updateStatusBadge()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-weight:700;font-size:11px;border-radius:5px;padding:2px 6px;border:none;cursor:pointer;max-width:130px;">
-        <option value="new">🆕 New</option>
-        <option value="renewal">📋 Renewal</option>
-        <option value="grow">📈 Grow</option>
-        <option value="maintain" selected>✅ Maintain</option>
-        <option value="reduction">🔽 Reduction</option>
-        <option value="watchlist">⚠️ Watchlist</option>
-        <option value="high-risk">🔴 High Risk</option>
-        <option value="exit">🚪 Exit</option>
+      <select id="s8-status" onchange="updateStatusBadge()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-weight:700;font-size:11px;border-radius:5px;padding:2px 8px;border:none;cursor:pointer;background:rgba(255,255,255,0.15);color:white;outline:none;">
+        <option value="new">New</option>
+        <option value="renewal">Renewal</option>
+        <option value="grow">Grow</option>
+        <option value="maintain" selected>Maintain</option>
+        <option value="reduction">Reduction</option>
+        <option value="watchlist">Watchlist</option>
+        <option value="high-risk">High Risk</option>
+        <option value="exit">Exit</option>
       </select>
     </div>
     <ul class="rec-points" id="rec-points-list">
@@ -3330,9 +3330,7 @@ function applyRatingColors() {
   if (s7c) { s7c.textContent = curR || '-'; s7c.style.background = cC; s7c.style.color = cT; s7c.style.fontWeight = '700'; }
   var s7p = document.getElementById('s7-rating-proposed-display');
   if (s7p) { s7p.textContent = propR || '-'; s7p.style.background = pC; s7p.style.color = pT; s7p.style.fontWeight = '700'; }
-  // s8-status: keep color from proposed
-  var s8s = document.getElementById('s8-status');
-  if (s8s) { s8s.style.background = pC; s8s.style.color = pT; s8s.style.fontWeight = '700'; s8s.style.borderRadius = '4px'; s8s.style.border = 'none'; }
+  // s8-status: do NOT apply rating color - it sits in the blue title bar
   document.querySelectorAll('.risk-badge').forEach(function(badge) {
     badge.style.background = ''; badge.style.borderColor = ''; badge.style.color = '#1e293b';
   });
