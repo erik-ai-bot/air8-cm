@@ -2192,28 +2192,26 @@ async function processScreenshotFile(file) {
 
     // Immediately fill liquidity section if facility_headroom extracted
     if (ciq.facility_headroom && ciq.facility_headroom[0]) {
+      // Step 1: clear quarterly inputs FIRST to prevent stale values
+      var liqQCur = document.getElementById('liq-q-cur'); if(liqQCur) liqQCur.value = '';
+      var liqQLy = document.getElementById('liq-q-ly'); if(liqQLy) liqQLy.value = '';
+      var liqQYoy = document.getElementById('liq-q-yoy'); if(liqQYoy) liqQYoy.textContent = '-';
+      // Step 2: fill annual values
       var liqMap = [['liq-22', 0], ['liq-23', 1], ['liq-24', 2]];
       liqMap.forEach(function(pair) {
         var v = ciq.facility_headroom[pair[1]];
         if (v) { var el = document.getElementById(pair[0]); if(el) el.value = v.toLocaleString('en-US'); }
       });
-      if (ciq.q_facility_headroom) {
-        if (ciq.q_facility_headroom[0]) { var el1 = document.getElementById('liq-q-cur'); if(el1) el1.value = ciq.q_facility_headroom[0].toLocaleString('en-US'); }
-        if (ciq.q_facility_headroom[1]) { var el2 = document.getElementById('liq-q-ly'); if(el2) el2.value = ciq.q_facility_headroom[1].toLocaleString('en-US'); }
-      }
-      // Update liq period headers
+      // Step 3: update liq period headers
       if (ciq.fy_labels) {
         [['liq-th-fy1',0],['liq-th-fy2',1],['liq-th-fy3',2]].forEach(function(p){ var el=document.getElementById(p[0]); if(el) el.textContent=ciq.fy_labels[p[1]]; });
       }
       if (ciq.q_label) { var lqc=document.getElementById('liq-th-qcur'); if(lqc) lqc.textContent=ciq.q_label; }
       if (ciq.q_label_ly) { var lql=document.getElementById('liq-th-qly'); if(lql) lql.textContent=ciq.q_label_ly; }
-      // Always clear quarterly liq inputs first to prevent stale values
-    var liqQCur = document.getElementById('liq-q-cur'); if(liqQCur) liqQCur.value = '';
-    var liqQLy = document.getElementById('liq-q-ly'); if(liqQLy) liqQLy.value = '';
-    var liqQYoy = document.getElementById('liq-q-yoy'); if(liqQYoy) liqQYoy.textContent = '-';
-    // Show/hide quarterly columns based on OCR result
-    if (ciq.q_facility_headroom && ciq.q_facility_headroom[0] && ciq.q_facility_headroom[0] > 0) {
-        document.getElementById('tbl-metrics') && document.getElementById('tbl-metrics').classList.add('has-quarterly');
+      // Step 4: fill quarterly values AND show columns only if data present
+      if (ciq.q_facility_headroom && ciq.q_facility_headroom[0] && ciq.q_facility_headroom[0] > 0) {
+        var elQ1 = document.getElementById('liq-q-cur'); if(elQ1) elQ1.value = ciq.q_facility_headroom[0].toLocaleString('en-US');
+        if (ciq.q_facility_headroom[1]) { var elQ2 = document.getElementById('liq-q-ly'); if(elQ2) elQ2.value = ciq.q_facility_headroom[1].toLocaleString('en-US'); }
         document.body.classList.add('has-quarterly-liq');
       } else {
         document.body.classList.remove('has-quarterly-liq');
