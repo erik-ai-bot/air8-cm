@@ -553,7 +553,8 @@
       max-width: 100% !important;
     }
     * { box-shadow: none !important; }
-    [contenteditable="true"] { background: transparent !important; }
+    /* Only make div/span contenteditable transparent — NOT th/td (they need their dark background) */
+    div[contenteditable="true"], span[contenteditable="true"] { background: transparent !important; }
     /* Inputs transparent EXCEPT rating elements (which have .keep-color class) */
     input.editable:not(.keep-color), select.editable:not(.keep-color) {
       background: transparent !important;
