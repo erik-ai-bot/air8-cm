@@ -594,9 +594,9 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Financial table PDF: fixed layout, 100% width, KH gets max space */
+    /* Financial table PDF: number columns narrow, KH takes ALL remaining space */
     #tbl-metrics {
-      table-layout: fixed !important;
+      table-layout: auto !important;
       width: 100% !important;
       font-size: 8px !important;
     }
@@ -605,13 +605,13 @@
       font-size: 8px !important; 
       vertical-align: top !important;
     }
-    #tbl-metrics .label { width: 11% !important; }
-    #tbl-metrics .num-cell { width: 8% !important; }
-    #tbl-metrics .num-cell.q-col { width: 6% !important; }
-    #tbl-metrics .pct-cell { width: 6% !important; }
-    #tbl-metrics .pct-cell.q-col { width: 5% !important; }
+    /* Number columns: narrow as possible while showing numbers clearly */
+    #tbl-metrics .label { width: 90px !important; min-width: 70px !important; max-width: 100px !important; }
+    #tbl-metrics .num-cell { width: 60px !important; min-width: 55px !important; max-width: 70px !important; }
+    #tbl-metrics .pct-cell { width: 50px !important; min-width: 45px !important; max-width: 55px !important; }
+    /* KH column: width:99% makes it greedy — absorbs ALL remaining page width */
     td.highlight-cell, #kh-pl, #kh-bs, #kh-cf {
-      width: 35% !important;
+      width: 99% !important;
       font-size: 7.5px !important;
       white-space: normal !important;
       word-break: break-word !important;
@@ -620,6 +620,7 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
+    /* Group header rows */
     #tbl-metrics tr.group-row td { 
       background: #dbeafe !important; color: #1e40af !important; font-weight: 700 !important;
       -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
