@@ -1492,12 +1492,16 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function calcLiqYoY() {
-  const v23 = parseFloat((document.getElementById('liq-23')?.value||'').replace(/,/g,''));
-  const v24 = parseFloat((document.getElementById('liq-24')?.value||'').replace(/,/g,''));
+  const clean = id => parseFloat((document.getElementById(id)?.value||'').replace(/,/g,''));
+  const v22 = clean('liq-22');
+  const v23 = clean('liq-23');
+  const v24 = clean('liq-24');
+  const el1 = document.getElementById('liq-yoy1');
+  if (el1) el1.textContent = calcPct(v22, v23);
   const el = document.getElementById('liq-yoy');
   if (el) el.textContent = calcPct(v23, v24);
-  const qCur = parseFloat(document.getElementById('liq-q-cur')?.value);
-  const qLy = parseFloat(document.getElementById('liq-q-ly')?.value);
+  const qCur = clean('liq-q-cur');
+  const qLy = clean('liq-q-ly');
   const qEl = document.getElementById('liq-q-yoy');
   if (qEl) qEl.textContent = calcPct(qLy, qCur);
 }
@@ -1698,7 +1702,7 @@ function addMetricRowAfter(groupName) {
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-ly" style="width:66px;" placeholder="0"></td>' +
     '<td class="pct-cell calc q-col" id="m-' + id + '-qoq">-</td>' +
     '<td class="highlight-cell"><div contenteditable="true" class="rich-area" style="min-height:28px;" data-placeholder="Key highlights..."></div></td>' +
-    '<td><button onclick="this.closest('tr').remove()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:2px;" title="Delete row">✕</button></td>';
+    '<td><button onclick="this.parentNode.remove()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:2px;" title="Delete row">✕</button></td>';
   if (insertAfter && insertAfter.nextSibling) {
     tbody.insertBefore(tr, insertAfter.nextSibling);
   } else {
