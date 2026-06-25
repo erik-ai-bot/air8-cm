@@ -1254,8 +1254,6 @@
   
   <p class="small-note" style="text-align:center;margin-top:10px;">CONFIDENTIAL - FOR INTERNAL USE ONLY - AIR8 TRADE FINANCE</p>
 
-</div><!-- end #page -->
-
 
 
 <!-- APPENDIX: GROUP EXPOSURE -->
@@ -1263,7 +1261,7 @@
   <div class="section-title"><span class="num" style="background:#475569;">A</span> APPENDIX — GROUP EXPOSURE</div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
     <div style="font-size:13px;">
-      <span style="color:#64748b;font-weight:600;">Buyer Parent:</span>
+      <span style="color:#64748b;font-weight:600;">Obligor Parent:</span>
       <span id="appendix-group-name" style="font-weight:700;color:#0f172a;margin-left:8px;">—</span>
     </div>
     <div style="font-size:11px;color:#94a3b8;" id="appendix-date"></div>
@@ -1292,6 +1290,9 @@
   </table>
   <button onclick="addAppendixRow()" class="add-row-btn" style="margin-top:6px;font-size:11px;">+ Add Row</button>
 </div>
+
+</div><!-- end #page -->
+
 
 
 <script>
@@ -3389,7 +3390,7 @@ async function generateCM() {
         const profRes = await fetchWithRetry(CM_API + '/analyze/profile', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({buyer: val})
+          body: JSON.stringify({buyer: analyticsName || val})  // use parent for mktcap/website
         });
         if (profRes.ok) {
           const prof = await profRes.json();
@@ -3784,14 +3785,10 @@ function fillAir8Fields(db, product, oaDays) {
   // All calculations are in BUYER_MASTER (worker) and sums returned via /buyer-group API
   if (db.air8_limit_total_usdm) {
     var limitRaw = parseFloat(db.air8_limit_total_usdm) || 0;
-    // Google Sheet stores in USD dollars — convert to millions
-    var limitM = limitRaw > 10000 ? (limitRaw/1000000) : limitRaw; // if > 10000 it's in dollars
+    var limitM = limitRaw > 10000 ? (limitRaw/1000000) : limitRaw;
     if (limitM > 0) {
-      sv('cla-secured-exist', limitM.toFixed(2));
-      // Also pre-fill cfg-limit for autoGenRequests
       var cfgLimEl = document.getElementById('cfg-limit');
       if(cfgLimEl && !cfgLimEl.value) cfgLimEl.value = limitM.toFixed(2);
-      calcCLATotals();
     }
   }
   if (db.air8_tenor_days || oaDays) { sv('cl-fin-term', (db.air8_tenor_days || oaDays) + ' days'); sv('cl-payment-term', 'OA ' + (db.air8_tenor_days || oaDays) + ' days from shipment date'); sv('cl-supplier-days', db.air8_tenor_days || oaDays); }
