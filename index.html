@@ -3735,6 +3735,20 @@ function fillAir8Fields(db, product, oaDays) {
   // Buyer master data from Google Sheet
   // Fill new Credit Limits section fields
   if (db.air8_insurance) { sv('cla-insurer', db.air8_insurance); sv('cla-air8-insco', db.air8_insurance); }
+  // Refactoring bank (DEUTSCHE BANK, WFDBS, FCB, UOB)
+  if (db.refactoring_bank) {
+    sv('cl-refactor-bank', db.refactoring_bank);
+  }
+  // Credit Limits table — auto-fill from Excel data (values in USD dollars, convert to millions)
+  function toM(v) { return v && v > 0 ? (v / 1000000).toFixed(4) : ''; }
+  if (db.cl_secured_exist) { var sel = document.getElementById('cla-secured-exist'); if(sel) sel.value = toM(db.cl_secured_exist); }
+  if (db.cl_secured_util) { var sul = document.getElementById('cla-secured-util'); if(sul) sul.value = toM(db.cl_secured_util); }
+  if (db.cl_residual_exist) { var rel = document.getElementById('cla-residual-exist'); if(rel) rel.value = toM(db.cl_residual_exist); }
+  if (db.cl_residual_util) { var rul = document.getElementById('cla-residual-util'); if(rul) rul.value = toM(db.cl_residual_util); }
+  if (db.cl_clean_exist !== undefined) { var cel = document.getElementById('cla-clean-exist'); if(cel) cel.value = toM(db.cl_clean_exist); }
+  if (db.cl_clean_util !== undefined) { var cul = document.getElementById('cla-clean-util'); if(cul) cul.value = toM(db.cl_clean_util); }
+  if (db.credit_ins_limit) { var cil = document.getElementById('cla-air8-ins'); if(cil) cil.value = toM(db.credit_ins_limit); }
+  if (typeof calcCLATotals === 'function') calcCLATotals();
   if (db.air8_limit_total_usdm) {
     var limitRaw = parseFloat(db.air8_limit_total_usdm) || 0;
     // Google Sheet stores in USD dollars — convert to millions
