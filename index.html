@@ -825,14 +825,17 @@
       data-placeholder="Summarize: background, business operations, years of operation, key markets and market position. If subsidiary: strategic importance. If existing: relationship history and payment behavior."></div>
 
     <div class="subsection-title" style="margin-top:14px;">Requests</div>
-    <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:11px;line-height:1.7;">
-      <li>
-        <div class="rich-area" contenteditable="true" id="s1-req-1" style="min-height:32px;" data-placeholder="To [renew/increase/new] [regular insured] ARP limit of USD Xm with financing tenor up to X days @ advance ratio up to X%, subject to [insurer] credit insurance availability."></div>
+    <ol id="requests-list" style="padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:11px;line-height:1.7;">
+      <li class="req-item" style="display:flex;align-items:flex-start;gap:6px;">
+        <div class="rich-area" contenteditable="true" id="s1-req-1" style="min-height:32px;flex:1;" data-placeholder="To [renew/increase/new] [regular insured] ARP limit of USD Xm with financing tenor up to X days @ advance ratio up to X%, subject to [insurer] credit insurance availability."></div>
+        <button onclick="deleteReqItem(this)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:2px 4px;opacity:0.5;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="Delete">✕</button>
       </li>
-      <li>
-        <div class="rich-area" contenteditable="true" id="s1-req-2" style="min-height:32px;" data-placeholder="[Proposed/Reaffirmed] risk category &apos;X&apos; based on FY[XX] and Q[X] financials — [brief rationale aligned with external rating]."></div>
+      <li class="req-item" style="display:flex;align-items:flex-start;gap:6px;">
+        <div class="rich-area" contenteditable="true" id="s1-req-2" style="min-height:32px;flex:1;" data-placeholder="[Proposed/Reaffirmed] risk category &apos;X&apos; based on FY[XX] and Q[X] financials — [brief rationale aligned with external rating]."></div>
+        <button onclick="deleteReqItem(this)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:2px 4px;opacity:0.5;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="Delete">✕</button>
       </li>
     </ol>
+    <button onclick="addReqItem()" class="add-row-btn" style="margin-top:6px;font-size:11px;">+ Add Request</button>
 
     <div class="subsection-title" style="margin-top:14px;">Exceptions</div>
     <div class="rich-area" contenteditable="true" id="s1-exceptions" data-placeholder="List any exceptions to standard terms, or state 'None'."></div>
@@ -1369,8 +1372,12 @@ function buildMetricsTable() {
       sec.added = true;
       khCell = `<td rowspan="${sec.span}" id="${sec.id}" contenteditable="true" style="vertical-align:top;padding:6px 8px;min-width:200px;max-width:260px;font-size:11px;line-height:1.65;white-space:pre-wrap;border:1px solid #e2e8f0;color:#1e293b;" data-placeholder="${sec.ph}"></td>`;
     }
+    tr.dataset.group = row.group;
     tr.innerHTML = `
-      <td class="label" style="min-width:110px;">${row.label}</td>
+      <td class="label" style="min-width:110px;position:relative;">
+        ${row.label}
+        <button onclick="insertMetricRowAfter(this)" title="Add row below" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:1px solid #cbd5e1;border-radius:3px;color:#64748b;cursor:pointer;font-size:10px;padding:0 4px;line-height:16px;opacity:0;" class="insert-row-btn">+</button>
+      </td>
       ${annualCells[0]}${annualCells[1]}${annualCells[2]}
       <td class="pct-cell calc annual-yoy1" id="m-${row.id}-yoy1">-</td>
       <td class="pct-cell calc" id="m-${row.id}-yoy">-</td>
@@ -1378,6 +1385,8 @@ function buildMetricsTable() {
       <td class="pct-cell calc q-col" id="m-${row.id}-qoq">-</td>
       ${khCell}
     `;
+    tr.addEventListener('mouseenter', function() { var b=this.querySelector('.insert-row-btn'); if(b) b.style.opacity='1'; });
+    tr.addEventListener('mouseleave', function() { var b=this.querySelector('.insert-row-btn'); if(b) b.style.opacity='0'; });
     tbody.appendChild(tr);
   });
 }
@@ -1607,6 +1616,22 @@ function buildRisksTable(rows, sorText) {
 }
 
 // ── RECOMMENDATION: add / delete paragraphs ─────────────────────────
+
+// ── REQUESTS: add / delete items ──────────────────────────────────
+function addReqItem() {
+  var list = document.getElementById('requests-list');
+  var li = document.createElement('li');
+  li.className = 'req-item';
+  li.style.cssText = 'display:flex;align-items:flex-start;gap:6px;';
+  li.innerHTML = '<div class="rich-area" contenteditable="true" style="min-height:32px;flex:1;" data-placeholder="Enter request..."></div>' +
+    '<button onclick="deleteReqItem(this)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;padding:2px 4px;opacity:0.5;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="Delete">✕</button>';
+  list.appendChild(li);
+}
+function deleteReqItem(btn) {
+  var list = document.getElementById('requests-list');
+  if (list && list.querySelectorAll('.req-item').length <= 1) return;
+  btn.closest('li').remove();
+}
 function addRecPoint() {
   var ul = document.getElementById('rec-points-list');
   var li = document.createElement('li');
@@ -1674,39 +1699,49 @@ function autoSetStatus() {
 
 // ── ADD ROW to financial metrics table ──────────────────────────────
 var _customRowCount = 0;
-function addMetricRowAfter(groupName) {
+function _buildCustomRow() {
   _customRowCount++;
   var id = 'custom-' + _customRowCount;
-  var tbody = document.getElementById('metrics-body');
-  if (!tbody) return;
-  // Find last row in this group to insert after
-  var rows = tbody.querySelectorAll('tr');
-  var insertAfter = null;
-  rows.forEach(function(tr) {
-    var cls = tr.getAttribute('data-group') || tr.dataset.group || '';
-    if (cls === groupName || (tr.querySelector('.group-row') && tr.querySelector('td')?.textContent?.includes(groupName))) {
-      // This is the group header row - we need rows after it
-    }
-    if (!tr.classList.contains('group-row') && insertAfter) insertAfter = tr; // keep updating to last data row
-  });
-  // Simpler: just append at end of tbody with a label
   var tr = document.createElement('tr');
-  tr.dataset.group = groupName;
-  tr.innerHTML = '<td class="label"><div contenteditable="true" style="outline:none;min-width:60px;" placeholder="Label">Custom</div></td>' +
+  tr.className = 'custom-metric-row';
+  tr.innerHTML =
+    '<td class="label" style="position:relative;">' +
+      '<div contenteditable="true" style="outline:none;min-width:80px;font-size:11px;" data-placeholder="Label">Custom</div>' +
+      '<button onclick="insertMetricRowAfter(this.closest('tr').querySelector('.insert-row-btn') || this)" title="Add row below" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:1px solid #cbd5e1;border-radius:3px;color:#64748b;cursor:pointer;font-size:10px;padding:0 4px;line-height:16px;" class="insert-row-btn">+</button>' +
+    '</td>' +
     ['22','23','24'].map(function(yr) {
-      return '<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-' + yr + '" style="width:66px;text-align:right;" placeholder="0" oninput="calcHighlightsYoY()"></td>';
+      return '<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-' + yr + '" style="width:66px;text-align:right;" placeholder="0" oninput="calcMetrics()"></td>';
     }).join('') +
-    '<td class="pct-cell calc" id="m-' + id + '-yoy1">-</td>' +
-    '<td class="pct-cell calc" id="m-' + id + '-yoy2">-</td>' +
+    '<td class="pct-cell calc annual-yoy1" id="m-' + id + '-yoy1">-</td>' +
+    '<td class="pct-cell calc" id="m-' + id + '-yoy">-</td>' +
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-cur" style="width:66px;" placeholder="0"></td>' +
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-ly" style="width:66px;" placeholder="0"></td>' +
     '<td class="pct-cell calc q-col" id="m-' + id + '-qoq">-</td>' +
-    '<td class="highlight-cell"><div contenteditable="true" class="rich-area" style="min-height:28px;" data-placeholder="Key highlights..."></div></td>' +
-    '<td><button onclick="this.parentNode.remove()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:2px;" title="Delete row">✕</button></td>';
-  if (insertAfter && insertAfter.nextSibling) {
-    tbody.insertBefore(tr, insertAfter.nextSibling);
+    '<td><button onclick="this.closest('tr').remove()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:2px;" title="Delete row">✕</button></td>';
+  return tr;
+}
+// Insert row after the row containing the clicked + button
+function insertMetricRowAfter(btn) {
+  var refRow = btn.closest ? btn.closest('tr') : btn.parentNode;
+  if (!refRow) return;
+  var newRow = _buildCustomRow();
+  refRow.parentNode.insertBefore(newRow, refRow.nextSibling);
+}
+// Keep bottom buttons for adding to end of each group
+function addMetricRowAfter(groupName) {
+  var tbody = document.getElementById('metrics-body');
+  if (!tbody) return;
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  // Find last row with matching group
+  var lastGroupRow = null;
+  rows.forEach(function(tr) {
+    if (tr.dataset.group === groupName || tr.dataset.group === 'Ratios' && groupName === 'FCF') lastGroupRow = tr;
+  });
+  var newRow = _buildCustomRow();
+  if (lastGroupRow && lastGroupRow.nextSibling) {
+    tbody.insertBefore(newRow, lastGroupRow.nextSibling);
   } else {
-    tbody.appendChild(tr);
+    tbody.appendChild(newRow);
   }
 }
 
