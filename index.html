@@ -1761,15 +1761,30 @@ function autoSetStatus() {
 
 // ── ADD ROW to financial metrics table ──────────────────────────────
 var _customRowCount = 0;
-function _buildCustomRow() {
+// Map section group to KH cell ID
+function _groupToKH(group) {
+  if (group === 'P&L') return 'kh-pl';
+  if (group === 'BS') return 'kh-bs';
+  if (group === 'FCF' || group === 'Ratios') return 'kh-cf';
+  return null;
+}
+// Find the section group of a table row
+function _rowGroup(tr) {
+  return tr.dataset.group || tr.getAttribute('data-group') || '';
+}
+
+function _buildCustomRow(group) {
   _customRowCount++;
   var id = 'custom-' + _customRowCount;
   var tr = document.createElement('tr');
   tr.className = 'custom-metric-row';
+  if (group) tr.dataset.group = group;
+  // No KH cell — falls under existing rowspan; delete button inside label
   tr.innerHTML =
     '<td class="label" style="position:relative;">' +
       '<div contenteditable="true" style="outline:none;min-width:80px;font-size:11px;" data-placeholder="Label">Custom</div>' +
       '<button onclick="insertMetricRowAfter(this)" title="Add row below" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:1px solid #cbd5e1;border-radius:3px;color:#64748b;cursor:pointer;font-size:10px;padding:0 4px;line-height:16px;" class="insert-row-btn">+</button>' +
+      '<button onclick="deleteMetricRow(this)" title="Delete row" style="position:absolute;left:2px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ef4444;cursor:pointer;font-size:11px;padding:0 3px;line-height:16px;opacity:0;" class="del-metric-btn" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">✕</button>' +
     '</td>' +
     ['22','23','24'].map(function(yr) {
       return '<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-' + yr + '" style="width:66px;text-align:right;" placeholder="0" oninput="calcMetrics()"></td>';
@@ -1778,16 +1793,36 @@ function _buildCustomRow() {
     '<td class="pct-cell calc" id="m-' + id + '-yoy">-</td>' +
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-cur" style="width:66px;" placeholder="0"></td>' +
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-ly" style="width:66px;" placeholder="0"></td>' +
-    '<td class="pct-cell calc q-col" id="m-' + id + '-qoq">-</td>' +
-    '<td><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:2px;" title="Delete row">✕</button></td>';
+    '<td class="pct-cell calc q-col" id="m-' + id + '-qoq">-</td>';
   return tr;
 }
+
+function deleteMetricRow(btn) {
+  var tr = btn.parentNode.parentNode; // btn → td → tr
+  if (!tr) return;
+  // Decrement KH rowspan
+  var khId = _groupToKH(_rowGroup(tr));
+  if (khId) {
+    var khEl = document.getElementById(khId);
+    if (khEl && khEl.rowSpan > 1) khEl.rowSpan -= 1;
+  }
+  tr.parentNode.removeChild(tr);
+}
+
 // Insert row after the row containing the clicked + button
 function insertMetricRowAfter(btn) {
-  var refRow = btn.closest ? btn.closest('tr') : btn.parentNode;
+  var refRow = btn.parentNode;
+  while (refRow && refRow.tagName !== 'TR') refRow = refRow.parentNode;
   if (!refRow) return;
-  var newRow = _buildCustomRow();
+  var group = _rowGroup(refRow);
+  var newRow = _buildCustomRow(group);
   refRow.parentNode.insertBefore(newRow, refRow.nextSibling);
+  // Expand the KH cell rowspan to cover the new row
+  var khId = _groupToKH(group);
+  if (khId) {
+    var khEl = document.getElementById(khId);
+    if (khEl) khEl.rowSpan = (khEl.rowSpan || 1) + 1;
+  }
 }
 // Keep bottom buttons for adding to end of each group
 function addMetricRowAfter(groupName) {
