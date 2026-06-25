@@ -787,7 +787,7 @@
         </select></span>
       </div>
       <div class="header-row">
-        <span class="header-label">Buyer Parent</span>
+        <span class="header-label">Obligor Parent</span>
         <span class="header-value"><input type="text" class="editable" id="h-buyer-group" placeholder="Parent Company Name"></span>
       </div>
       <div class="header-row">
@@ -869,7 +869,7 @@
       <div class="info-box">
         <div class="info-box-title">Company Details</div>
         <div class="info-row">
-          <span class="info-label">Buyer Parent</span>
+          <span class="info-label">Obligor Parent</span>
           <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
         </div>
         <div class="info-row">
@@ -1276,6 +1276,7 @@
         <th style="padding:8px 10px;text-align:right;font-weight:700;">Insurance Limit (USD)</th>
         <th style="padding:8px 10px;text-align:left;font-weight:700;">Insurance Company</th>
         <th style="padding:8px 10px;text-align:left;font-weight:700;">Funder</th>
+        <th style="padding:8px 10px;width:30px;"></th>
       </tr>
     </thead>
     <tbody id="appendix-tbody">
@@ -1285,10 +1286,11 @@
         <td style="padding:8px 10px;font-weight:700;color:#1e40af;">Total</td>
         <td id="appendix-total-insured" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
         <td id="appendix-total-insurance" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
-        <td colspan="2"></td>
+        <td colspan="3"></td>
       </tr>
     </tfoot>
   </table>
+  <button onclick="addAppendixRow()" class="add-row-btn" style="margin-top:6px;font-size:11px;">+ Add Row</button>
 </div>
 
 
@@ -2815,6 +2817,7 @@ function closeDraftDropdown() {
 
 async function loadDraft(id) {
   closeDraftDropdown();
+  window._obligorDisplayName = null; window._obligorParent = null; window._groupSums = null;
   try {
     const dataResp = await fetch(CM_API + '/drafts/get?id=' + id);
     const { data, meta } = await dataResp.json();
@@ -2909,11 +2912,13 @@ async function loadGroupAppendix(buyerGroup) {
       var fmt = function(n) { return n > 0 ? n.toLocaleString('en-US') : '—'; };
       var tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #e2e8f0';
-      tr.innerHTML = '<td style="padding:7px 10px;">' + (b.name||'') + '</td>' +
-        '<td style="padding:7px 10px;text-align:right;">' + fmt(insured) + '</td>' +
-        '<td style="padding:7px 10px;text-align:right;">' + fmt(insurance) + '</td>' +
-        '<td style="padding:7px 10px;">' + (b.insurance_company||'') + '</td>' +
-        '<td style="padding:7px 10px;">' + (b.funder||'') + '</td>';
+      tr.innerHTML =
+        '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:80px;">' + (b.name||'') + '</div></td>' +
+        '<td style="padding:4px 6px;text-align:right;"><input type="text" value="' + (insured > 0 ? fmt(insured) : '') + '" style="text-align:right;width:90px;border:none;background:transparent;font-size:12px;" placeholder="—"></td>' +
+        '<td style="padding:4px 6px;text-align:right;"><input type="text" value="' + (insurance > 0 ? fmt(insurance) : '') + '" style="text-align:right;width:90px;border:none;background:transparent;font-size:12px;" placeholder="—"></td>' +
+        '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:60px;">' + (b.insurance_company||'') + '</div></td>' +
+        '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:60px;">' + (b.funder||'') + '</div></td>' +
+        '<td style="padding:2px 4px;"><button onclick="deleteAppendixRow(this)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Delete">✕</button></td>';
       tbody.appendChild(tr);
     });
     
@@ -2924,6 +2929,26 @@ async function loadGroupAppendix(buyerGroup) {
     
     section.style.display = 'block';
   } catch(e) { console.warn('Appendix load failed:', e); }
+}
+
+function deleteAppendixRow(btn) {
+  var r = btn;
+  while (r && r.tagName !== 'TR') r = r.parentNode;
+  if (r) r.parentNode.removeChild(r);
+}
+function addAppendixRow() {
+  var tbody = document.getElementById('appendix-tbody');
+  if (!tbody) return;
+  var tr = document.createElement('tr');
+  tr.style.borderBottom = '1px solid #e2e8f0';
+  tr.innerHTML =
+    '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:80px;" data-placeholder="Obligor name">—</div></td>' +
+    '<td style="padding:4px 6px;text-align:right;"><input type="text" style="text-align:right;width:90px;border:none;background:transparent;font-size:12px;" placeholder="—"></td>' +
+    '<td style="padding:4px 6px;text-align:right;"><input type="text" style="text-align:right;width:90px;border:none;background:transparent;font-size:12px;" placeholder="—"></td>' +
+    '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:60px;">—</div></td>' +
+    '<td style="padding:4px 6px;"><div contenteditable="true" style="outline:none;min-width:60px;">—</div></td>' +
+    '<td style="padding:2px 4px;"><button onclick="deleteAppendixRow(this)" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;opacity:0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Delete">✕</button></td>';
+  tbody.appendChild(tr);
 }
 
 // Close dropdown on outside click
@@ -3286,7 +3311,7 @@ async function generateCM() {
     const dbRes = await fetchWithRetry(CM_API + '/generate', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({buyer: val, product, oa_days: oaDays, ciq_data: window._ciqData || null, prev_cm: prevCmSnippet, mode: mode, db_only: true})
+      body: JSON.stringify({buyer: val, original_buyer: val, product, oa_days: oaDays, ciq_data: window._ciqData || null, prev_cm: prevCmSnippet, mode: mode, db_only: true})
     });
     const dbData = await dbRes.json();
     if (dbData.error) throw new Error(dbData.error);
@@ -3322,17 +3347,20 @@ async function generateCM() {
         var hNameEl = document.getElementById('h-buyer-name');
         var obligorText;
         if (n <= 3) {
-          // Show all names
           obligorText = grpData.buyers.map(function(b) { return b.name; }).join(' / ');
         } else {
-          // Show parent + count
           obligorText = resolvedGroup + ' and its subsidiaries (' + n + ' entities)';
         }
+        // Set display fields — ONLY s2-obligor and h-buyer-name for display
+        // Do NOT change buyer-search (keep as original input "Newton" for all lookups)
         if (obligorEl) obligorEl.value = obligorText;
-        if (hNameEl && !hNameEl.value) hNameEl.value = obligorText;
-        // Also update buyer parent field
+        if (hNameEl) hNameEl.value = obligorText; // header shows group name
+        // Obligor Parent = the resolved parent group name
         var grpEl = document.getElementById('h-buyer-group');
-        if (grpEl && !grpEl.value) grpEl.value = resolvedGroup;
+        if (grpEl) grpEl.value = resolvedGroup;
+        // Store for fillAir8Fields to not overwrite
+        window._obligorDisplayName = obligorText;
+        window._obligorParent = resolvedGroup;
         // Load appendix with group data
         if (typeof loadGroupAppendix === 'function') loadGroupAppendix(resolvedGroup);
         
