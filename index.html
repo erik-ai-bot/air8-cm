@@ -2641,6 +2641,8 @@ async function loadDraft(id) {
     if (typeof calcMetrics === 'function') calcMetrics();
     if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
     if (typeof calcLiqYoY === 'function') calcLiqYoY();
+    // Apply rating colors AFTER all fields restored — updates Section 2 + Section 7 spans
+    if (typeof applyRatingColors === 'function') applyRatingColors();
     window._lastDraftId = id;
     const msg = document.getElementById('generate-msg');
     msg.style.display = 'inline';
