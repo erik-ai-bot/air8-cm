@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air8 Credit Memo Tool — User Manual</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+  
+  /* Header */
+  .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color: white; padding: 40px 0; text-align: center; }
+  .header h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { color: #94a3b8; margin-top: 8px; font-size: 15px; }
+  .header .badge { display: inline-block; background: #f97316; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; }
+  
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+  
+  /* TOC */
+  .toc { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 32px 0; }
+  .toc h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 12px; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toc a { display: flex; align-items: center; gap: 8px; color: #2563eb; text-decoration: none; font-size: 13px; padding: 4px 0; }
+  .toc a:hover { text-decoration: underline; }
+  .toc-num { background: #dbeafe; color: #1d4ed8; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  
+  /* Section */
+  .section { margin: 40px 0; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .section-num { background: #0f172a; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+  .section-title { font-size: 22px; font-weight: 700; color: #0f172a; }
+  
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step { display: flex; gap: 16px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; }
+  .step-icon { font-size: 28px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-content h4 { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .step-content p { font-size: 13px; color: #475569; }
+  .step-content code { background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: monospace; }
+  
+  /* UI Diagram */
+  .ui-diagram { background: #0f172a; border-radius: 12px; padding: 3px; margin: 20px 0; overflow: hidden; }
+  .ui-titlebar { background: #1e293b; padding: 8px 14px; display: flex; align-items: center; gap: 6px; border-radius: 9px 9px 0 0; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ef4444; } .dot-y { background: #f59e0b; } .dot-g { background: #22c55e; }
+  .ui-url { flex: 1; background: #334155; color: #94a3b8; font-size: 11px; padding: 2px 10px; border-radius: 4px; margin: 0 8px; }
+  .ui-body { display: flex; background: #1e293b; min-height: 200px; border-radius: 0 0 9px 9px; overflow: hidden; }
+  .ui-toolbar { background: #0f172a; padding: 8px 12px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #334155; font-size: 11px; color: #64748b; }
+  .ui-toolbar span { background: #1d4ed8; color: white; padding: 3px 10px; border-radius: 5px; font-weight: 600; font-size: 11px; cursor: pointer; }
+  .ui-main { flex: 1; display: flex; flex-direction: column; }
+  .ui-sidebar { width: 240px; background: #0f1117; padding: 12px; border-right: 1px solid #334155; }
+  .ui-sidebar-title { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .ui-field { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; color: #94a3b8; font-size: 11px; }
+  .ui-field label { display: block; color: #64748b; font-size: 10px; margin-bottom: 2px; }
+  .ui-btn { background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 4px; }
+  .ui-btn-purple { background: #7c3aed; }
+  .ui-content { flex: 1; padding: 12px; }
+  .ui-section-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .ui-section-box h5 { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .ui-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .ui-cell { background: #334155; border-radius: 4px; padding: 4px; text-align: center; font-size: 10px; color: #94a3b8; }
+  .ui-cell.highlight { background: #1d4ed8; color: white; }
+  
+  /* Callout boxes */
+  .tip { background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+  .tip-icon { font-size: 18px; margin-right: 8px; }
+  .tip h4 { font-size: 13px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+  .tip p { font-size: 12px; color: #78350f; }
+  .info { background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+  .info h4 { font-size: 13px; font-weight: 700; color: #1d40af; margin-bottom: 4px; }
+  .info p, .info li { font-size: 12px; color: #1e3a8a; }
+  .info ul { padding-left: 16px; margin-top: 4px; }
+  .success { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #22c55e; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+  .success h4 { font-size: 13px; font-weight: 700; color: #14532d; margin-bottom: 4px; }
+  .success p { font-size: 12px; color: #166534; }
+  
+  /* Method cards */
+  .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  .method-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; text-align: center; }
+  .method-card .icon { font-size: 36px; margin-bottom: 10px; }
+  .method-card h4 { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+  .method-card p { font-size: 12px; color: #64748b; }
+  .method-card .badge { display: inline-block; background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-top: 8px; }
+  .method-card.recommended { border: 2px solid #f97316; position: relative; }
+  .method-card.recommended::after { content: "⭐ Recommended"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #f97316; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  
+  /* Section table */
+  .section-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; margin: 16px 0; }
+  .section-table th { background: #0f172a; color: white; padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 600; word-break: normal; white-space: normal; }
+  .section-table th:nth-child(1) { width: 28%; }
+  .section-table th:nth-child(2) { width: 45%; }
+  .section-table th:nth-child(3) { width: 27%; }
+  .section-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+  .section-table tr:last-child td { border-bottom: none; }
+  .section-table tr:hover td { background: #f8fafc; }
+  .sec-num { background: #0f172a; color: white; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  
+  /* Flow diagram */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; padding: 16px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; }
+  .flow-step { background: #0f172a; color: white; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .flow-arrow { color: #64748b; font-size: 18px; }
+  
+  /* Troubleshooting */
+  .trouble-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; margin: 16px 0; }
+  .trouble-table th { background: #fef2f2; color: #991b1b; padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 700; }
+  .trouble-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #fef2f2; vertical-align: top; }
+  .trouble-table tr:last-child td { border-bottom: none; }
+  .problem { color: #991b1b; font-weight: 600; }
+  .solution { color: #166534; }
+  
+  /* Rating colors */
+  .rating-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+  .rating-card { border-radius: 10px; padding: 14px; text-align: center; color: white; }
+  .rating-card h3 { font-size: 28px; font-weight: 900; }
+  .rating-card p { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+  .r-a { background: #16a34a; }
+  .r-b { background: #d97706; }
+  .r-c { background: #ea580c; }
+  .r-d { background: #dc2626; }
+  
+  /* Screenshot placeholder */
+  .screenshot { background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; text-align: center; color: #94a3b8; font-size: 13px; margin: 12px 0; }
+  
+  /* Footer */
+  .footer { background: #0f172a; color: #64748b; text-align: center; padding: 24px; margin-top: 60px; font-size: 12px; }
+  .footer a { color: #94a3b8; }
+  
+  @media (max-width: 640px) {
+    .method-grid { grid-template-columns: 1fr; }
+    .rating-grid { grid-template-columns: repeat(2, 1fr); }
+    .toc-grid { grid-template-columns: 1fr; }
+    .ui-sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="container">
+    <div class="badge">User Manual v1.0</div>
+    <h1>Air8 Credit Memo Tool</h1>
+    <p>Complete guide to generating, editing and exporting credit memos</p>
+    <a href="https://air8-cm.pages.dev" target="_blank" style="display:inline-block;margin-top:18px;background:#f97316;color:white;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:15px;font-weight:700;letter-spacing:0.3px;">⚡ Open Credit Memo Tool →</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- Quick Flow -->
+<div class="section">
+  <div class="flow">
+    <div class="flow-step">☰ Open Sidebar</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Enter Buyer</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Paste Screenshot / AI</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">⚡ Generate</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Review &amp; Edit</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🖨 Export PDF</div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Contents</h3>
+  <div class="toc-grid">
+    <a href="#step1"><span class="toc-num">1</span> Open the Sidebar</a>
+    <a href="#step2"><span class="toc-num">2</span> Configure Settings</a>
+    <a href="#step3"><span class="toc-num">3</span> Add Financial Data</a>
+    <a href="#step4"><span class="toc-num">4</span> Generate the CM</a>
+    <a href="#step5"><span class="toc-num">5</span> Review &amp; Edit</a>
+    <a href="#step6"><span class="toc-num">6</span> Section Guide</a>
+    <a href="#step7"><span class="toc-num">7</span> Save &amp; Load Drafts</a>
+    <a href="#step8"><span class="toc-num">8</span> Export to PDF</a>
+    <a href="#step9"><span class="toc-num">9</span> Rating Colors</a>
+    <a href="#step10"><span class="toc-num">!</span> Troubleshooting</a>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<div class="section" id="step1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">Open the Sidebar</div>
+  </div>
+
+  <!-- UI Diagram -->
+  <div class="ui-diagram">
+    <div class="ui-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="ui-url">air8-cm-api.erik-ai-bot-001.workers.dev</div>
+    </div>
+    <div class="ui-main">
+      <div class="ui-toolbar">
+        <span>⚡ Generate</span>
+        <span style="background:#334155;">💾 Save Draft</span>
+        <span style="background:#334155;">📂 Load Saved</span>
+        <span style="background:#334155;">✕ Clear</span>
+        <span style="background:#334155;">🖨 Export PDF</span>
+        <span style="background:#1d4ed8;margin-left:auto;">☰</span>
+      </div>
+      <div style="padding:20px;color:#475569;font-size:13px;text-align:center;margin-top:40px;">
+        Click <strong style="background:#1d4ed8;color:white;padding:2px 8px;border-radius:4px;">☰</strong> in the top-right corner to open the configuration sidebar →
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <h4>ℹ️ The sidebar opens on the right side</h4>
+    <p>All configuration is done in the sidebar. The main page is the credit memo form. Sidebar is open by default when you first load the page.</p>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="section" id="step2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">Configure Settings</div>
+  </div>
+
+  <!-- Sidebar diagram -->
+  <div class="ui-diagram">
+    <div class="ui-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="ui-url">Configuration</div>
+    </div>
+    <div class="ui-body">
+      <div class="ui-sidebar" style="width:100%;max-width:260px;">
+        <div class="ui-sidebar-title">⚙️ Configuration</div>
+        <div class="ui-field"><label>Buyer Name</label>e.g. Walmart</div>
+        <div class="ui-field"><label>CM Mode</label>✨ New CM &nbsp;|&nbsp; 📋 Renewal</div>
+        <div class="ui-field"><label>Product</label>ARP (default)</div>
+        <div class="ui-field"><label>OA Tenor</label>90 days</div>
+        <div class="ui-field"><label>Advance Ratio</label>90 %</div>
+        <div style="border-top:1px solid #334155;margin:8px 0;"></div>
+        <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Credit Limit</div>
+        <div class="ui-field"><label>Limit (USD m)</label>e.g. 20</div>
+        <div class="ui-field"><label>From (USD m)</label>e.g. 3 (previous)</div>
+        <div class="ui-field"><label>Insurance</label>Regular insured</div>
+        <div class="ui-field"><label>Insurer</label>Allianz / ECIC ...</div>
+        <div class="ui-btn">✍ Auto-generate Requests</div>
+        <div style="border-top:1px solid #334155;margin:8px 0;"></div>
+        <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Data Sources</div>
+        <div class="ui-btn ui-btn-purple">📋 Paste Table Screenshot</div>
+        <div class="ui-btn" style="background:#334155;margin-top:6px;">⚡ Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="section-table">
+    <tr><th>Field</th><th>What to Enter</th><th>Example</th></tr>
+    <tr><td><strong>Buyer Name</strong></td><td>Company name to search</td><td>Walmart, Amazon, BJ's</td></tr>
+    <tr><td><strong>CM Mode</strong></td><td>New CM = fresh buyer | Renewal = existing</td><td>✨ New CM</td></tr>
+    <tr><td><strong>Product</strong></td><td>Trade finance product type</td><td>ARP (default)</td></tr>
+    <tr><td><strong>OA Tenor</strong></td><td>Days for open account</td><td>90</td></tr>
+    <tr><td><strong>Advance Ratio</strong></td><td>% advance rate</td><td>90</td></tr>
+    <tr><td><strong>Limit (USD m)</strong></td><td>Proposed credit limit in millions</td><td>20</td></tr>
+    <tr><td><strong>From (USD m)</strong></td><td>Previous limit (for Increase/Reduce)</td><td>3</td></tr>
+    <tr><td><strong>Insurance</strong></td><td>Insurance structure type</td><td>Regular insured</td></tr>
+    <tr><td><strong>Insurer</strong></td><td>Insurance company</td><td>Allianz, ECIC, Sinosure</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4><span class="tip-icon">💡</span>Auto-generate Request</h4>
+    <p>After filling in Limit, From, Insurance and Insurer — click <strong>"✍ Auto-generate Requests"</strong>. The first request sentence is automatically written and fills into Section 1 of the CM. You can edit it afterwards.</p>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="section" id="step3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">Add Financial Data</div>
+  </div>
+
+  <!-- Paste button diagram -->
+  <div class="ui-diagram" style="margin-bottom:20px;">
+    <div class="ui-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="ui-url">Sidebar — Data Sources</div>
+    </div>
+    <div class="ui-body">
+      <div class="ui-sidebar" style="width:100%;max-width:280px;">
+        <div style="color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📊 Data Sources</div>
+        <div class="ui-btn" style="background:#334155;margin-bottom:8px;">⚡ AI Auto-Fetch</div>
+        <div style="position:relative;">
+          <div class="ui-btn" style="background:#7c3aed;border:3px solid #ef4444;box-shadow:0 0 10px rgba(239,68,68,0.6);margin-bottom:2px;">📋 Paste Table Screenshot</div>
+          <div style="text-align:center;color:#ef4444;font-size:11px;font-weight:700;letter-spacing:0.5px;margin-top:4px;">▲ Step 2: Click this button, then press Ctrl+V</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="icon">🤖</div>
+      <h4>Method A: AI Search</h4>
+      <p>Just click Generate — AI fetches financials from official filings automatically</p>
+      <div class="badge">Public listed companies</div>
+    </div>
+    <div class="method-card recommended">
+      <div class="icon">📋</div>
+      <h4>Method B: Screenshot Paste</h4>
+      <p>Screenshot CIQ table → Ctrl+C → Click "📋 Paste Table Screenshot" → Ctrl+V</p>
+      <div class="badge" style="background:#fef3c7;color:#92400e;">Most accurate</div>
+    </div>
+    <div class="method-card">
+      <div class="icon">✏️</div>
+      <h4>Method C: Manual Entry</h4>
+      <p>Type directly into any cell in Section 5 Key Financial Metrics table</p>
+      <div class="badge">Any source</div>
+    </div>
+  </div>
+
+  <div class="success">
+    <h4>✅ Screenshot Paste — Step by Step</h4>
+    <p><strong>1.</strong> Open CIQ factsheet → Screenshot the <em>Key Financial Metrics</em> table → <strong>Ctrl+C</strong><br>
+    <strong>2.</strong> In the sidebar, click <strong>"📋 Paste Table Screenshot"</strong><br>
+    <strong>3.</strong> Press <strong>Ctrl+V</strong> anywhere on the page<br>
+    <strong>4.</strong> Status shows: "✅ Screenshot 1 merged! Rev: $713,163M..."<br>
+    <strong>5.</strong> Repeat for Liquidity Metrics table (data merges automatically)</p>
+  </div>
+
+  <div class="info">
+    <h4>ℹ️ What each screenshot captures</h4>
+    <ul>
+      <li><strong>Key Financial Metrics table</strong> → Revenue, EBITDA, Net Profit, Cash, Debt, Equity, FCF, all ratios (CCC, Net Debt/EBITDA, EBITDA/Interest, Current Ratio), quarterly data</li>
+      <li><strong>Liquidity Metrics table</strong> → Facility headroom (annual + quarterly if shown)</li>
+      <li>You can paste <strong>multiple screenshots</strong> — data merges automatically</li>
+    </ul>
+  </div>
+
+  <div class="tip">
+    <h4><span class="tip-icon">⚠️</span>If screenshot shows $0M</h4>
+    <p>CIQ Excel files need to be opened in Excel first (to load live data), then saved, then screenshotted. If you paste directly without opening in Excel, the values will be empty.</p>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="section" id="step4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">Generate the CM</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">⚡</div>
+      <div class="step-content">
+        <h4>Click "⚡ Generate" in the toolbar</h4>
+        <p>The AI fetches financials (if no CIQ data) and writes the full analysis. Takes ~40-60 seconds. Status shows: "⏳ Fetching financials... → ⏳ Writing analysis..."</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">📋</div>
+      <div class="step-content">
+        <h4>If a saved draft exists — choose your path</h4>
+        <p>You'll see: <strong>"📂 Continue draft"</strong> or <strong>"⚡ Fresh search"</strong><br>
+        → Click <strong>"⚡ Fresh search"</strong> to generate with latest data (recommended)<br>
+        → Click <strong>"📂 Continue draft"</strong> to load your last saved work</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">✅</div>
+      <div class="step-content">
+        <h4>Generation complete</h4>
+        <p>All sections fill automatically: financial table, key highlights, executive summary, recommendation, risks, source of repayment, action plan. Today's date fills in the header. Rating color is applied.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="section" id="step5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">Review &amp; Edit</div>
+  </div>
+
+  <p style="color:#475569;font-size:14px;margin-bottom:16px;">After generation, <strong>every field is editable</strong> — click any text, number, or dropdown to change it.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">🔢</div>
+      <div class="step-content">
+        <h4>Financial numbers — Section 5 Key Financial Metrics</h4>
+        <p>Click any number to edit. Numbers show with thousands separators (648,125). The YoY % and ratios auto-recalculate. Column headers (Jan-24, Jan-25...) can also be clicked to rename.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">📝</div>
+      <div class="step-content">
+        <h4>Text boxes — Executive Summary, Recommendation, Key Highlights</h4>
+        <p>Click inside any box to edit. Recommendation paragraph labels ("Business Profile", "Outlook" etc.) can also be clicked and renamed.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">🎯</div>
+      <div class="step-content">
+        <h4>Rating — Current / Proposed</h4>
+        <p>Click the dropdown to change (A/B/C/D). The color updates automatically: <strong style="color:#16a34a">A=Green</strong> | <strong style="color:#d97706">B=Amber</strong> | <strong style="color:#ea580c">C=Orange</strong> | <strong style="color:#dc2626">D=Red</strong></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">⚠️</div>
+      <div class="step-content">
+        <h4>Risks section — Section 9</h4>
+        <p>The first row is always "Source of Repayment". Rows 2-4 are risks. Each row has a Risk Level dropdown (High/Medium/Low), editable description, and editable mitigant. Click "+ Add Risk Row" to add more.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="section" id="step6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div class="section-title">Section Guide</div>
+  </div>
+
+  <table class="section-table">
+    <tr><th>Section</th><th>Contents</th><th>Auto-filled?</th></tr>
+    <tr><td><span class="sec-num">1</span> <strong>Executive Summary</strong></td><td>Company description + Request sentences</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">2</span> <strong>Buyer Information</strong></td><td>Company details, ratings, market cap, website</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">3</span> <strong>Financial Highlights</strong></td><td>Summary table: Turnover, EBITDA, Debt, Equity, FCF</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">4</span> <strong>Credit Limits</strong></td><td>Facility (Secured/Residual/Clean) + Refactoring + metadata</td><td>⚡ Partial</td></tr>
+    <tr><td><span class="sec-num">5</span> <strong>Key Financial Metrics</strong></td><td>Full table with all metrics + quarterly columns</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">6</span> <strong>Liquidity Metrics</strong></td><td>Facility headroom annual + quarterly</td><td>📋 From paste</td></tr>
+    <tr><td><span class="sec-num">7</span> <strong>Obligor Ratings</strong></td><td>Air8 credit score + rationale text</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">8</span> <strong>Recommendation</strong></td><td>4 paragraphs + Action Plan (2 items)</td><td>✅ Yes</td></tr>
+    <tr><td><span class="sec-num">9</span> <strong>Key Risks &amp; Mitigants</strong></td><td>Source of Repayment + 3 risk rows</td><td>✅ Yes</td></tr>
+    <tr><td>📊 <strong>Key Highlights</strong></td><td>3 bullet boxes below Section 5 (P&L / BS / CF)</td><td>✅ Yes</td></tr>
+  </table>
+
+  <div class="info">
+    <h4>ℹ️ Section 4 Credit Limits — manual items to check</h4>
+    <ul>
+      <li>Insurer auto-fills from buyer master (Google Sheet)</li>
+      <li>Secured limit amount: from buyer master or enter manually</li>
+      <li>Advance Rate: auto-fills from sidebar Advance Ratio setting</li>
+      <li>Payment Delay Days, Dilution Rate, GMV: enter from actual records</li>
+    </ul>
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<div class="section" id="step7">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div class="section-title">Save &amp; Load Drafts</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">💾</div>
+      <div class="step-content">
+        <h4>Save Draft</h4>
+        <p>Click <strong>"💾 Save Draft"</strong> in the toolbar. If a draft already exists, you'll be asked to override or save as a new version. Drafts are saved to Notion automatically.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">📂</div>
+      <div class="step-content">
+        <h4>Load Saved Draft</h4>
+        <p>1. Type buyer name in the search box<br>
+        2. Click <strong>"⚡ Generate"</strong><br>
+        3. If a draft exists → you'll see <strong>"📂 Continue draft"</strong> and <strong>"⚡ Fresh search"</strong><br>
+        4. Click <strong>"📂 Continue draft"</strong> to restore your saved work</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4><span class="tip-icon">⚠️</span>Important: Always use Fresh Search for updated financials</h4>
+    <p>If you want the latest AI-generated financial data, always click <strong>"⚡ Fresh search"</strong>. Loading an old draft will show the financial figures from when you last saved.</p>
+  </div>
+</div>
+
+<!-- STEP 8 -->
+<div class="section" id="step8">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div class="section-title">Export to PDF</div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon">🖨</div>
+      <div class="step-content">
+        <h4>Click "🖨 Export PDF" in the toolbar</h4>
+        <p>The browser's print dialog opens. Select "Save as PDF" as the destination. All input values are converted to visible text automatically before printing.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-icon">✅</div>
+      <div class="step-content">
+        <h4>Export also auto-saves your draft</h4>
+        <p>Every export automatically saves the current state to Notion. No need to manually save before exporting.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4><span class="tip-icon">💡</span>Best PDF results</h4>
+    <p>• Make sure all financial data is filled in before exporting<br>
+    • Review all text sections first<br>
+    • In the print dialog: set margins to "Default" or "Minimum"<br>
+    • Page size: A4</p>
+  </div>
+</div>
+
+<!-- STEP 9 -->
+<div class="section" id="step9">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div class="section-title">Rating Colors</div>
+  </div>
+
+  <div class="rating-grid">
+    <div class="rating-card r-a"><h3>A</h3><p>Low Risk<br>Green</p></div>
+    <div class="rating-card r-b"><h3>B</h3><p>Average Risk<br>Amber</p></div>
+    <div class="rating-card r-c"><h3>C</h3><p>Above Avg Risk<br>Orange</p></div>
+    <div class="rating-card r-d"><h3>D</h3><p>High Risk<br>Red</p></div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;margin-top:8px;">The rating color applies to the Current/Proposed rating dropdown, score field, and Section 2 Air8 Obligor Rating. It updates automatically when you change the rating.</p>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="step10">
+  <div class="section-header">
+    <div class="section-num" style="background:#ef4444;">!</div>
+    <div class="section-title">Troubleshooting</div>
+  </div>
+
+  <table class="trouble-table">
+    <tr><th>Problem</th><th>Solution</th></tr>
+    <tr>
+      <td class="problem">Page looks outdated / changes not showing</td>
+      <td class="solution">Press <strong>Cmd+Shift+R</strong> (Mac) or <strong>Ctrl+Shift+R</strong> (Windows) for a hard refresh</td>
+    </tr>
+    <tr>
+      <td class="problem">Financial table shows 0 after loading draft</td>
+      <td class="solution">Click <strong>"⚡ Fresh search"</strong> instead of "Continue draft" to regenerate with latest data</td>
+    </tr>
+    <tr>
+      <td class="problem">Pasted screenshot shows $0M in status</td>
+      <td class="solution">Open the CIQ file in Excel first (so CIQ loads the data), then take the screenshot</td>
+    </tr>
+    <tr>
+      <td class="problem">Sidebar not visible</td>
+      <td class="solution">Click the <strong>☰</strong> button in the top-right corner</td>
+    </tr>
+    <tr>
+      <td class="problem">Recommendation boxes empty after loading draft</td>
+      <td class="solution">Old drafts (before June 24) don't have rec content. Generate fresh with <strong>"⚡ Fresh search"</strong></td>
+    </tr>
+    <tr>
+      <td class="problem">Liquidity metrics period shows FY2022/2023/2024</td>
+      <td class="solution">Click <strong>"⚡ Fresh search"</strong> to regenerate. Periods sync to the financial table after generate</td>
+    </tr>
+    <tr>
+      <td class="problem">PDF missing financial numbers</td>
+      <td class="solution">Generate fresh before exporting. Old drafts may have empty financial inputs</td>
+    </tr>
+    <tr>
+      <td class="problem">Rating color not showing</td>
+      <td class="solution">Click the rating dropdown and select a value (A/B/C/D) — color applies on selection</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Quick Reference -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num" style="background:#2563eb;">⌨</div>
+    <div class="section-title">Quick Reference — Key Actions</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0;">
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">📋 Paste Screenshot</div>
+      <p style="font-size:12px;color:#475569;">1. Screenshot CIQ table → Ctrl+C<br>2. Click "📋 Paste Table Screenshot" in sidebar<br>3. Press Ctrl+V on the page<br>4. Repeat for other tables</p>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">✍ Auto-generate Request</div>
+      <p style="font-size:12px;color:#475569;">1. Fill Limit, Insurer in sidebar<br>2. Click "✍ Auto-generate Requests"<br>3. Request sentence fills into Section 1<br>4. Edit if needed</p>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">💾 Save / Load</div>
+      <p style="font-size:12px;color:#475569;">Save: Click "💾 Save Draft"<br>Load: Type buyer → Generate → "📂 Continue draft"<br>Export = auto-save</p>
+    </div>
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">🔄 Hard Refresh</div>
+      <p style="font-size:12px;color:#475569;">If changes don't show:<br>Mac: <code style="background:#f1f5f9;padding:2px 6px;border-radius:3px;font-size:11px;">Cmd+Shift+R</code><br>Windows: <code style="background:#f1f5f9;padding:2px 6px;border-radius:3px;font-size:11px;">Ctrl+Shift+R</code></p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  <div class="container">
+    <p><strong style="color:#e2e8f0;">Air8 Credit Memo Tool</strong> &nbsp;·&nbsp; 
+    <a href="https://air8-cm-api.erik-ai-bot-001.workers.dev/">Open Tool ↗</a> &nbsp;·&nbsp; 
+    For support, contact the Air8 credit team</p>
+    <p style="margin-top:6px;">Version 1.0 &nbsp;·&nbsp; June 2026</p>
+  </div>
+</div>
+
+</body>
+</html>

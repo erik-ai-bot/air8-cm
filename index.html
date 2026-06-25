@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Memorandum - Air8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #f0f2f5;
+    line-height: 1.5;
+  }
+
+  /* ===== TOOLBAR ===== */
+  #toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: #1a1a2e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    flex-wrap: wrap;
+  }
+  #toolbar .logo {
+    font-weight: 700;
+    font-size: 14px;
+    color: #2563eb;
+    letter-spacing: 0.05em;
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+  #toolbar .logo span { color: #fff; font-weight: 300; }
+  #toolbar input[type="text"] {
+    background: #2d2d4a;
+    border: 1px solid #44446a;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    width: 180px;
+    outline: none;
+  }
+  #toolbar input[type="text"]::placeholder { color: #888; }
+  .tb-btn {
+    background: #2d2d4a;
+    border: 1px solid #44446a;
+    color: #ccc;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tb-btn:hover { background: #3d3d5a; color: #fff; }
+  .tb-btn.primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    font-weight: 600;
+  }
+  .tb-btn.primary:hover { background: #ea6c0a; }
+  .tb-sep { width: 1px; height: 24px; background: #44446a; }
+
+  /* ===== PAGE LAYOUT ===== */
+  #page {
+    max-width: 880px;
+    margin: 70px auto 40px;
+    background: #fff;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.12);
+    padding: 40px 48px;
+  }
+
+  /* ===== SECTION STRUCTURE ===== */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: #2563eb;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .num {
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-size: 11px;
+  }
+  .subsection-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #2563eb;
+    border-bottom: 2px solid #fed7aa;
+    padding-bottom: 4px;
+    margin: 16px 0 10px;
+  }
+
+  /* ===== EDITABLE FIELDS ===== */
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 3px;
+    transition: background 0.15s;
+    min-height: 1em;
+  }
+  [contenteditable="true"]:hover,
+  [contenteditable="true"]:focus {
+    background: #eff6ff;
+    box-shadow: 0 0 0 1px #bfdbfe;
+  }
+  [contenteditable="true"][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  input[type="text"].editable,
+  input[type="number"].editable,
+  input[type="date"].editable,
+  select.editable {
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    padding: 2px 6px;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  input[type="text"].editable:hover,
+  input[type="number"].editable:hover,
+  input[type="date"].editable:hover,
+  select.editable:hover,
+  input[type="text"].editable:focus,
+  input[type="number"].editable:focus,
+  input[type="date"].editable:focus,
+  select.editable:focus {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+  input[type="number"].editable {
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  input[type="number"].editable::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .calc { color: #64748b; font-style: italic; }
+
+  /* ===== HEADER SECTION ===== */
+  .cm-header {
+    border: 2px solid #2563eb;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .cm-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #1a1a2e;
+    border-bottom: 3px solid #2563eb;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px dotted #e2e8f0;
+  }
+  .header-row:last-child { border-bottom: none; }
+  .header-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 130px;
+    flex-shrink: 0;
+  }
+  .header-value {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .risk-cat-row {
+    grid-column: span 2;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px dotted #e2e8f0;
+    border-top: 1px dotted #e2e8f0;
+  }
+  .risk-cat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 100px;
+  }
+  .risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .risk-badge.current { background: #fef3c7; color: #b45309; }
+  .risk-badge.proposed { background: #dcfce7; color: #15803d; }
+
+  /* ===== TABLES ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 7px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+  th.left { text-align: left; }
+  td {
+    border: 1px solid #e2e8f0;
+    padding: 5px 8px;
+    vertical-align: middle;
+  }
+  td.label {
+    font-weight: 500;
+    color: #374151;
+    background: #f8fafc;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  td.label.indent { padding-left: 20px; font-weight: 400; color: #64748b; }
+  td.num-cell { text-align: right; min-width: 72px; }
+  td.pct-cell { text-align: center; min-width: 60px; color: #64748b; }
+  td.highlight-cell { min-width: 160px; }
+  tr:nth-child(even) td:not(.label) { background: #fafafa; }
+  tr.group-row td { background: #f1f5f9; font-weight: 600; }
+  tr.total-row td { background: #fff7ed; font-weight: 700; border-top: 2px solid #2563eb; }
+
+  /* ===== RICH TEXT AREA ===== */
+  .rich-area {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 10px 14px;
+    min-height: 80px;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+
+  /* ===== TWO COLUMN ===== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .info-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 12px;
+  }
+  .info-box-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #2563eb;
+    border-bottom: 1px solid #fed7aa;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px dotted #f1f5f9;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 500;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+  .info-value { flex: 1; font-size: 12px; }
+
+  /* ===== RATINGS BOX ===== */
+  .ratings-box {
+    border: 1px solid #fed7aa;
+    border-radius: 4px;
+    background: #fff7ed;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .ratings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .rating-item { text-align: center; }
+  .rating-item .r-label { font-size: 10px; color: #9ca3af; text-transform: uppercase; }
+  .rating-item .r-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  /* ===== RISKS TABLE ===== */
+  .risk-table td.risk-low { color: #15803d; font-weight: 600; }
+  .risk-table td.risk-medium { color: #b45309; font-weight: 600; }
+  .risk-table td.risk-high { color: #dc2626; font-weight: 600; }
+  .add-row-btn {
+    background: none;
+    border: 1px dashed #2563eb;
+    color: #2563eb;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.15s;
+  }
+  .add-row-btn:hover { background: #fff7ed; }
+  .del-row-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .del-row-btn:hover { color: #dc2626; }
+
+  /* ===== RECOMMENDATION ===== */
+  .rec-status-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .rec-points { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .rec-point {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .rec-num {
+    background: #2563eb;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== FOOTER ===== */
+  .approval-row {
+    border-top: 2px solid #2563eb;
+    margin-top: 24px;
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+  }
+  .approval-col { text-align: center; flex: 1; }
+  .approval-line {
+    border-bottom: 1px solid #1a1a2e;
+    height: 30px;
+    margin-bottom: 4px;
+  }
+  .approval-label { font-size: 11px; color: #64748b; font-weight: 500; }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: #fff; font-size: 11px; }
+    #toolbar { display: none !important; }
+    #page {
+      margin: 0;
+      padding: 20px 28px;
+      box-shadow: none;
+      max-width: 100%;
+    }
+    [contenteditable="true"]:hover,
+    [contenteditable="true"]:focus,
+    [contenteditable="true"] {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    input.editable,
+    select.editable {
+      background: transparent !important;
+      border-color: transparent !important;
+    }
+    .add-row-btn, .del-row-btn { display: none !important; }
+    table { font-size: 10px; }
+    .section { page-break-inside: avoid; }
+  }
+
+  /* ===== MISC ===== */
+  .orange { color: #2563eb; }
+  hr.divider { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+  .small-note { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
+  .inline-flex { display: inline-flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOOLBAR ===== -->
+<div id="toolbar">
+  <div class="logo">AIR8 <span>CREDIT MEMO</span></div>
+  <div class="tb-sep"></div>
+  <input type="text" id="buyer-search" placeholder="Enter buyer name..." onkeydown="if(event.key==='Enter')generateCM()" style="width:200px">
+  <select id="product-select" style="padding:5px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:#1e2230;color:#e2e8f0;font-size:11px;cursor:pointer">
+    <option value="ARP" selected>ARP (default)</option>
+    <option value="MiniARP">Mini ARP</option>
+    <option value="PreShipment">Pre-shipment Loan</option>
+  </select>
+  <input type="number" id="oa-days" value="90" min="1" max="180" style="width:60px;padding:5px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:#1e2230;color:#e2e8f0;font-size:11px" title="OA days">
+  <span style="font-size:10px;color:#6b7280">days</span>
+  <button class="tb-btn primary" id="gen-btn" onclick="generateCM()">⚡ Generate</button>
+  <span id="generate-msg" style="display:none;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:5px;padding:4px 10px;font-size:10px;max-width:380px;"></span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="saveDraft()">💾 Save Draft</button>
+  <button class="tb-btn" onclick="loadSaved()">📂 Load Saved</button>
+  <button class="tb-btn" onclick="clearForm()">✕ Clear</button>
+  <button class="tb-btn primary" onclick="window.print()">🖨 Export PDF</button>
+</div>
+
+<!-- ===== MAIN PAGE ===== -->
+<div id="page">
+
+  <!-- CM TITLE -->
+  <div class="cm-header">
+    <div class="cm-title">CREDIT MEMORANDUM</div>
+    <div class="header-grid">
+      <div class="header-row">
+        <span class="header-label">Date</span>
+        <span class="header-value"><input type="date" class="editable" id="h-date"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Approval Level</span>
+        <span class="header-value" style="color:#2563eb;font-weight:700;" id="h-approval">Credit Committee</span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Buyer Group</span>
+        <span class="header-value"><input type="text" class="editable" id="h-buyer-group" placeholder="Buyer Group Name"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Buyer Name</span>
+        <span class="header-value"><input type="text" class="editable" id="h-buyer-name" placeholder="Obligor Legal Name"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Market Cap / Ext Rating</span>
+        <span class="header-value"><input type="text" class="editable" id="h-mktcap" placeholder="e.g. USD 12B / BB+"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Country of Incorporation</span>
+        <span class="header-value"><input type="text" class="editable" id="h-country" placeholder="Country"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Business Activities</span>
+        <span class="header-value"><input type="text" class="editable" id="h-business" placeholder="e.g. Membership Warehouse Club"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Products Sourced</span>
+        <span class="header-value"><input type="text" class="editable" id="h-products" placeholder="e.g. Apparels, footwear..."></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Annual Review - Last</span>
+        <span class="header-value"><input type="date" class="editable" id="h-review-last"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Annual Review - Next</span>
+        <span class="header-value"><input type="date" class="editable" id="h-review-next"></span>
+      </div>
+    </div>
+
+    <div class="risk-cat-row" style="margin-top:10px;">
+      <span class="risk-cat-label">Risk Category</span>
+      <span class="risk-badge current">
+        Current: <select class="editable" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;">
+          <option>A</option><option selected>B</option><option>C</option><option>D</option>
+        </select>
+        <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;">
+      </span>
+      <span class="risk-badge proposed">
+        Proposed: <select class="editable" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;">
+          <option>A</option><option selected>B</option><option>C</option><option>D</option>
+        </select>
+        <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;">
+      </span>
+    </div>
+  </div>
+
+  <!-- SECTION 1: EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-title"><span class="num">1</span> EXECUTIVE SUMMARY</div>
+    <div class="rich-area" contenteditable="true" id="s1-summary"
+      data-placeholder="Summarize: background, business operations, years of operation, key markets and market position. If subsidiary: strategic importance. If existing: relationship history and payment behavior."></div>
+
+    <div class="subsection-title" style="margin-top:14px;">Requests</div>
+    <ol style="padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+      <li>
+        <span>To </span>
+        <select class="editable" id="s1-req-action" style="width:auto;display:inline-block;">
+          <option>renew</option><option>new</option>
+        </select>
+        <span> </span>
+        <input type="text" class="editable" id="s1-req-product" placeholder="product type" style="width:130px;display:inline-block;">
+        <span> limit of USD</span>
+        <input type="number" class="editable" id="s1-req-usd" placeholder="0.0" style="width:60px;display:inline-block;text-align:right;">
+        <span>m with financing tenor up to </span>
+        <input type="number" class="editable" id="s1-req-tenor" placeholder="90" style="width:50px;display:inline-block;text-align:right;">
+        <span> days @ advance ratio up to </span>
+        <input type="number" class="editable" id="s1-req-ar" placeholder="100" style="width:50px;display:inline-block;text-align:right;">
+        <span>%.</span>
+      </li>
+      <li>
+        <span>Risk cat </span>
+        <select class="editable" id="s1-riskcat-verb" style="width:auto;display:inline-block;">
+          <option>proposed</option><option>reaffirmed</option>
+        </select>
+        <span> at '</span>
+        <input type="text" class="editable" id="s1-riskcat-val" placeholder="B" style="width:30px;display:inline-block;text-align:center;">
+        <span>' based on FY</span>
+        <input type="text" class="editable" id="s1-riskcat-fy" placeholder="24" style="width:30px;display:inline-block;text-align:center;">
+        <span> financials - </span>
+        <span contenteditable="true" class="editable" style="min-width:120px;display:inline;" data-placeholder="justification">justification</span>.
+      </li>
+    </ol>
+
+    <div class="subsection-title" style="margin-top:14px;">Exceptions</div>
+    <div class="rich-area" contenteditable="true" id="s1-exceptions" data-placeholder="List any exceptions to standard terms, or state 'None'."></div>
+  </div>
+
+  <!-- SECTION 2: BUYER INFORMATION -->
+  <div class="section">
+    <div class="section-title"><span class="num">2</span> BUYER INFORMATION</div>
+    <div class="two-col">
+      <div class="info-box">
+        <div class="info-box-title">Company Details</div>
+        <div class="info-row">
+          <span class="info-label">Group / Parent Legal</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Obligor Legal Name</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-obligor" placeholder="Obligor Name"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Country</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-country" placeholder="Country of Incorporation"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Website</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-website" placeholder="https://"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ticker / Exchange</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-ticker" placeholder="e.g. NYSE: BJ"></span>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-title">Buyer's Core Business</div>
+        <div class="info-row">
+          <span class="info-label">Business Activities</span>
+          <span class="info-value"><input type="text" class="editable" id="s2-biz" placeholder="Core business description"></span>
+        </div>
+        <div class="info-row" style="align-items:flex-start;">
+          <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
+          <span class="info-value">
+            <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ratings-box">
+      <div class="info-box-title" style="color:#92400e;">Credit Ratings</div>
+      <div class="ratings-grid">
+        <div class="rating-item">
+          <div class="r-label">Market Cap (USD)</div>
+          <div><input type="text" class="editable" id="s2-mktcap" placeholder="e.g. 12.5B" style="text-align:center;font-size:16px;font-weight:700;color:#2563eb;"></div>
+        </div>
+        <div class="rating-item">
+          <div class="r-label">S&amp;P / Moody's / Fitch</div>
+          <div style="display:flex;gap:4px;justify-content:center;">
+            <input type="text" class="editable" id="s2-sp" placeholder="BB+" style="width:55px;text-align:center;font-weight:700;font-size:13px;">
+            <span style="color:#94a3b8;">/</span>
+            <input type="text" class="editable" id="s2-moodys" placeholder="Ba1" style="width:55px;text-align:center;font-weight:700;font-size:13px;">
+            <span style="color:#94a3b8;">/</span>
+            <input type="text" class="editable" id="s2-fitch" placeholder="BB+" style="width:55px;text-align:center;font-weight:700;font-size:13px;">
+          </div>
+        </div>
+        <div class="rating-item">
+          <div class="r-label">Air8 Obligor Rating</div>
+          <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
+            <span style="font-size:11px;color:#9ca3af;">Current:</span>
+            <input type="text" class="editable" id="s2-air8-current" placeholder="B/61" style="width:60px;text-align:center;font-weight:700;font-size:13px;color:#b45309;">
+            <span style="font-size:11px;color:#9ca3af;">→ Proposed:</span>
+            <input type="text" class="editable" id="s2-air8-proposed" placeholder="B/61" style="width:60px;text-align:center;font-weight:700;font-size:13px;color:#15803d;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: FINANCIAL HIGHLIGHTS -->
+  <div class="section">
+    <div class="section-title"><span class="num">3</span> FINANCIAL HIGHLIGHTS</div>
+    <table id="tbl-highlights">
+      <thead>
+        <tr>
+          <th class="left" style="min-width:160px;">(US$'m)</th>
+          <th>FY2022</th>
+          <th>FY2023</th>
+          <th>FY2024</th>
+          <th style="background:#374151;">23 vs 22%</th>
+          <th style="background:#374151;">24 vs 23%</th>
+        </tr>
+      </thead>
+      <tbody id="highlights-body">
+        <!-- rows generated by JS -->
+      </tbody>
+    </table>
+    <p class="small-note">* % columns auto-calculate based on Turnover rows. GP% and EBITDA Margin shown where applicable.</p>
+  </div>
+
+  <!-- SECTION 4: CREDIT LIMITS -->
+  <div class="section">
+    <div class="section-title"><span class="num">4</span> CREDIT LIMITS</div>
+
+    <div class="subsection-title">A - Group Credit Limit Summary</div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th class="left">Entity</th>
+            <th colspan="3">Clean Limits</th>
+            <th>Secured</th>
+            <th>Total Proposed</th>
+            <th>Total Existing</th>
+            <th>Insurance Limit</th>
+            <th>Insurance Co</th>
+            <th>Tenor (d)</th>
+            <th>Adv. Ratio %</th>
+            <th>Peak W/C</th>
+            <th>Avg W/C</th>
+            <th>Credit Days</th>
+            <th>Pmt Delay</th>
+            <th>Dilution %</th>
+          </tr>
+          <tr style="background:#374151;">
+            <th></th>
+            <th style="background:#374151;font-size:10px;">Pre-ship</th>
+            <th style="background:#374151;font-size:10px;">Post/Comm</th>
+            <th style="background:#374151;font-size:10px;">Residual</th>
+            <th colspan="12"></th>
+          </tr>
+        </thead>
+        <tbody id="cl-a-body">
+          <!-- generated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection-title">B - Air8 ARP Turnover</div>
+    <table>
+      <thead>
+        <tr>
+          <th class="left">Period</th>
+          <th>Trade Product</th>
+          <th>GMV (US$m)</th>
+          <th>Pricing</th>
+          <th>Revenue (US$m)</th>
+          <th>Financed AR (US$m)</th>
+          <th>Peak W/C (US$m)</th>
+          <th>Avg W/C (US$m)</th>
+        </tr>
+      </thead>
+      <tbody id="cl-b-body">
+        <!-- generated by JS -->
+      </tbody>
+    </table>
+
+    <div class="subsection-title">C - Credit Limits - Air8 Detail</div>
+    <table>
+      <thead>
+        <tr>
+          <th class="left">Class</th>
+          <th>Product / Facility</th>
+          <th>Current Limit</th>
+          <th>Proposed Limit</th>
+          <th>Tenor</th>
+          <th>Security</th>
+          <th>Remarks</th>
+        </tr>
+      </thead>
+      <tbody id="cl-c-body">
+        <!-- generated by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 5: KEY FINANCIAL METRICS -->
+  <div class="section">
+    <div class="section-title"><span class="num">5</span> KEY FINANCIAL METRICS</div>
+    <!-- Interest Expense / CA / CL inputs for derived ratios -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;background:#f8fafc;padding:10px 12px;border-radius:4px;border:1px solid #e2e8f0;">
+      <span style="font-size:11px;color:#64748b;font-weight:600;align-self:center;">RATIO INPUTS:</span>
+      <label style="font-size:12px;display:flex;align-items:center;gap:6px;">
+        Interest Expense (US$m):
+        <input type="number" class="editable" id="r-interest" placeholder="0.0" style="width:70px;" oninput="calcRatios()">
+      </label>
+      <label style="font-size:12px;display:flex;align-items:center;gap:6px;">
+        Current Assets (US$m):
+        <input type="number" class="editable" id="r-ca" placeholder="0.0" style="width:70px;" oninput="calcRatios()">
+      </label>
+      <label style="font-size:12px;display:flex;align-items:center;gap:6px;">
+        Current Liabilities (US$m):
+        <input type="number" class="editable" id="r-cl" placeholder="0.0" style="width:70px;" oninput="calcRatios()">
+      </label>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="tbl-metrics">
+        <thead>
+          <tr>
+            <th class="left" style="min-width:170px;">(US$'m)</th>
+            <th>FY2022</th>
+            <th>FY2023</th>
+            <th>FY2024</th>
+            <th style="background:#374151;">24 vs 23%</th>
+            <th>Latest Qtr</th>
+            <th>Prior Qtr</th>
+            <th style="background:#374151;">% Chg</th>
+            <th class="left" style="min-width:200px;background:#1a1a2e;">Key Highlights</th>
+          </tr>
+        </thead>
+        <tbody id="metrics-body">
+          <!-- generated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 6: LIQUIDITY METRICS -->
+  <div class="section">
+    <div class="section-title"><span class="num">6</span> LIQUIDITY METRICS</div>
+    <table>
+      <thead>
+        <tr>
+          <th class="left">(US$'m)</th>
+          <th>FY2022</th>
+          <th>FY2023</th>
+          <th>FY2024</th>
+          <th style="background:#374151;">24 vs 23%</th>
+          <th class="left" style="min-width:200px;">Key Highlights</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">Liquidity Headroom</td>
+          <td class="num-cell"><input type="number" class="editable" id="liq-22" placeholder="0.0" oninput="calcLiqYoY()"></td>
+          <td class="num-cell"><input type="number" class="editable" id="liq-23" placeholder="0.0" oninput="calcLiqYoY()"></td>
+          <td class="num-cell"><input type="number" class="editable" id="liq-24" placeholder="0.0" oninput="calcLiqYoY()"></td>
+          <td class="pct-cell calc" id="liq-yoy">-</td>
+          <td class="highlight-cell"><div contenteditable="true" class="rich-area" style="min-height:36px;" data-placeholder="Credit limit headroom / maturity date / covenants"></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 7: OBLIGOR RATINGS -->
+  <div class="section">
+    <div class="section-title"><span class="num">7</span> OBLIGOR RATINGS</div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:600;color:#374151;">Credit Score:</span>
+      <input type="text" class="editable" id="s7-score" placeholder="e.g. 61" style="width:80px;font-size:20px;font-weight:700;color:#2563eb;text-align:center;">
+      <span style="font-size:13px;color:#64748b;">/ 100</span>
+    </div>
+    <div class="rich-area" contenteditable="true" id="s7-rationale"
+      data-placeholder="Propose risk cat of 'X' / Reaffirm risk cat of 'X' based on FYxx. Compare with external rating. State if different from last approved. Justify the score components: profitability, leverage, liquidity, management quality, market position."></div>
+  </div>
+
+  <!-- SECTION 8: RECOMMENDATION -->
+  <div class="section">
+    <div class="section-title"><span class="num">8</span> RECOMMENDATION AND ACTION PLAN</div>
+    <div class="rec-status-wrap">
+      <span style="font-size:12px;font-weight:600;color:#64748b;">Status:</span>
+      <select class="editable" id="s8-status" onchange="updateStatusBadge()" style="font-weight:700;font-size:13px;width:auto;">
+        <option value="new">🆕 New</option>
+        <option value="grow">📈 Grow</option>
+        <option value="maintain" selected>✅ Maintain</option>
+        <option value="watchlist">⚠️ Watchlist</option>
+        <option value="high-risk">🔴 High Risk</option>
+        <option value="exit">🚪 Exit</option>
+      </select>
+    </div>
+    <ul class="rec-points">
+      <li class="rec-point">
+        <span class="rec-num">1</span>
+        <div class="rich-area" contenteditable="true" style="flex:1;" data-placeholder="Business strength and sustainability - describe the buyer's market position, competitive advantages, and operational resilience."></div>
+      </li>
+      <li class="rec-point">
+        <span class="rec-num">2</span>
+        <div class="rich-area" contenteditable="true" style="flex:1;" data-placeholder="Financial standing conclusion - summarize key financial metrics, leverage, liquidity, and overall financial health."></div>
+      </li>
+      <li class="rec-point">
+        <span class="rec-num">3</span>
+        <div class="rich-area" contenteditable="true" style="flex:1;" data-placeholder="Prospect / Outlook / Tariff impact - near-term business outlook, macroeconomic headwinds, and tariff exposure if applicable."></div>
+      </li>
+      <li class="rec-point">
+        <span class="rec-num">4</span>
+        <div class="rich-area" contenteditable="true" style="flex:1;" data-placeholder="Payment behavior / dilution history / limit and terms justification - describe payment track record, any delinquencies, dilution rate, and rationale for proposed limits and tenor."></div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SECTION 9: KEY RISKS & MITIGANTS -->
+  <div class="section">
+    <div class="section-title"><span class="num">9</span> KEY RISKS &amp; MITIGANTS</div>
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th style="width:80px;">Risk Level</th>
+          <th class="left">Risk Description</th>
+          <th class="left">Mitigant</th>
+          <th style="width:32px;"></th>
+        </tr>
+      </thead>
+      <tbody id="risks-body">
+        <!-- generated by JS -->
+      </tbody>
+    </table>
+    <button class="add-row-btn" onclick="addRiskRow()">+ Add Risk Row</button>
+  </div>
+
+  <!-- APPROVAL SIGNATURES -->
+  <hr class="divider">
+  <div class="approval-row">
+    <div class="approval-col">
+      <div class="approval-line"></div>
+      <div class="approval-label">Prepared By</div>
+      <div><input type="text" class="editable" placeholder="Name / Date" style="text-align:center;width:150px;"></div>
+    </div>
+    <div class="approval-col">
+      <div class="approval-line"></div>
+      <div class="approval-label">Reviewed By</div>
+      <div><input type="text" class="editable" placeholder="Name / Date" style="text-align:center;width:150px;"></div>
+    </div>
+    <div class="approval-col">
+      <div class="approval-line"></div>
+      <div class="approval-label">Approved By</div>
+      <div><input type="text" class="editable" placeholder="Name / Date" style="text-align:center;width:150px;"></div>
+    </div>
+    <div class="approval-col">
+      <div class="approval-line"></div>
+      <div class="approval-label">Credit Committee</div>
+      <div><input type="text" class="editable" placeholder="Name / Date" style="text-align:center;width:150px;"></div>
+    </div>
+  </div>
+  <p class="small-note" style="text-align:center;margin-top:10px;">CONFIDENTIAL - FOR INTERNAL USE ONLY - AIR8 TRADE FINANCE</p>
+
+</div><!-- end #page -->
+
+<script>
+// ===== BUYER DATABASE =====
+const BUYERS = {
+  walmart: {
+    buyer_group: "Walmart Inc.",
+    buyer_name: "Walmart Inc.",
+    country: "United States of America",
+    ticker: "NASDAQ: WMT",
+    sp_rating: "AA/Stable",
+    moodys_rating: "Aa2/Stable",
+    fitch_rating: "AA/Stable",
+    db_rating: "-",
+    risk_category_current: "A",
+    risk_current_score: "-",
+    risk_category_proposed: "A",
+    risk_proposed_score: "-",
+    business: "Omnichannel retail - Walmart US (~69% revenue), Walmart International (~18%), Sam's Club (~13%). Key categories: grocery (58% of US revenue), general merchandise, health & wellness, e-commerce.",
+    products_sourced: "Apparel, footwear, accessories, home goods, hardgoods",
+    mktcap: "~USD 780B",
+    website: "https://www.walmart.com",
+    air8_limit: {
+      clean_residual: "TBD",
+      secured_post_shipment: "TBD",
+      total_usdm: "TBD",
+      insurance_limit_usdm: "TBD",
+      insurance_company: "TBD",
+      tenor_days: 90,
+      advance_ratio_pct: "TBD",
+      peak_wc: "TBD",
+      avg_wc: "TBD",
+      credit_days: 90,
+      payment_delay: "Prompt",
+      dilution_pct: 0
+    },
+    financials: {
+      revenue: [648125, 680985, 713163],
+      gp: [158966, 169597, 180438],
+      ebitda: [38500, 42300, 44000],
+      net_profit: [15511, 19436, 21893],
+      cash: [9935, 9536, 10700],
+      inventory: [54900, 57000, 59300],
+      debt_current: [5400, 4000, 5500],
+      debt_noncurrent: [36100, 35200, 34600],
+      equity: [83861, 91263, 99600],
+      fcf: [13000, 12400, 15000]
+    }
+  },
+  kontoor: {
+    buyer_group: "Kontoor Brands, Inc.",
+    buyer_name: "Kontoor Brands, Inc.",
+    country: "United States of America",
+    ticker: "NYSE: KTB",
+    sp_rating: "Not publicly rated",
+    moodys_rating: "Not publicly rated",
+    fitch_rating: "-",
+    db_rating: "-",
+    risk_category_current: "B",
+    risk_current_score: "-",
+    risk_category_proposed: "B",
+    risk_proposed_score: "-",
+    business: "Global lifestyle apparel - Wrangler\u00ae and Lee\u00ae brands. Wholesale (US + international) and DTC channels. Acquired Helly Hansen (premium outdoor) in 2025.",
+    products_sourced: "Apparel, footwear, accessories",
+    mktcap: "~USD 3.5B",
+    website: "https://www.kontoorbrands.com",
+    air8_limit: {
+      clean_residual: "TBD",
+      secured_post_shipment: "TBD",
+      total_usdm: "TBD",
+      insurance_limit_usdm: "TBD",
+      insurance_company: "TBD",
+      tenor_days: 90,
+      advance_ratio_pct: "TBD",
+      peak_wc: "TBD",
+      avg_wc: "TBD",
+      credit_days: 90,
+      payment_delay: "Prompt",
+      dilution_pct: 0
+    },
+    financials: {
+      revenue: [2561, 2589, 2609],
+      gp: [1049, 1100, 1161],
+      ebitda: [330, 395, 431],
+      net_profit: [102, 222, 249],
+      cash: [180, 270, 310],
+      inventory: [820, 640, 500],
+      debt_current: [50, 50, 50],
+      debt_noncurrent: [800, 730, 670],
+      equity: [380, 500, 600],
+      fcf: [65, 322, 324]
+    }
+  },
+  bjs: {
+    buyer_group: "BJ's Wholesale Club Holdings, Inc.",
+    buyer_name: "BJ's Wholesale Club Inc.",
+    country: "United States of America",
+    ticker: "NYSE: BJ",
+    sp_rating: "BB+/Stable",
+    moodys_rating: "Ba1",
+    fitch_rating: "-",
+    db_rating: "5A3",
+    risk_category_current: "B",
+    risk_current_score: "61",
+    risk_category_proposed: "B",
+    risk_proposed_score: "61",
+    business: "Membership Warehouse Club",
+    products_sourced: "Apparels, footwear, accessories and hardgoods",
+    mktcap: "~USD 11B",
+    website: "https://www.bjs.com",
+    air8_limit: {
+      clean_residual: 0.3,
+      secured_post_shipment: 2.8,
+      total_usdm: 3.1,
+      insurance_limit_usdm: 3.1,
+      insurance_company: "ECIC",
+      tenor_days: 90,
+      advance_ratio_pct: 100,
+      peak_wc: 0.9,
+      avg_wc: 0.6,
+      credit_days: 60,
+      payment_delay: "Prompt",
+      dilution_pct: 0
+    },
+    financials: {
+      revenue: [19300, 19300, 20000],
+      gp: [3378, 3282, 3500],
+      ebitda: [1200, 1150, 1250],
+      net_profit: [500, 490, 510],
+      cash: [34, 40, 34],
+      inventory: [1400, 1380, 1420],
+      debt_current: [200, 210, 220],
+      debt_noncurrent: [1500, 1450, 1400],
+      equity: [1100, 1150, 1200],
+      fcf: [600, 550, 620]
+    }
+  }
+};
+
+// ===== SECTION 3: HIGHLIGHTS TABLE ROWS =====
+const HIGHLIGHT_ROWS = [
+  { id: 'h-turnover', label: 'Turnover', derived: false },
+  { id: 'h-gp', label: 'GP%', derived: 'gp_pct' },
+  { id: 'h-ebitda', label: 'EBITDA', derived: false },
+  { id: 'h-debt', label: 'Debt', derived: false },
+  { id: 'h-equity', label: 'Equity', derived: false },
+  { id: 'h-fcf', label: 'Free Cash Flow', derived: false }
+];
+
+function buildHighlightsTable() {
+  const tbody = document.getElementById('highlights-body');
+  tbody.innerHTML = '';
+  HIGHLIGHT_ROWS.forEach(row => {
+    const tr = document.createElement('tr');
+    const isDerived = row.derived === 'gp_pct';
+    tr.innerHTML = `
+      <td class="label">${row.label}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-22">-</span>` : `<input type="number" class="editable" id="${row.id}-22" placeholder="0.0" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="number" class="editable" id="${row.id}-23" placeholder="0.0" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="number" class="editable" id="${row.id}-24" placeholder="0.0" oninput="calcHighlightsYoY()">`}</td>
+      <td class="pct-cell calc" id="${row.id}-yoy1">-</td>
+      <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function calcHighlightsYoY() {
+  // GP%
+  ['22','23','24'].forEach(yr => {
+    const rev = parseFloat(document.getElementById(`h-turnover-${yr}`)?.value) || 0;
+    const gp = parseFloat(document.getElementById(`h-ebitda-${yr}`)?.value) || 0;
+    const gpEl = document.getElementById(`h-gp-${yr}`);
+    if (gpEl) {
+      // GP% uses h-gp_ but stored in separate conceptual field - use actual GP field
+      const gpInput = document.getElementById(`h-gp-input-${yr}`);
+      // fallback: skip if no dedicated GP input (simplified)
+    }
+  });
+
+  // YoY %
+  HIGHLIGHT_ROWS.forEach(row => {
+    if (row.derived) return;
+    const v22 = parseFloat(document.getElementById(`${row.id}-22`)?.value);
+    const v23 = parseFloat(document.getElementById(`${row.id}-23`)?.value);
+    const v24 = parseFloat(document.getElementById(`${row.id}-24`)?.value);
+    const el1 = document.getElementById(`${row.id}-yoy1`);
+    const el2 = document.getElementById(`${row.id}-yoy2`);
+    if (el1) el1.textContent = calcPct(v22, v23);
+    if (el2) el2.textContent = calcPct(v23, v24);
+  });
+
+  // GP% derived rows
+  const rev = ['22','23','24'].map(yr => parseFloat(document.getElementById(`h-turnover-${yr}`)?.value) || 0);
+  const ebitda = ['22','23','24'].map(yr => parseFloat(document.getElementById(`h-ebitda-${yr}`)?.value) || 0);
+  ['22','23','24'].forEach((yr, i) => {
+    const gpPctEl = document.getElementById(`h-gp-${yr}`);
+    if (gpPctEl && rev[i]) {
+      const gp = parseFloat(document.getElementById(`h-gp-${yr}-input`)?.value) || 0;
+    }
+  });
+}
+
+// ===== SECTION 5: METRICS TABLE =====
+const METRIC_ROWS = [
+  { id: 'rev', label: 'Turnover', group: 'P&L', placeholder: 'Drivers for revenue growth/flat/decline. Highlight extraordinary items. Outlook for next 12-18 months including tariff impacts.' },
+  { id: 'gp', label: 'GP', group: 'P&L', placeholder: '' },
+  { id: 'gp_pct', label: 'GP%', group: 'P&L', derived: true, placeholder: '' },
+  { id: 'ebitda', label: 'EBITDA', group: 'P&L', placeholder: 'EBITDA drivers. Margin trend. One-offs.' },
+  { id: 'ebitda_m', label: 'EBITDA Margin %', group: 'P&L', derived: true, placeholder: '' },
+  { id: 'np', label: 'Net Profit', group: 'P&L', placeholder: 'Net profit trend. Tax rate changes.' },
+  { id: 'np_pct', label: 'Net Profit %', group: 'P&L', derived: true, placeholder: '' },
+  { id: 'cash', label: 'Cash & Bank', group: 'BS', placeholder: 'Identify material changes. Cash position quality.' },
+  { id: 'inv', label: 'Inventory', group: 'BS', placeholder: 'Inventory quality. Days of inventory.' },
+  { id: 'debt_c', label: 'Debt (Current)', group: 'BS', placeholder: 'Debt composition and maturity profile.' },
+  { id: 'debt_nc', label: 'Debt (Non-current)', group: 'BS', placeholder: 'Long-term debt structure, covenants.' },
+  { id: 'eq', label: 'Equity', group: 'BS', placeholder: 'Capital structure. How are assets financed.' },
+  { id: 'fcf', label: 'Free Cash Flow', group: 'FCF', placeholder: 'Changes in working capital, FCF generation strength.' },
+  { id: 'ccc', label: 'Cash Conv. Cycle (days)', group: 'Ratios', derived: false, placeholder: 'Working capital efficiency.' },
+  { id: 'nd_ebitda', label: 'Net Debt / EBITDA (x)', group: 'Ratios', derived: true, placeholder: '' },
+  { id: 'int_cov', label: 'EBITDA / Interest (x)', group: 'Ratios', derived: true, placeholder: '' },
+  { id: 'curr_ratio', label: 'Current Ratio (x)', group: 'Ratios', derived: true, placeholder: '' }
+];
+
+function buildMetricsTable() {
+  const tbody = document.getElementById('metrics-body');
+  tbody.innerHTML = '';
+  let lastGroup = null;
+  METRIC_ROWS.forEach(row => {
+    if (row.group !== lastGroup) {
+      const gtr = document.createElement('tr');
+      gtr.className = 'group-row';
+      gtr.innerHTML = `<td colspan="9" style="padding-left:8px;color:#2563eb;font-size:11px;letter-spacing:0.06em;">${row.group === 'P&L' ? '📊 INCOME STATEMENT' : row.group === 'BS' ? '📋 BALANCE SHEET' : row.group === 'FCF' ? '💵 CASH FLOW' : '📐 RATIOS'}</td>`;
+      tbody.appendChild(gtr);
+      lastGroup = row.group;
+    }
+    const tr = document.createElement('tr');
+    const isDerived = row.derived;
+    const periods = ['22','23','24','q-cur','q-prior'];
+    const cells = periods.map((p, i) => {
+      if (isDerived) {
+        return `<td class="${i < 3 ? 'num-cell' : 'num-cell'} calc" id="m-${row.id}-${p}">-</td>`;
+      }
+      return `<td class="num-cell"><input type="number" class="editable" id="m-${row.id}-${p}" placeholder="0.0" oninput="calcMetrics()"></td>`;
+    });
+    tr.innerHTML = `
+      <td class="label">${row.label}</td>
+      ${cells[0]}${cells[1]}${cells[2]}
+      <td class="pct-cell calc" id="m-${row.id}-yoy">-</td>
+      ${cells[3]}${cells[4]}
+      <td class="pct-cell calc" id="m-${row.id}-qoq">-</td>
+      <td class="highlight-cell"><div contenteditable="true" class="rich-area" style="min-height:32px;font-size:11px;" data-placeholder="${row.placeholder || ''}"></div></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function getMetricVal(id, period) {
+  const el = document.getElementById(`m-${id}-${period}`);
+  if (!el) return null;
+  if (el.tagName === 'INPUT') return parseFloat(el.value) || null;
+  return null; // derived cells don't store values
+}
+
+function setDerived(id, period, val) {
+  const el = document.getElementById(`m-${id}-${period}`);
+  if (!el) return;
+  el.textContent = val === null || val === undefined ? '-' : typeof val === 'number' ? fmtNum(val) : val;
+}
+
+function fmtNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return '-';
+  return n.toFixed(1);
+}
+
+function calcPct(a, b) {
+  if (!a || !b || isNaN(a) || isNaN(b)) return '-';
+  const pct = ((b - a) / Math.abs(a)) * 100;
+  return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+}
+
+function calcMetrics() {
+  const periods = ['22','23','24','q-cur','q-prior'];
+
+  // Get raw values
+  const g = (id, p) => getMetricVal(id, p);
+
+  // Derived: GP%
+  periods.forEach(p => {
+    const rev = g('rev', p); const gp = g('gp', p);
+    setDerived('gp_pct', p, rev ? (gp / rev * 100) : null);
+    const ebitda = g('ebitda', p);
+    setDerived('ebitda_m', p, rev ? (ebitda / rev * 100) : null);
+    const np = g('np', p);
+    setDerived('np_pct', p, rev ? (np / rev * 100) : null);
+  });
+
+  // Net Debt / EBITDA
+  const interest = parseFloat(document.getElementById('r-interest')?.value) || null;
+  const ca = parseFloat(document.getElementById('r-ca')?.value) || null;
+  const cl = parseFloat(document.getElementById('r-cl')?.value) || null;
+  ['22','23','24','q-cur','q-prior'].forEach(p => {
+    const dc = g('debt_c', p); const dnc = g('debt_nc', p); const cash = g('cash', p); const ebitda = g('ebitda', p);
+    if (dc !== null && dnc !== null && cash !== null && ebitda) {
+      setDerived('nd_ebitda', p, (dc + dnc - cash) / ebitda);
+    } else { setDerived('nd_ebitda', p, null); }
+    if (ebitda && interest) {
+      setDerived('int_cov', p, ebitda / interest);
+    } else { setDerived('int_cov', p, null); }
+  });
+  if (ca && cl) {
+    ['22','23','24','q-cur','q-prior'].forEach(p => setDerived('curr_ratio', p, ca / cl));
+  }
+
+  // YoY / QoQ
+  METRIC_ROWS.forEach(row => {
+    const yoyEl = document.getElementById(`m-${row.id}-yoy`);
+    const qoqEl = document.getElementById(`m-${row.id}-qoq`);
+    if (row.derived) {
+      if (yoyEl) yoyEl.textContent = '-';
+      if (qoqEl) qoqEl.textContent = '-';
+      return;
+    }
+    const v23 = g(row.id, '23'), v24 = g(row.id, '24');
+    const vcur = g(row.id, 'q-cur'), vprior = g(row.id, 'q-prior');
+    if (yoyEl) yoyEl.textContent = calcPct(v23, v24);
+    if (qoqEl) qoqEl.textContent = calcPct(vprior, vcur);
+  });
+}
+
+function calcLiqYoY() {
+  const v23 = parseFloat(document.getElementById('liq-23')?.value);
+  const v24 = parseFloat(document.getElementById('liq-24')?.value);
+  const el = document.getElementById('liq-yoy');
+  if (el) el.textContent = calcPct(v23, v24);
+}
+
+function calcRatios() { calcMetrics(); }
+
+// ===== CREDIT LIMITS TABLES =====
+function buildCreditLimitsTables() {
+  // Sub A
+  const entitiesA = [
+    { label: 'LF', class: '' },
+    { label: 'Air8', class: 'group-row' },
+    { label: 'Total', class: 'total-row' }
+  ];
+  const tbodyA = document.getElementById('cl-a-body');
+  tbodyA.innerHTML = '';
+  entitiesA.forEach(e => {
+    const id = e.label.toLowerCase().replace(/\s/g,'');
+    const tr = document.createElement('tr');
+    tr.className = e.class;
+    tr.innerHTML = `
+      <td class="label">${e.label}</td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-pre" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-post" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-res" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-sec" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-prop" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-exist" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-ins" placeholder="-"></td>
+      <td class="num-cell"><input type="text" class="editable" id="cla-${id}-insco" placeholder="-" style="width:60px;"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-tenor" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-ar" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-peak" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-avg" placeholder="-"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-cd" placeholder="-"></td>
+      <td class="num-cell"><input type="text" class="editable" id="cla-${id}-pmt" placeholder="-" style="width:60px;"></td>
+      <td class="num-cell"><input type="number" class="editable" id="cla-${id}-dil" placeholder="-"></td>
+    `;
+    tbodyA.appendChild(tr);
+  });
+
+  // Sub B
+  const tbodyB = document.getElementById('cl-b-body');
+  tbodyB.innerHTML = '';
+  ['Past 12 Months', 'Forecast'].forEach(period => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="label">${period}</td>
+      <td><input type="text" class="editable" placeholder="e.g. AR Discounting" style="width:120px;"></td>
+      <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+      <td><input type="text" class="editable" placeholder="basis pts" style="width:70px;"></td>
+      <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+      <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+      <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+      <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+    `;
+    tbodyB.appendChild(tr);
+  });
+
+  // Sub C
+  const tbodyC = document.getElementById('cl-c-body');
+  tbodyC.innerHTML = '';
+  const classRows = [
+    { label: 'Class 1 Funded', sub: ['AR Purchase / Discounting', 'Pre-shipment Facility'] },
+    { label: 'Class 2 Unfunded / Contingent', sub: ['Guarantee', 'LC Issuance'] }
+  ];
+  classRows.forEach(cls => {
+    const gtr = document.createElement('tr');
+    gtr.className = 'group-row';
+    gtr.innerHTML = `<td colspan="7" style="color:#2563eb;font-size:11px;letter-spacing:0.05em;padding-left:8px;">${cls.label}</td>`;
+    tbodyC.appendChild(gtr);
+    cls.sub.forEach(sub => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="label indent">${sub}</td>
+        <td><input type="text" class="editable" placeholder="e.g. AR Discounting"></td>
+        <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+        <td class="num-cell"><input type="number" class="editable" placeholder="0.0"></td>
+        <td><input type="text" class="editable" placeholder="e.g. 90 days"></td>
+        <td><input type="text" class="editable" placeholder="Insurance / Clean"></td>
+        <td><input type="text" class="editable" placeholder="Remarks"></td>
+      `;
+      tbodyC.appendChild(tr);
+    });
+  });
+}
+
+// ===== RISKS TABLE =====
+const DEFAULT_RISKS = [
+  { level: 'Medium', desc: 'US tariff escalation could compress margins and reduce import volumes, affecting Air8 exposure.', mitigant: 'Air8 limit secured by insurance; monitor tariff developments quarterly.' },
+  { level: 'Low', desc: 'Membership renewal rates could soften in a consumer spending downturn.', mitigant: 'BJ\'s has maintained ~90%+ renewal rates historically; strong private label offering.' },
+  { level: 'Low', desc: 'Competition from Costco and Sam\'s Club could pressure market share.', mitigant: 'BJ\'s differentiated by geographic focus (Northeast US) and digital/app-based shopping.' }
+];
+
+function buildRisksTable(rows) {
+  const tbody = document.getElementById('risks-body');
+  tbody.innerHTML = '';
+  (rows || DEFAULT_RISKS).forEach((r, i) => addRiskRow(r));
+}
+
+function addRiskRow(data) {
+  const tbody = document.getElementById('risks-body');
+  const tr = document.createElement('tr');
+  const level = data?.level || 'Low';
+  const desc = data?.desc || '';
+  const mit = data?.mitigant || '';
+  tr.innerHTML = `
+    <td>
+      <select class="editable" onchange="updateRiskClass(this)" style="font-weight:600;width:90px;">
+        <option ${level==='Low'?'selected':''}>Low</option>
+        <option ${level==='Medium'?'selected':''}>Medium</option>
+        <option ${level==='High'?'selected':''}>High</option>
+      </select>
+    </td>
+    <td><div contenteditable="true" class="rich-area" style="min-height:32px;font-size:12px;">${desc}</div></td>
+    <td><div contenteditable="true" class="rich-area" style="min-height:32px;font-size:12px;">${mit}</div></td>
+    <td><button class="del-row-btn" onclick="this.closest('tr').remove()">×</button></td>
+  `;
+  tbody.appendChild(tr);
+  updateRiskClass(tr.querySelector('select'));
+}
+
+function updateRiskClass(sel) {
+  const td = sel.closest('td');
+  td.className = '';
+  if (sel.value === 'Low') td.className = 'risk-low';
+  if (sel.value === 'Medium') td.className = 'risk-medium';
+  if (sel.value === 'High') td.className = 'risk-high';
+}
+
+// ===== LOAD BUYER DATA =====
+function loadBuyer(key) {
+  const b = BUYERS[key];
+  if (!b) { alert('Buyer not found.'); return; }
+
+  // Header
+  document.getElementById('h-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('h-buyer-group').value = b.buyer_group || '';
+  document.getElementById('h-buyer-name').value = b.buyer_name || '';
+  document.getElementById('h-mktcap').value = (b.mktcap || '') + (b.sp_rating ? ' / ' + b.sp_rating : '');
+  document.getElementById('h-country').value = b.country || '';
+  document.getElementById('h-business').value = b.business || '';
+  document.getElementById('h-products').value = b.products_sourced || '';
+  document.getElementById('h-risk-current').value = b.risk_category_current || 'B';
+  document.getElementById('h-risk-current-score').value = b.risk_current_score || '';
+  document.getElementById('h-risk-proposed').value = b.risk_category_proposed || 'B';
+  document.getElementById('h-risk-proposed-score').value = b.risk_proposed_score || '';
+
+  // Section 2
+  document.getElementById('s2-group').value = b.buyer_group || '';
+  document.getElementById('s2-obligor').value = b.buyer_name || '';
+  document.getElementById('s2-country').value = b.country || '';
+  document.getElementById('s2-website').value = b.website || '';
+  document.getElementById('s2-ticker').value = b.ticker || '';
+  document.getElementById('s2-biz').value = b.business || '';
+  document.getElementById('s2-mktcap').value = b.mktcap || '';
+  document.getElementById('s2-sp').value = b.sp_rating || '';
+  document.getElementById('s2-moodys').value = b.moodys_rating || '';
+  document.getElementById('s2-fitch').value = b.fitch_rating || '';
+  document.getElementById('s2-air8-current').value = (b.risk_category_current || '') + '/' + (b.risk_current_score || '');
+  document.getElementById('s2-air8-proposed').value = (b.risk_category_proposed || '') + '/' + (b.risk_proposed_score || '');
+
+  // Section 1 quick-fill
+  document.getElementById('s1-req-product').value = 'AR Discounting';
+  document.getElementById('s1-req-usd').value = b.air8_limit?.total_usdm || '';
+  document.getElementById('s1-req-tenor').value = b.air8_limit?.tenor_days || '';
+  document.getElementById('s1-req-ar').value = b.air8_limit?.advance_ratio_pct || '';
+  document.getElementById('s1-riskcat-val').value = b.risk_category_proposed || 'B';
+  document.getElementById('s1-riskcat-fy').value = '24';
+
+  // Section 7
+  document.getElementById('s7-score').value = b.risk_current_score || '';
+
+  // Financials - Section 3 Highlights
+  if (b.financials) {
+    const f = b.financials;
+    const years = ['22','23','24'];
+    ['turnover','gp','ebitda','debt','equity','fcf'].forEach((row, i) => {
+      const srcKey = ['revenue','gp','ebitda','debt_noncurrent','equity','fcf'][i];
+      const src = f[srcKey];
+      if (src) {
+        years.forEach((yr, yi) => {
+          const el = document.getElementById(`h-${row}-${yr}`);
+          if (el && el.tagName === 'INPUT') el.value = (src[yi] / 1000).toFixed(1);
+        });
+      }
+    });
+
+    // Section 5 Metrics
+    const metricMap = {
+      'rev': 'revenue', 'gp': 'gp', 'ebitda': 'ebitda',
+      'np': 'net_profit', 'cash': 'cash', 'inv': 'inventory',
+      'debt_c': 'debt_current', 'debt_nc': 'debt_noncurrent',
+      'eq': 'equity', 'fcf': 'fcf'
+    };
+    Object.entries(metricMap).forEach(([metId, fKey]) => {
+      const vals = f[fKey];
+      if (!vals) return;
+      ['22','23','24'].forEach((yr, yi) => {
+        const el = document.getElementById(`m-${metId}-${yr}`);
+        if (el && el.tagName === 'INPUT') el.value = (vals[yi] / 1000).toFixed(1);
+      });
+    });
+
+    // Credit limits
+    const lim = b.air8_limit;
+    if (lim) {
+      document.getElementById('cla-air8-res').value = lim.clean_residual || '';
+      document.getElementById('cla-air8-sec').value = lim.secured_post_shipment || '';
+      document.getElementById('cla-air8-prop').value = lim.total_usdm || '';
+      document.getElementById('cla-air8-ins').value = lim.insurance_limit_usdm || '';
+      document.getElementById('cla-air8-insco').value = lim.insurance_company || '';
+      document.getElementById('cla-air8-tenor').value = lim.tenor_days || '';
+      document.getElementById('cla-air8-ar').value = lim.advance_ratio_pct || '';
+      document.getElementById('cla-air8-peak').value = lim.peak_wc || '';
+      document.getElementById('cla-air8-avg').value = lim.avg_wc || '';
+      document.getElementById('cla-air8-cd').value = lim.credit_days || '';
+      document.getElementById('cla-air8-pmt').value = lim.payment_delay || '';
+      document.getElementById('cla-air8-dil').value = lim.dilution_pct || '';
+      document.getElementById('cla-total-prop').value = lim.total_usdm || '';
+
+      // Liquidity
+      document.getElementById('liq-24').value = (942/1000).toFixed(1); // ABL available
+    }
+  }
+
+  calcHighlightsYoY();
+  calcMetrics();
+  calcLiqYoY();
+}
+
+function searchBuyer(val) {
+  const v = val.toLowerCase();
+  if (v.includes('bj') || v.includes('wholesale')) loadBuyer('bjs');
+}
+
+function clearForm() {
+  if (!confirm('Clear all form data?')) return;
+  document.querySelectorAll('input.editable, select.editable').forEach(el => { el.value = ''; });
+  document.querySelectorAll('[contenteditable="true"]').forEach(el => { el.textContent = ''; });
+  calcMetrics(); calcHighlightsYoY(); calcLiqYoY();
+}
+
+// ===== LOCAL STORAGE =====
+function saveDraft() {
+  const state = {};
+  document.querySelectorAll('[id]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') state[el.id] = el.value;
+    else if (el.contentEditable === 'true') state[el.id] = el.innerHTML;
+  });
+  localStorage.setItem('air8-cm-draft', JSON.stringify(state));
+  alert('Draft saved to browser storage!');
+}
+
+function loadSaved() {
+  const raw = localStorage.getItem('air8-cm-draft');
+  if (!raw) { alert('No saved draft found.'); return; }
+  const state = JSON.parse(raw);
+  Object.entries(state).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
+    else if (el.contentEditable === 'true') el.innerHTML = val;
+  });
+  calcMetrics(); calcHighlightsYoY(); calcLiqYoY();
+  alert('Draft loaded!');
+}
+
+// ===== INIT =====
+// Air8 DB — pre-generated by skill, embedded locally
+const AIR8_DB = {
+  walmart: {
+    search:['walmart','wmt'],
+    // Identity
+    buyer_name:'Walmart Inc.', buyer_group:'Walmart Inc.',
+    country:'United States of America', ticker:'NYSE: WMT',
+    founded:'1962', hq:'Bentonville, Arkansas, USA',
+    website:'www.walmart.com', fy_end:'January 31',
+    business:"Omnichannel retail \u2014 Walmart US (~69% of revenue), Walmart International (~18%), Sam\u2019s Club (~13%). Key categories: grocery (58% of US revenue), general merchandise, health & wellness, e-commerce.",
+    products_sourced:'Apparel, footwear, accessories, home goods, hardgoods',
+    key_mgmt:'Doug McMillon (President & CEO); John David Rainey (EVP & CFO)',
+    mktcap:'~USD 780B',
+    // External ratings
+    sp_rating:'AA/Stable', moodys:'Aa2/Stable', fitch:'AA/Stable',
+    // Air8 internal
+    air8_rating:'A', air8_financial_alert:'Green',
+    air8_insurance:'ALLIA (Allianz)', air8_indemnity_ratio:90, air8_tenor_days:90, air8_ar_nature:'NON LF',
+    // Financials (USD millions) — FY convention: Jan year-end = prior calendar year
+    fy_labels:["FY2023 (Jan'24)","FY2024 (Jan'25)","FY2025 (Jan'26)"],
+    revenue:[648125,680985,713163], gross_profit:[158966,169597,180438],
+    ebitda:[38500,42300,44000], net_profit:[15511,19436,21893],
+    cash:[9935,9536,10700], inventory:[54900,57000,59300],
+    debt_current:[5400,4000,5500], debt_noncurrent:[36100,35200,34600],
+    equity:[83861,91263,99600], fcf:[13000,12400,15000],
+    interest_exp:[2000,2100,2300], current_assets:[74800,78900,83500], current_liab:[97300,102500,108200],
+    // Latest quarter
+    q_label:"Q4 FY2025 (Oct\u2013Jan'26)", q_prev_label:"Q4 FY2024 (Oct\u2013Jan'25)",
+    q_revenue:[180600,172300], q_net_profit:[5000,4500],
+    // Analysis text
+    exec_summary:"Walmart Inc., founded in 1962 and headquartered in Bentonville, Arkansas, is the world\u2019s largest retailer by revenue, operating over 10,500 stores and clubs across 19 countries. In FY2025 (year ended January 31, 2026), the company crossed USD 700 billion in annual net sales for the first time (+4.7% YoY), driven by US e-commerce growth (+22% YoY) and comparable sales strength across Walmart US (+4.9%) and Sam\u2019s Club US (+3.8%). S&P AA/Stable affirms consistently strong financial profile with Net Debt/EBITDA of 0.67x and FCF of USD 15.0B.",
+    analysis_profitability:"FY2025 net sales of USD 713.2B (+4.7% YoY) marked the first time Walmart crossed USD 700B, driven by US e-commerce +22%, Walmart US comps +4.9%, and Sam\u2019s Club +3.8%. Gross margin expanded +40bps to 25.3%, reflecting higher-margin advertising revenue (+41% ex-VIZIO) and membership fee growth. Net profit improved 12.6% to USD 21.9B. FY2026 guidance: net sales +3\u20134%, operating income +3.5\u20135.5%; tariff risk (~20% China sourcing) may compress GM by 30\u201350bps.",
+    analysis_liquidity:"As of January 31, 2026, Walmart maintained USD 10.7B cash and access to USD 15B revolving credit facility (largely undrawn) and USD 5B commercial paper program. Net Debt/EBITDA of 0.67x and EBITDA/Interest of 19.1x reflect one of the strongest balance sheets in global retail. The structurally negative current ratio (0.77x) is normal for Walmart\u2019s business model \u2014 customers pay before suppliers \u2014 and is not a credit concern given USD 41.6B annual OCF.",
+    analysis_cashflow:"OCF reached a record USD 41.6B in FY2025 (+14.1% YoY), comfortably funding CapEx of USD 26.6B (+12%) for automation and supply chain. FCF recovered to USD 15.0B (+21% YoY). Total debt of USD 40.1B is well-managed with a staggered maturity profile; LT debt declined to USD 34.6B from USD 36.1B (FY2023). Shareholder returns totalled ~USD 15.6B in FY2025, marking Walmart\u2019s 52nd consecutive annual dividend increase.",
+    outlook:"Walmart has guided FY2026 net sales growth of +3\u20134% and operating income growth of +3.5\u20135.5%, reflecting continued US comp momentum and e-commerce expansion. E-commerce expected to remain the fastest-growing channel; advertising revenue (USD 4B+) provides structural margin tailwind. US\u2013China tariffs (~20% China sourcing) represent the primary near-term risk with management guiding 30\u201350bps GM compression, offset by diversified sourcing and pricing power. No major management changes or corporate actions anticipated.",
+    liquidity_note:"USD 10.7B cash + undrawn USD 15B revolving credit facility + USD 5B commercial paper. No near-term refinancing risk. LT debt maturity ladder well-distributed. S&P AA/Stable affirms consistently strong liquidity. Structural current ratio of 0.77x is normal for Walmart\u2019s negative working capital model, not a credit concern given USD 41.6B OCF.",
+    obligor_rationale:"Reaffirm risk category \u2018A\u2019 based on FY2025 (Jan\u201926) financials. Walmart\u2019s AA/Stable (S&P) reflects world-leading scale, consistent revenue growth, strengthening margins, and very low leverage (Net Debt/EBITDA 0.67x). Air8 internal rating \u2018A\u2019 is consistent with the external assessment.",
+    rec_status:'Grow',
+    rec_1:"World\u2019s largest retailer by revenue (USD 713.2B), diversified across 19 countries, consistently gaining e-commerce market share (+22% US FY2025), with high customer loyalty and growing membership income (Sam\u2019s Club).",
+    rec_2:"AA/Stable external rating; Net Debt/EBITDA 0.67x; EBITDA/Interest 19.1x; FCF USD 15.0B; equity growing to USD 99.6B. Financial profile is amongst the strongest in global retail.",
+    rec_3:"FY2026 guidance of +3\u20134% net sales growth, +3.5\u20135.5% OI growth. Tariff risk (~20% China sourcing) partially mitigated by diversified sourcing across 60+ countries and pricing power.",
+    rec_4:"OA 90 days per supplier-advised terms. Prompt payer with industry-leading payment practices. No material dilution or deduction risk expected.",
+    risks:[
+      {level:'Low', risk:'Tariff risk: ~20% of merchandise sourced from China, exposed to US\u2013China tariff escalation', mitigant:'Active diversification of sourcing to non-China markets; pricing power allows partial tariff pass-through; scale enables rapid supplier switching'},
+      {level:'Low', risk:'Margin pressure from labor cost inflation and investment in price competitiveness', mitigant:'Growing high-margin revenue streams (advertising +41%, membership fees) offset SG&A inflation; GP% expanded 80bps over 3 years'},
+      {level:'Low', risk:'E-commerce investment cycle: high CapEx (USD 26.6B) pressure on FCF', mitigant:'OCF of USD 41.6B comfortably funds CapEx; FCF of USD 15.0B remains strong; debt declining'}
+    ],
+    source:'Walmart FY2025 10-K (Mar 2026); Q4 FY2026 Earnings Release (Feb 2026); stock.walmart.com'
+  },
+  kontoor: {
+    search:['kontoor','ktb','wrangler','lee brand'],
+    buyer_name:'Kontoor Brands, Inc.', buyer_group:'Kontoor Brands, Inc.',
+    country:'United States of America', ticker:'NYSE: KTB',
+    founded:'2019 (spun off from VF Corporation)', hq:'Greensboro, North Carolina, USA',
+    website:'www.kontoorbrands.com', fy_end:'Late December (52/53-week year)',
+    business:"Global lifestyle apparel \u2014 Wrangler\u00ae and Lee\u00ae brands. Wholesale (US + international) and direct-to-consumer channels. Acquired Helly Hansen (premium outdoor) in 2025.",
+    products_sourced:'Apparel, footwear, accessories',
+    key_mgmt:'Scott Baxter (President, CEO & Chairman)',
+    mktcap:'~USD 3.5B',
+    sp_rating:'BB/Stable', moodys:'Not rated', fitch:'Not rated',
+    air8_rating:'B', air8_financial_alert:'Green',
+    air8_insurance:'ECIC (policy 810023/40) + ALLIA (Allianz)', air8_indemnity_ratio:90, air8_tenor_days:90, air8_ar_nature:'NON LF',
+    fy_labels:["FY2022 (Dec'22)","FY2023 (Dec'23)","FY2024 (Dec'24)"],
+    revenue:[2561,2589,2609], gross_profit:[1049,1100,1161],
+    ebitda:[330,395,431], net_profit:[102,222,249],
+    cash:[180,270,310], inventory:[820,640,500],
+    debt_current:[50,50,50], debt_noncurrent:[800,730,670],
+    equity:[380,500,600], fcf:[65,322,324],
+    interest_exp:[42,46,46], current_assets:[980,1020,980], current_liab:[580,540,520],
+    q_label:"Q4 FY2024 (Oct\u2013Dec'24)", q_prev_label:"Q4 FY2023 (Oct\u2013Dec'23)",
+    q_revenue:[699,672], q_net_profit:[33,38],
+    exec_summary:"Kontoor Brands, Inc. (NYSE: KTB), established as an independent public company in May 2019 following a spin-off from VF Corporation and headquartered in Greensboro, North Carolina, is a global lifestyle apparel company operating two iconic brands \u2014 Wrangler\u00ae and Lee\u00ae. In FY2024 (year ended December 28, 2024), Kontoor reported revenue of USD 2.61B (broadly flat YoY), with adjusted gross margin expanding +260bps to 45.1% and adjusted operating income growing 9% to USD 381M, reflecting disciplined execution. The company maintains Net Debt/EBITDA of ~0.95x and strong FCF of USD 324M. In 2025, Kontoor completed the acquisition of Helly Hansen to expand into premium outdoor lifestyle.",
+    analysis_profitability:"Revenue has been broadly flat over three years (FY2022\u2013FY2024: USD 2.56B \u2192 2.59B \u2192 2.61B), with growth driven by direct-to-consumer and international expansion. The key story is gross margin: GP% improved from 41.0% (FY2022) to 44.5% (FY2024), a +350bps gain driven by strategic pricing, product mix improvements, and supply chain efficiencies. Net profit more than doubled from FY2022 to FY2024. FY2025 guidance (excl. Helly Hansen): revenue +1\u20133%, adj. operating income +5\u20137%.",
+    analysis_liquidity:"Cash improved from ~USD 180M (FY2022) to ~USD 310M (FY2024). Net Debt/EBITDA declined sharply from 2.03x to 0.95x as debt reduced and EBITDA expanded \u2014 now below 1.0x. Current ratio of ~1.9x reflects healthy short-term coverage. Post-Helly Hansen acquisition leverage is expected to rise temporarily (~2.0\u20132.5x); will deleverage via FCF over FY2025\u20132026.",
+    analysis_cashflow:"FCF surged from USD 65M (FY2022, depressed by inventory build) to USD 322\u2013324M in FY2023/FY2024, demonstrating strong cash generation. Capital-light model (capex ~USD 25\u201330M/year) results in FCF conversion consistently >100% of net income. The company returned USD 198M to shareholders in FY2024. FY2025 cash from operations guidance: >USD 300M.",
+    outlook:"FY2025 guidance (excl. Helly Hansen): revenue +1\u20133%, adj. operating income +5\u20137%, extending the multi-year margin expansion trend. Helly Hansen acquisition adds a premium outdoor lifestyle brand with strong European presence. Key watch: integration execution and pro-forma leverage post-acquisition. Tariff risk: China sourcing estimated ~20-30%; management actively diversifying to Mexico, Bangladesh, and other markets.",
+    liquidity_note:"Cash of ~USD 310M + undrawn revolving credit facility (USD 600M committed). Net Debt/EBITDA 0.95x (FY2024, pre-Helly Hansen). Debt maturity profile staggered with no near-term cliff. Post-Helly Hansen leverage to be confirmed from FY2025 10-K; FCF of >USD 300M guided for FY2025 provides strong deleveraging capacity.",
+    obligor_rationale:"Reaffirm risk category \u2018B\u2019 based on FY2024 financials, aligned with S&P BB/Stable external rating. Net Debt/EBITDA 0.95x (below 1.0x), current ratio 1.9x, FCF USD 324M with high FCF conversion. Improving 3-year trend on all key metrics. Post-Helly Hansen leverage to be monitored from FY2025 10-K.",
+    rec_status:'Maintain',
+    rec_1:"Two iconic global denim brands (Wrangler\u00ae, Lee\u00ae) with 100+ years of heritage; strong wholesale distribution network (Walmart, Target) and growing DTC channel (+16% US digital FY2024). Helly Hansen acquisition diversifies into premium outdoor lifestyle.",
+    rec_2:"Air8 rating B; S&P BB/Stable; Net Debt/EBITDA 0.95x; EBITDA/Interest ~9.3x; FCF USD 324M; GP margin expanded +350bps over 3 years to 44.5%. Capital-light model with FCF conversion >100% of net income.",
+    rec_3:"FY2025 guidance of +1\u20133% revenue and +5\u20137% adj. OI growth. Helly Hansen adds premium growth vector. Tariff risk (~20\u201330% China exposure) mitigated by active sourcing diversification to Mexico and Bangladesh.",
+    rec_4:"OA 90 days per supplier-advised terms. Established, publicly listed apparel company. Insurance confirmed: ECIC (policy 810023/40) + Allianz at 90% indemnity. Air8 credit limit TBD pending credit committee.",
+    risks:[
+      {level:'Low', risk:'Brand concentration: revenue concentrated in two mature brands (Wrangler and Lee), both skewed toward value retail channels', mitigant:'Helly Hansen acquisition diversifies into premium outdoor; DTC and digital growing fast (+16% US digital FY2024); international expansion reducing US wholesale dependence'},
+      {level:'Low', risk:'Wholesale channel vulnerability: US wholesale is the primary revenue driver; mass-market retailer destocking would directly impact revenue', mitigant:'Diversified wholesale account base; growing DTC offsets wholesale cyclicality; inventory managed conservatively (inventory \u221222% in Q4 FY2024)'},
+      {level:'Medium', risk:'Acquisition integration risk: Helly Hansen integration adds complexity; potential margin compression and leverage increase', mitigant:'Experienced management team; Helly Hansen operates largely independently; strong FCF base (>USD 300M guided) provides deleveraging capacity'}
+    ],
+    source:"Kontoor Brands Q4 FY2024 Earnings Release (Feb 2025); kontoorbrands.com; SEC EDGAR"
+  },
+  bjs: {
+    search:["bj's",'bj','bjs','wholesale club'],
+    buyer_name:"BJ's Wholesale Club Inc.", buyer_group:"BJ's Wholesale Club Holdings, Inc.",
+    country:'United States of America', ticker:'NYSE: BJ',
+    founded:'1984', hq:'Marlborough, Massachusetts, USA',
+    website:'www.bjs.com', fy_end:'Late January (52/53-week year)',
+    business:"Membership warehouse club retailer operating ~240 clubs across the US Eastern seaboard. Key categories: grocery, general merchandise, gasoline. Membership model generates stable, recurring revenue.",
+    products_sourced:'Apparels, footwear, accessories and hardgoods',
+    key_mgmt:'Bob Eddy (President & CEO)',
+    mktcap:'~USD 11B',
+    sp_rating:'BB+/Stable', moodys:'Ba1', fitch:'\u2014',
+    air8_rating:'B', air8_financial_alert:'Green',
+    air8_insurance:'ECIC', air8_indemnity_ratio:90, air8_tenor_days:90, air8_ar_nature:'AIR8',
+    air8_limit_total_usdm:3.1, air8_advance_ratio_pct:100, air8_insurance_limit_usdm:3.1, air8_credit_days:60,
+    fy_labels:["FY2022 (Jan'23)","FY2023 (Jan'24)","FY2024 (Jan'25)"],
+    revenue:[19271,19308,19822], gross_profit:[3282,3378,3547],
+    ebitda:[1100,1150,1200], net_profit:[490,500,490],
+    cash:[40,34,45], inventory:[1380,1400,1350],
+    debt_current:[210,200,220], debt_noncurrent:[1450,1500,1400],
+    equity:[1150,1100,1200], fcf:[550,600,580],
+    interest_exp:[80,85,88], current_assets:[2100,2200,2150], current_liab:[2800,2900,2850],
+    exec_summary:"BJ\u2019s Wholesale Club Holdings, Inc., founded in 1984 and headquartered in Marlborough, Massachusetts, is one of the largest membership warehouse club operators in the United States, with ~240 clubs primarily along the Eastern seaboard. Revenue has been stable at ~USD 19\u201320B annually, supported by a consistent membership renewal rate of ~90% which provides a reliable recurring revenue base. S&P BB+/Stable external rating reflects adequate financial profile.",
+    analysis_profitability:"Revenue grew modestly from USD 19.3B (FY2022) to USD 19.8B (FY2024), with gross margin improving from 17.0% to 17.9% (+90bps) reflecting membership fee growth and improving merchandise margins. Net profit has been stable at ~USD 490\u2013500M. Membership fee revenue provides a high-margin anchor. The company continues to open new clubs selectively, targeting 5\u201310 per year.",
+    analysis_liquidity:"Cash position is tight (~USD 34\u201345M) but supported by strong FCF generation and access to a revolving credit facility. Net Debt/EBITDA of ~2.0\u20132.5x is moderate for a membership warehouse retailer. Current ratio below 1.0x is structural for this business model (similar to Costco/Walmart negative working capital model).",
+    analysis_cashflow:"FCF of ~USD 550\u2013600M annually demonstrates strong cash conversion. Capital expenditure is primarily directed at new club openings and existing club renovations. The company has consistently returned capital to shareholders through share buybacks. Interest coverage ratio of ~13x provides comfortable debt service coverage.",
+    outlook:"BJ\u2019s continues to execute its club expansion strategy with 5\u201310 new club openings per year. Digital and e-commerce capabilities are being enhanced to compete with Costco and Amazon. Membership growth and renewal rate of ~90% provide business stability. Tariff impacts on general merchandise are being managed through supplier negotiations and product sourcing adjustments.",
+    liquidity_note:"Cash ~USD 34\u201345M with access to revolving credit facility. FCF of ~USD 550\u2013600M provides ample coverage. Structural negative current ratio (similar to Costco model) is not a credit concern. No material near-term refinancing risk.",
+    obligor_rationale:"Reaffirm risk category \u2018B\u2019 based on FY2024 financials, one notch above S&P BB+/Stable. Consistent performance trends, strong membership model (~90% renewal rate), and solid FCF generation support the B rating. Exception: 100% advance ratio under grandfathered arrangement for Bangladesh vendors.",
+    rec_status:'Maintain',
+    rec_1:"Established US membership warehouse club with ~240 locations, ~90% membership renewal rate, and stable recurring revenue base. Strong competitive moat in the Eastern US market.",
+    rec_2:"Air8 rating B; S&P BB+/Stable; Net Debt/EBITDA ~2.0\u20132.5x; FCF ~USD 580M; membership fee revenue provides high-margin anchor. Consistent 3-year performance.",
+    rec_3:"Continued selective club expansion (5\u201310/year); digital capabilities enhancement. Tariff risk on general merchandise managed through supplier diversification. Stable outlook.",
+    rec_4:"OA 60 days upon doc receipt per existing arrangement. 0% dilution and prompt payment conduct support retention of 100% advance ratio under grandfathered arrangement. Air8 limit: USD 3.1M (existing).",
+    risks:[
+      {level:'Low', risk:'Source of repayment: revenue dependent on consumer discretionary spending and membership renewal', mitigant:'~90% membership renewal rate provides recurring revenue base; value proposition remains compelling in all economic cycles'},
+      {level:'Low', risk:'Competition from Costco and Amazon expanding into warehouse club and grocery', mitigant:'Strong Eastern US geographic positioning; loyal member base; competitive pricing on groceries and branded merchandise'},
+      {level:'Low', risk:'Rising interest rates increasing cost of variable rate debt', mitigant:'FCF of ~USD 580M comfortably covers interest expense; strong debt service coverage ratio of ~13x'}
+    ],
+    source:"BJ\u2019s Wholesale Club IR; SEC EDGAR 10-K filings"
+  }
+};
+function lookupAir8DB(name) {
+  const v = name.toLowerCase().trim();
+  for (const k of Object.keys(AIR8_DB)) {
+    if (AIR8_DB[k].search.some(s => v.includes(s) || s.includes(v))) return AIR8_DB[k];
+  }
+  return null;
+}
+
+const CM_API = 'https://air8-cm-api.erik-ai-bot-001.workers.dev';
+
+async function generateCM() {
+  const val = document.getElementById('buyer-search').value.trim();
+  if (!val) { alert('Please enter a buyer name.'); return; }
+  const product = document.getElementById('product-select').value;
+  const oaDays = parseInt(document.getElementById('oa-days').value) || 90;
+  const btn = document.getElementById('gen-btn');
+  const msg = document.getElementById('generate-msg');
+
+  btn.textContent = '\u23f3 Generating...';
+  btn.disabled = true;
+  if (msg) { msg.style.display = 'none'; }
+
+  try {
+    // Check local DB first for instant known buyers
+    const localDb = lookupAir8DB(val);
+    if (localDb && localDb.revenue) {
+      // Known buyer with full data — fill instantly
+      // Silent reset (no confirm dialog)
+      document.querySelectorAll('input.editable, select.editable').forEach(el => el.value = '');
+      document.querySelectorAll('[contenteditable="true"]').forEach(el => el.textContent = '');
+      fillAir8Fields(localDb, product, oaDays);
+      if (msg) { msg.innerHTML = '\u2705 Loaded from Air8 database.'; msg.style.display = 'block'; setTimeout(()=>msg.style.display='none', 3000); }
+      btn.textContent = '\u26a1 Generate'; btn.disabled = false;
+      return;
+    }
+
+    // Unknown buyer or partial data — call AI API
+    const res = await fetch(CM_API + '/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({buyer: val, product, oa_days: oaDays})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const buyer = data.buyer;
+    document.querySelectorAll('input.editable, select.editable').forEach(el => el.value = '');
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => el.textContent = '');
+    fillAir8Fields(buyer, product, oaDays);
+
+    const dbNote = data.air8_db_found
+      ? '\u2705 Air8 DB fields merged. '
+      : '\u2139\ufe0f Not in Air8 DB — limit/insurance left blank. ';
+    if (msg) {
+      msg.innerHTML = dbNote + 'Generated via AI. Verify financials before submission.';
+      msg.style.display = 'block';
+      setTimeout(()=>msg.style.display='none', 6000);
+    }
+
+  } catch(e) {
+    clearForm();
+    const nameEl = document.getElementById('h-buyer-group');
+    if (nameEl) nameEl.value = val;
+    if (msg) {
+      msg.innerHTML = '\u26a0\ufe0f API error: ' + e.message.slice(0,100);
+      msg.style.display = 'block';
+    }
+  } finally {
+    btn.textContent = '\u26a1 Generate';
+    btn.disabled = false;
+  }
+}
+function fillAir8Fields(db, product, oaDays) {
+  // Helper: set input/select value
+  function sv(id, val) {
+    if (val === undefined || val === null || val === '') return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
+    else if (el.contentEditable === 'true') el.textContent = String(val);
+  }
+  // Helper: divide by 1000 for display (millions → billions)
+  function b(v) { return v != null ? (v/1000).toFixed(1) : ''; }
+
+  // ── HEADER ──
+  sv('h-buyer-group', db.buyer_group || db.buyer_name);
+  sv('h-buyer-name', db.buyer_name);
+  sv('h-country', db.country);
+  sv('h-business', db.business);
+  sv('h-products', db.products_sourced);
+  sv('h-mktcap', (db.mktcap||'') + (db.sp_rating ? ' / ' + db.sp_rating : ''));
+  sv('h-date', new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'}));
+  const rcat = db.air8_rating || '';
+  sv('h-risk-current', rcat);
+  sv('h-risk-proposed', rcat);
+
+  // ── SECTION 1 — Executive Summary & Requests ──
+  sv('s1-summary', db.exec_summary || '');
+  sv('s1-req-product', product === 'ARP' ? 'AR Discounting' : product === 'MiniARP' ? 'Mini ARP' : 'Pre-shipment Loan');
+  sv('s1-req-tenor', db.air8_tenor_days || oaDays);
+  if (db.air8_limit_total_usdm) sv('s1-req-usd', db.air8_limit_total_usdm);
+  if (db.air8_advance_ratio_pct) sv('s1-req-ar', db.air8_advance_ratio_pct);
+  sv('s1-riskcat-val', rcat);
+  sv('s1-riskcat-fy', (db.fy_labels?.[2]||'').replace(/[^0-9]/g,'').slice(-2));
+  sv('s1-exceptions', 'None.');
+
+  // ── SECTION 2 — Buyer Information ──
+  sv('s2-group', db.buyer_group || db.buyer_name);
+  sv('s2-obligor', db.buyer_name);
+  sv('s2-country', db.country);
+  sv('s2-website', db.website);
+  sv('s2-ticker', db.ticker);
+  sv('s2-biz', db.business);
+  sv('s2-mktcap', db.mktcap);
+  sv('s2-sp', db.sp_rating);
+  sv('s2-moodys', db.moodys || db.moodys_rating || '');
+  sv('s2-fitch', db.fitch || db.fitch_rating || '');
+  sv('s2-air8-current', rcat + (db.air8_score ? '/' + db.air8_score : ''));
+  sv('s2-air8-proposed', rcat + (db.air8_score ? '/' + db.air8_score : ''));
+  // Key customers contenteditable
+  const custEl = document.getElementById('s2-customers');
+  if (custEl && db.products_sourced) custEl.textContent = db.products_sourced;
+
+  // ── SECTION 3 — Financial Highlights ──
+  if (db.revenue) {
+    const yrs = ['22','23','24'];
+    // Highlights: values in billions (÷1000)
+    [['h-turnover',db.revenue],['h-ebitda',db.ebitda],['h-equity',db.equity],['h-fcf',db.fcf]].forEach(([id,arr])=>{
+      if(!arr)return;
+      yrs.forEach((yr,i)=>{const el=document.getElementById(`${id}-${yr}`);if(el&&el.tagName==='INPUT')el.value=b(arr[i]);});
+    });
+    // Debt = current + non-current
+    if(db.debt_current&&db.debt_noncurrent){
+      yrs.forEach((yr,i)=>{const el=document.getElementById(`h-debt-${yr}`);if(el&&el.tagName==='INPUT')el.value=b((db.debt_current[i]||0)+(db.debt_noncurrent[i]||0));});
+    }
+  }
+
+  // ── SECTION 5 — Key Financial Metrics ──
+  // Fill Key Financial Metrics table
+  const metMap = {
+    'rev':db.revenue,'gp':db.gross_profit,'ebitda':db.ebitda,
+    'np':db.net_profit,'cash':db.cash,'inv':db.inventory,
+    'debt_c':db.debt_current,'debt_nc':db.debt_noncurrent,
+    'eq':db.equity,'fcf':db.fcf
+  };
+  Object.entries(metMap).forEach(([mid,arr])=>{
+    if(!arr||!arr.length)return;
+    ['22','23','24'].forEach((yr,i)=>{
+      // Try both possible ID formats
+      const el = document.getElementById('m-'+mid+'-'+yr) ||
+                 document.getElementById('m-'+mid+yr);
+      if(el && (el.tagName==='INPUT'||el.tagName==='SPAN')) {
+        if(el.tagName==='INPUT') el.value = b(arr[i]);
+        else el.textContent = b(arr[i]);
+      }
+    });
+  });
+  // Fill Highlights table (÷1000)
+  const hlMap = {
+    'h-turnover':db.revenue,'h-ebitda':db.ebitda,
+    'h-equity':db.equity,'h-fcf':db.fcf
+  };
+  Object.entries(hlMap).forEach(([hid,arr])=>{
+    if(!arr||!arr.length)return;
+    ['22','23','24'].forEach((yr,i)=>{
+      const el = document.getElementById(hid+'-'+yr);
+      if(el && el.tagName==='INPUT') el.value = b(arr[i]);
+    });
+  });
+  // Debt total for highlights
+  if(db.debt_current&&db.debt_noncurrent){
+    ['22','23','24'].forEach((yr,i)=>{
+      const el = document.getElementById('h-debt-'+yr);
+      if(el&&el.tagName==='INPUT') el.value = b((db.debt_current[i]||0)+(db.debt_noncurrent[i]||0));
+    });
+  }
+  // Quarterly revenue
+  if(db.q_revenue){
+    const qc=document.getElementById('m-rev-q-cur');
+    const qp=document.getElementById('m-rev-q-prior');
+    if(qc)qc.value=b(db.q_revenue[0]);
+    if(qp)qp.value=b(db.q_revenue[1]);
+  }
+  // Interest, CA, CL for ratio calculations
+  if(db.interest_exp){const el=document.getElementById('r-interest');if(el)el.value=b(db.interest_exp[2]);}
+  if(db.current_assets){const el=document.getElementById('r-ca');if(el)el.value=b(db.current_assets[2]);}
+  if(db.current_liab){const el=document.getElementById('r-cl');if(el)el.value=b(db.current_liab[2]);}
+
+  // Metrics table analysis text — put in Key Highlights divs of relevant rows
+  const metHighlights = {
+    'rev': db.analysis_profitability,
+    'cash': db.analysis_liquidity,
+    'fcf': db.analysis_cashflow
+  };
+  // Find highlight cells by matching row position in metrics table
+  const mrows = document.querySelectorAll('#metrics-body tr:not(.group-row)');
+  const rowOrder = ['rev','gp','gp_pct','ebitda','ebitda_m','np','np_pct','cash','inv','debt_c','debt_nc','eq','fcf','ccc','nd_ebitda','int_cov','curr_ratio'];
+  mrows.forEach(tr => {
+    const firstInput = tr.querySelector('input');
+    if (!firstInput) return;
+    const rowId = firstInput.id?.replace(/^m-/,'').replace(/-\d\d$/,'');
+    if (!rowId) return;
+    const text = metHighlights[rowId];
+    if (!text) return;
+    const highlightDiv = tr.querySelector('.highlight-cell div[contenteditable]');
+    if (highlightDiv) highlightDiv.textContent = text;
+  });
+
+  // ── SECTION 4 — Credit Limits ──
+  sv('cla-air8-insco', db.air8_insurance || '');
+  sv('cla-air8-tenor', db.air8_tenor_days || oaDays);
+  sv('cla-air8-ar', db.air8_advance_ratio_pct || '');
+  sv('cla-air8-ins', db.air8_insurance_limit_usdm || '');
+  sv('cla-air8-prop', db.air8_limit_total_usdm || '');
+  sv('cla-air8-exist', db.air8_limit_total_usdm || '');
+  sv('cla-air8-peak', db.air8_peak_wc || '');
+  sv('cla-air8-avg', db.air8_avg_wc || '');
+  sv('cla-air8-cd', db.air8_credit_days || oaDays);
+  sv('cla-air8-pmt', db.air8_payment_delay || 'Prompt');
+  sv('cla-air8-dil', db.air8_dilution_pct != null ? db.air8_dilution_pct : '0');
+  const totEl = document.getElementById('cla-total-prop');
+  if (totEl) totEl.value = db.air8_limit_total_usdm || '';
+
+  // ── SECTION 6 — Liquidity ──
+  if (db.cash) {
+    sv('liq-22', b(db.cash[0]));
+    sv('liq-23', b(db.cash[1]));
+    sv('liq-24', b(db.cash[2]));
+  }
+  const liqHighEl = document.querySelector('#tbl-metrics')?.closest('.section')?.nextElementSibling?.querySelector('.highlight-cell div[contenteditable]');
+  if (liqHighEl && db.liquidity_note) liqHighEl.textContent = db.liquidity_note;
+
+  // ── SECTION 7 — Obligor Rating ──
+  sv('s7-score', db.air8_score || '');
+  sv('s7-rationale', db.obligor_rationale || '');
+
+  // ── SECTION 8 — Recommendation ──
+  sv('s8-status', db.rec_status || 'Maintain');
+  if (typeof updateStatusBadge === 'function') updateStatusBadge();
+  // Fill the 4 anonymous rich-area divs inside section 8
+  const s8divs = document.querySelectorAll('.section:has(#s8-status) .rich-area[contenteditable]');
+  const recTexts = [db.rec_1, db.rec_2, db.rec_3, db.rec_4].filter(Boolean);
+  s8divs.forEach((div,i) => { if(recTexts[i]) div.textContent = recTexts[i]; });
+
+  // ── SECTION 9 — Key Risks & Mitigants ──
+  if (db.risks && db.risks.length) {
+    const riskRows = db.risks.map(r => ({
+      level: r.level || 'Low',
+      desc: r.risk || r.desc || '',
+      mitigant: r.mitigant || ''
+    }));
+    if (typeof buildRisksTable === 'function') buildRisksTable(riskRows);
+  }
+
+  // Trigger all calculations
+  if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
+  if (typeof calcMetrics === 'function') calcMetrics();
+  if (typeof calcLiqYoY === 'function') calcLiqYoY();
+}
+
+function fillFromAPI(b, product, oaDays) {
+  clearForm();
+  // Helper
+  function set(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) { if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val; else if (el.contentEditable === 'true') el.textContent = val; } }
+  function setHTML(id, val) { const el = document.getElementById(id); if (el && val) el.innerHTML = val; }
+
+  // Header
+  set('h-date', new Date().toLocaleDateString('en-GB', {month:'long', year:'numeric'}));
+  set('h-buyer-group', b.buyer_group || '');
+  set('h-buyer-name', b.buyer_name || '');
+  set('h-rating', (b.mktcap || '') + (b.sp_rating ? ' / ' + b.sp_rating + ' (S&P)' : ''));
+  set('h-country', b.country || '');
+  set('h-risk-current', b.risk_category || '');
+  set('h-risk-proposed', b.risk_category || '');
+  set('h-products', b.products_sourced || '');
+  set('h-business', b.business || '');
+
+  // Section 2 - Buyer Info
+  set('s2-group', b.buyer_group || '');
+  set('s2-obligor', b.buyer_name || '');
+  set('s2-country', b.country || '');
+  set('s2-website', b.website || '');
+  set('s2-mktcap', b.mktcap || '');
+  set('s2-sp', b.sp_rating || 'Not rated');
+  set('s2-moodys', b.moodys_rating || 'Not rated');
+  set('s2-fitch', b.fitch_rating || 'Not rated');
+  set('s2-air8-current', b.risk_category || '');
+  set('s2-air8-proposed', b.risk_category || '');
+  set('s2-business', b.business || '');
+
+  // Section 1 - requests
+  set('s1-req-product', product === 'ARP' ? 'AR Discounting (ARP)' : product === 'MiniARP' ? 'Mini ARP' : 'Pre-shipment Loan');
+  set('s1-oa-days', oaDays);
+  set('s1-risk-cat', b.risk_category || '');
+  set('s1-exec-bg', b.buyer_name + ', founded ' + (b.founded || '') + ', headquartered in ' + (b.hq || b.country || '') + '. ' + (b.business || ''));
+
+  // Credit limits - Air8 section
+  if (b.air8_insurance) {
+    set('air8-insurance-co', b.air8_insurance);
+    set('air8-indemnity', b.air8_indemnity_ratio ? b.air8_indemnity_ratio + '%' : '');
+    set('air8-tenor', b.air8_tenor_days ? 'Up to ' + b.air8_tenor_days + ' days' : '');
+    if (b.air8_limit_total) set('air8-total-proposed', b.air8_limit_total);
+    if (b.air8_advance_ratio) set('air8-advance-ratio', 'Up to ' + b.air8_advance_ratio + '%');
+  }
+
+  // Financial highlights table
+  if (b.revenue && b.fy_labels) {
+    const metrics = ['revenue','gross_profit','ebitda','net_profit','cash','inventory','debt_current','debt_noncurrent','equity','fcf'];
+    const ids = ['h-turnover','h-gp','h-ebitda','h-debt','h-equity','h-fcf'];
+    // Highlights table: revenue, gp%, ebitda, debt, equity, fcf
+    const hData = [b.revenue, null, b.ebitda, [b.debt_current?.[0]+b.debt_noncurrent?.[0], b.debt_current?.[1]+b.debt_noncurrent?.[1], b.debt_current?.[2]+b.debt_noncurrent?.[2]], b.equity, b.fcf];
+    hData.forEach((arr, ri) => {
+      if (!arr) return;
+      const id = ids[ri];
+      for (let ci = 0; ci < 3; ci++) {
+        const cellId = id + '-fy' + (ci+1);
+        const el = document.getElementById(cellId);
+        if (el && arr[ci] !== undefined) el.value = arr[ci];
+      }
+    });
+    // FY label headers
+    for (let i = 0; i < 3; i++) {
+      const lbl = document.getElementById('fy-label-' + (i+1));
+      if (lbl) lbl.textContent = b.fy_labels[i] || '';
+    }
+    // Metrics table
+    const mMap = {revenue:b.revenue, gross_profit:b.gross_profit, ebitda:b.ebitda, net_profit:b.net_profit, cash:b.cash, inventory:b.inventory, debt_current:b.debt_current, debt_noncurrent:b.debt_noncurrent, equity:b.equity, fcf:b.fcf, interest_exp:b.interest_exp, current_assets:b.current_assets, current_liab:b.current_liab};
+    Object.keys(mMap).forEach(key => {
+      const arr = mMap[key]; if (!arr) return;
+      for (let ci = 0; ci < 3; ci++) {
+        const el = document.getElementById('m-' + key + '-' + (ci+1));
+        if (el && arr[ci] !== undefined) el.value = arr[ci];
+      }
+    });
+    for (let i = 0; i < 3; i++) {
+      const lbl = document.getElementById('m-fy-label-' + (i+1));
+      if (lbl) lbl.textContent = b.fy_labels[i] || '';
+    }
+    calcMetrics(); calcHighlightsYoY(); calcLiqYoY();
+  }
+
+  // Outlook / Section 9
+  if (b.outlook) {
+    const el = document.getElementById('s9-outlook');
+    if (el) el.textContent = b.outlook;
+  }
+
+  // Recommendation
+  if (b.rec_status) set('rec-status', b.rec_status);
+
+  // Product-specific adjustments
+  const productNote = document.getElementById('product-type-display');
+  if (productNote) productNote.textContent = product;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildHighlightsTable();
+  buildMetricsTable();
+  buildCreditLimitsTables();
+  buildRisksTable();
+  // Start clean - no auto-load
+});
+</script>
+</body>
+</html>
