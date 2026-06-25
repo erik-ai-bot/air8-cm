@@ -539,7 +539,8 @@
 
   /* ===== PRINT ===== */
   @media print {
-    /* Enable background color + image printing (rating badges, table headers) */
+    /* Force ALL elements to print backgrounds/colors exactly as shown */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body { background: #fff !important; font-size: 11px; }
     #toolbar, #config-sidebar, #sidebar-toggle, #generate-msg, #paste-hint, #upload-status,
@@ -573,9 +574,16 @@
       print-color-adjust: exact !important;
       color: white !important;
     }
-    /* Section headers, rating badges, colored spans */
-    .section-header-bar, .risk-badge span, #s2-air8-current, #s2-air8-proposed,
-    #s7-rating-current-display, #s7-rating-proposed-display, #s8-current {
+    /* Group-row sub-section headers: make them clearly visible in print */
+    tr.group-row td {
+      background: #dbeafe !important;
+      color: #1e40af !important;
+      font-weight: 700 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    /* Section title bars and rating elements */
+    .section-title, .section-title *, .num {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
