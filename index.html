@@ -1870,7 +1870,7 @@ async function saveDraft() {
   const rating = document.getElementById('h-risk-proposed')?.value || '';
 
   // Check for existing drafts
-  const resp = await fetch('/drafts/list?buyer=' + encodeURIComponent(buyer));
+  const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
   const { drafts } = await resp.json();
 
   let overrideId = null;
@@ -1887,7 +1887,7 @@ async function saveDraft() {
   }
 
   const cmData = collectFormState();
-  const r = await fetch('/drafts/save', {
+  const r = await fetch(CM_API + '/drafts/save', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ buyer, cmData, rating, status:'Draft', overrideId })
@@ -1912,7 +1912,7 @@ async function loadSaved() {
   const buyer = document.getElementById('buyer-search')?.value || '';
   if (!buyer) { alert('Enter a buyer name to search for drafts.'); return; }
 
-  const resp = await fetch('/drafts/list?buyer=' + encodeURIComponent(buyer));
+  const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
   const { drafts } = await resp.json();
 
   if (!drafts || drafts.length === 0) {
@@ -1932,7 +1932,7 @@ async function loadSaved() {
   if (idx < 0 || idx >= drafts.length) { alert('Invalid selection'); return; }
 
   const selected = drafts[idx];
-  const dataResp = await fetch('/drafts/get?id=' + selected.id);
+  const dataResp = await fetch(CM_API + '/drafts/get?id=' + selected.id);
   const { data, meta } = await dataResp.json();
 
   if (!data || Object.keys(data).length === 0) {
@@ -2583,7 +2583,7 @@ async function onBuyerInput(val) {
   if (!val || val.length < 2) { dd.style.display = 'none'; return; }
   _draftCheckTimer = setTimeout(async () => {
     try {
-      const resp = await fetch('/drafts/list?buyer=' + encodeURIComponent(val));
+      const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(val));
       const { drafts } = await resp.json();
       const list = document.getElementById('draft-list');
       if (!drafts || drafts.length === 0) { dd.style.display = 'none'; return; }
@@ -2613,7 +2613,7 @@ function closeDraftDropdown() {
 async function loadDraft(id) {
   closeDraftDropdown();
   try {
-    const dataResp = await fetch('/drafts/get?id=' + id);
+    const dataResp = await fetch(CM_API + '/drafts/get?id=' + id);
     const { data, meta } = await dataResp.json();
     if (!data || Object.keys(data).length === 0) { alert('Draft data empty.'); return; }
     Object.entries(data).forEach(([elId, val]) => {
@@ -2937,7 +2937,7 @@ async function generateCM() {
   // ── New mode: check for saved drafts first ──
   if (mode === 'new' && !window._skipDraftCheck) {
     try {
-      var dr = await fetch('/drafts/list?buyer=' + encodeURIComponent(val));
+      var dr = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(val));
       var dj = await dr.json();
       var draftList = dj.drafts;
       if (draftList && draftList.length > 0) {
@@ -2954,7 +2954,7 @@ async function generateCM() {
           var latestId = latest.id;
           document.getElementById('cm-continue-draft').onclick = async function() {
             msgEl.style.display = 'none';
-            var dataResp = await fetch('/drafts/get?id=' + latestId);
+            var dataResp = await fetch(CM_API + '/drafts/get?id=' + latestId);
             var dd = await dataResp.json();
             if (dd.data && Object.keys(dd.data).length > 0) {
               document.querySelectorAll('input.editable, select.editable').forEach(function(el){ el.value = ''; });
