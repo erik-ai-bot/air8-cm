@@ -3557,6 +3557,25 @@ async function generateCM() {
     // Apply Air8 formula calculator before filling form
     calculateAir8Metrics(buyer);
     fillAir8Fields(buyer, product, oaDays);
+    // Sync Section 3 quarterly columns with Section 5 state
+    var _tblMetrics = document.getElementById('tbl-metrics');
+    var _hasQ = _tblMetrics && _tblMetrics.classList.contains('has-quarterly');
+    document.querySelectorAll('.h-q-col').forEach(function(el) {
+      el.style.display = _hasQ ? 'table-cell' : 'none';
+    });
+    if (_hasQ && buyer.q_revenue) {
+      var s3qm = [['h-turnover','q_revenue'],['h-ebitda','q_ebitda'],['h-fcf','q_fcf'],
+                  ['h-debt','q_total_debt'],['h-equity','q_equity']];
+      s3qm.forEach(function(p) {
+        var src = buyer[p[1]]; if (!src) return;
+        var ec=document.getElementById(p[0]+'-q-cur'); if(ec&&src[0]) ec.value=Math.round(src[0]);
+        var el=document.getElementById(p[0]+'-q-ly'); if(el&&src[1]) el.value=Math.round(src[1]);
+        var ep=document.getElementById(p[0]+'-q-pct');
+        if(ep&&src[0]&&src[1]&&src[1]!==0) ep.textContent=(((src[0]-src[1])/Math.abs(src[1]))*100).toFixed(1)+'%';
+      });
+      var qc=document.getElementById('h-q-cur-label'); if(qc&&buyer.q_label) qc.textContent=buyer.q_label;
+      var ql=document.getElementById('h-q-ly-label'); if(ql&&buyer.q_label_ly) ql.textContent=buyer.q_label_ly;
+    }
     // Restore group display names if they were set (prevent AI from overwriting)
     if (window._obligorDisplayName) {
       var _on = document.getElementById('s2-obligor'); if(_on) _on.value = window._obligorDisplayName;
