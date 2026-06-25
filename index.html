@@ -1090,10 +1090,32 @@
   <!-- SECTION 7: OBLIGOR RATINGS -->
   <div class="section">
     <div class="section-title"><span class="num">7</span> OBLIGOR RATINGS</div>
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-      <span style="font-size:13px;font-weight:600;color:#374151;">Credit Score:</span>
-      <input type="text" class="editable" id="s7-score" placeholder="e.g. 61" style="width:80px;font-size:20px;font-weight:700;color:#2563eb;text-align:center;">
-      <span style="font-size:13px;color:#64748b;">/ 100</span>
+    <div style="display:flex;align-items:center;gap:24px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;font-weight:600;color:#64748b;">Credit Score:</span>
+        <input type="text" class="editable" id="s7-score" placeholder="e.g. 61" style="width:70px;font-size:20px;font-weight:700;color:#2563eb;text-align:center;">
+        <span style="font-size:12px;color:#64748b;">/ 100</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;font-weight:600;color:#64748b;">Current Rating:</span>
+        <select class="editable" id="s7-rating-current" style="font-weight:700;font-size:13px;border-radius:4px;padding:3px 8px;border:none;cursor:pointer;" onchange="syncRatingFromS7Current(this.value)">
+          <option value="-">-</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;font-weight:600;color:#64748b;">Proposed / Reaffirmed:</span>
+        <select class="editable" id="s7-rating-proposed" style="font-weight:700;font-size:13px;border-radius:4px;padding:3px 8px;border:none;cursor:pointer;" onchange="syncRatingFromS7Proposed(this.value)">
+          <option value="-">-</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
     </div>
     <div class="rich-area" contenteditable="true" id="s7-rationale"
       data-placeholder="Propose risk cat of 'X' / Reaffirm risk cat of 'X' based on FYxx. Compare with external rating. State if different from last approved. Justify the score components: profitability, leverage, liquidity, management quality, market position."></div>
@@ -1610,6 +1632,8 @@ function loadBuyer(key) {
   document.getElementById('h-risk-current-score').value = b.risk_current_score || '';
   document.getElementById('h-risk-proposed').value = b.risk_category_proposed || 'B';
   document.getElementById('h-risk-proposed-score').value = b.risk_proposed_score || '';
+  var s7c = document.getElementById('s7-rating-current'); if(s7c) s7c.value = b.risk_category_current || 'B';
+  var s7p = document.getElementById('s7-rating-proposed'); if(s7p) s7p.value = b.risk_category_proposed || 'B';
 
   // Section 2
   document.getElementById('s2-group').value = b.buyer_group || '';
@@ -3095,10 +3119,26 @@ async function generateCM() {
 // Rating color map (A=green, B=amber, C=orange, D=red)
 const RATING_COLORS = { A: '#22c55e', B: '#facc15', C: '#f97316', D: '#ef4444' }; // A=green, B=yellow, C=orange, D=red (matches Air8 reference)
 
+function syncRatingFromS7Current(val) {
+  var hEl = document.getElementById('h-risk-current');
+  if (hEl) { hEl.value = val; applyRatingColors(document.getElementById('h-risk-proposed')?.value || val); }
+}
+function syncRatingFromS7Proposed(val) {
+  var hEl = document.getElementById('h-risk-proposed');
+  if (hEl) { hEl.value = val; applyRatingColors(val); }
+}
 function applyRatingColors(rating) {
   var r = (rating || '').toUpperCase().charAt(0);
   var color = RATING_COLORS[r] || '#94a3b8';
   var textColor = (r === 'B') ? '#78350f' : '#fff'; // dark on yellow, white on others
+  // Sync Section 7 selects
+  ['s7-rating-current','s7-rating-proposed'].forEach(function(id) {
+    var hId = id === 's7-rating-current' ? 'h-risk-current' : 'h-risk-proposed';
+    var hEl = document.getElementById(hId);
+    var s7El = document.getElementById(id);
+    if (s7El && hEl && hEl.value && hEl.value !== '-') { s7El.value = hEl.value; }
+    if (s7El) { s7El.style.background = color; s7El.style.color = textColor; s7El.style.fontWeight = '700'; }
+  });
   // Color the rating selects with solid background matching Air8 reference
   ['h-risk-current','h-risk-proposed','s8-current','s8-status'].forEach(function(id) {
     var el = document.getElementById(id);
@@ -3360,6 +3400,8 @@ function fillAir8Fields(db, product, oaDays) {
     sv('h-risk-proposed', rcat);
     sv('s8-current', rcat);
     sv('s8-status', rcat);
+    var _s7c = document.getElementById('s7-rating-current'); if(_s7c) _s7c.value = rcat;
+    var _s7p = document.getElementById('s7-rating-proposed'); if(_s7p) _s7p.value = rcat;
   }
 
   // ── SECTION 1 — Executive Summary & Requests ──
@@ -3642,6 +3684,9 @@ function fillAir8Fields(db, product, oaDays) {
   // ── SECTION 7 — Obligor Rating ──
   sv('s7-score', db.air8_score || '');
   sv('s7-rationale', db.obligor_rationale || '');
+  // Section 7 rating dropdowns — use risk_category_current/proposed if available, else fall back to rcat
+  if (db.risk_category_current) { var _s7ce=document.getElementById('s7-rating-current'); if(_s7ce) _s7ce.value=(db.risk_category_current||'').charAt(0)||'-'; }
+  if (db.risk_category_proposed) { var _s7pe=document.getElementById('s7-rating-proposed'); if(_s7pe) _s7pe.value=(db.risk_category_proposed||'').charAt(0)||'-'; }
 
   // ── SECTION 8 — Recommendation ──
   sv('s8-status', db.rec_status || 'Maintain');
