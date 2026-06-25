@@ -4434,7 +4434,18 @@ document.addEventListener('DOMContentLoaded', () => {
   var fpConfig = { dateFormat: 'Y/m/d', allowInput: true };
   ['h-date','h-review-last','h-review-next'].forEach(function(id) {
     var el = document.getElementById(id);
-    if (el && typeof flatpickr !== 'undefined') flatpickr(el, fpConfig);
+    if (!el || typeof flatpickr === 'undefined') return;
+    var fp = flatpickr(el, fpConfig);
+    // Add calendar icon button next to the field
+    var btn = document.createElement('button');
+    btn.innerHTML = '📅';
+    btn.title = 'Pick date';
+    btn.type = 'button';
+    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;padding:0 3px;vertical-align:middle;opacity:0.7;';
+    btn.onmouseover = function(){ this.style.opacity='1'; };
+    btn.onmouseout = function(){ this.style.opacity='0.7'; };
+    btn.onclick = function(){ fp.open(); };
+    el.parentNode.insertBefore(btn, el.nextSibling);
   });
   loadPromptTemplates();
   buildHighlightsTable();
