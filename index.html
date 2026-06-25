@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Credit Memorandum - Air8</title>
 <meta name="version" content="v20260624-kh">
+<!-- Flatpickr date picker for YYYY/MM/DD format -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -792,7 +795,7 @@
     <div class="header-grid">
       <div class="header-row">
         <span class="header-label">Date</span>
-        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-date-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-date').value=v.replace(/-/g,'/');}"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" style="width:120px;"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Approval Level</span>
@@ -830,11 +833,11 @@
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Last</span>
-        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-review-last-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-review-last').value=v.replace(/-/g,'/');}"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" style="width:120px;"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Next</span>
-        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-review-next-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-review-next').value=v.replace(/-/g,'/');}"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" style="width:120px;"></span>
       </div>
     </div>
 
@@ -4426,6 +4429,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Debounce badge update
     clearTimeout(window._highlightTimer);
     window._highlightTimer = setTimeout(highlightEmptyBoxes, 500);
+  });
+  // Initialize flatpickr date pickers with YYYY/MM/DD format
+  var fpConfig = { dateFormat: 'Y/m/d', allowInput: true };
+  ['h-date','h-review-last','h-review-next'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && typeof flatpickr !== 'undefined') flatpickr(el, fpConfig);
   });
   loadPromptTemplates();
   buildHighlightsTable();
