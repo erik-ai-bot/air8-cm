@@ -539,6 +539,8 @@
 
   /* ===== PRINT ===== */
   @media print {
+    /* Enable background color + image printing (rating badges, table headers) */
+    html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body { background: #fff !important; font-size: 11px; }
     #toolbar, #config-sidebar, #sidebar-toggle, #generate-msg, #paste-hint, #upload-status,
     .cs-btn, .tb-sep, button, #empty-fields-badge { display: none !important; }
@@ -551,14 +553,32 @@
     }
     * { box-shadow: none !important; }
     [contenteditable="true"] { background: transparent !important; }
-    input.editable, select.editable {
+    /* Inputs transparent EXCEPT rating elements (which have .keep-color class) */
+    input.editable:not(.keep-color), select.editable:not(.keep-color) {
       background: transparent !important;
       border: none !important;
       -webkit-appearance: none !important;
-      color: #000 !important;
+      color: inherit !important;
     }
-    /* Show input values as text for PDF */
-    input[type="number"].editable { color: #000 !important; }
+    /* Rating elements: preserve their JS-applied background and text color */
+    .keep-color {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      border-radius: 4px !important;
+      padding: 2px 8px !important;
+    }
+    /* Table headers: keep dark background */
+    th {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color: white !important;
+    }
+    /* Section headers, rating badges, colored spans */
+    .section-header-bar, .risk-badge span, #s2-air8-current, #s2-air8-proposed,
+    #s7-rating-current-display, #s7-rating-proposed-display, #s8-current {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     /* Key highlights column — allow text to wrap */
     .highlight-cell, #kh-pl, #kh-bs, #kh-cf { 
       overflow: visible !important;
@@ -775,13 +795,13 @@
     <div class="risk-cat-row" style="margin-top:10px;">
       <span class="risk-cat-label">Risk Category</span>
       <span class="risk-badge current">
-        Current: <select class="editable" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;" onchange="applyRatingColors()">
+        Current: <select class="editable keep-color" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;" onchange="applyRatingColors()">
           <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
         </select>
         <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
       <span class="risk-badge proposed">
-        Proposed: <select class="editable" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;" onchange="applyRatingColors()">
+        Proposed: <select class="editable keep-color" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;" onchange="applyRatingColors()">
           <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
         </select>
         <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
@@ -1761,20 +1781,27 @@ window.addEventListener('afterprint', function() {
 });
 
 async function exportAndSave() {
-  // Auto-save to Notion on export (override if exists)
   const buyer = document.getElementById('h-buyer-name')?.value ||
                 document.getElementById('buyer-search')?.value || '';
+  const date = document.getElementById('h-date')?.value ||
+               new Date().toISOString().split('T')[0];
+  // Set document title to drive PDF filename: "Company Name CM Date"
+  const oldTitle = document.title;
+  if (buyer) {
+    document.title = buyer + ' CM ' + date;
+  }
+  // Auto-save to Notion on export (override if exists)
   if (buyer) {
     try {
       const cmData = collectFormState();
       const rating = document.getElementById('h-risk-proposed')?.value || '';
       let overrideId = window._lastDraftId || null;
       if (!overrideId) {
-        const resp = await fetch('/drafts/list?buyer=' + encodeURIComponent(buyer));
+        const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
         const { drafts } = await resp.json();
         if (drafts?.[0]) overrideId = drafts[0].id;
       }
-      await fetch('/drafts/save', {
+      await fetch(CM_API + '/drafts/save', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ buyer, cmData, rating, status:'Final', overrideId })
@@ -1782,6 +1809,7 @@ async function exportAndSave() {
     } catch(e) { /* ignore save errors on export */ }
   }
   window.print();
+  setTimeout(function() { document.title = oldTitle; }, 1500);
 }
 
 function collectFormState() {
