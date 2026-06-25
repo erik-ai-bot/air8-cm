@@ -975,11 +975,11 @@
       <thead>
         <tr>
           <th class="left" style="min-width:160px;">(US$'m)</th>
-          <th>FY2022</th>
-          <th>FY2023</th>
-          <th>FY2024</th>
-          <th style="background:#374151;">23 vs 22%</th>
-          <th style="background:#374151;">24 vs 23%</th>
+          <th id="h-fy1-label">FY2022</th>
+          <th id="h-fy2-label">FY2023</th>
+          <th id="h-fy3-label">FY2024</th>
+          <th id="h-yoy1-label" style="background:#374151;">23 vs 22%</th>
+          <th id="h-yoy2-label" style="background:#374151;">24 vs 23%</th>
         </tr>
       </thead>
       <tbody id="highlights-body">
@@ -4131,11 +4131,25 @@ function fillAir8Fields(db, product, oaDays) {
   calcLiqYoY();
   // Direct immediate liq header sync (not relying on setTimeout)
   if (db.fy_labels && db.fy_labels.length >= 3) {
-    var liqThs = [['liq-th-fy1', db.fy_labels[0]], ['liq-th-fy2', db.fy_labels[1]], ['liq-th-fy3', db.fy_labels[2]]];
+    var fyL = db.fy_labels;
+    // Sync Liquidity table headers
+    var liqThs = [['liq-th-fy1', fyL[0]], ['liq-th-fy2', fyL[1]], ['liq-th-fy3', fyL[2]]];
     liqThs.forEach(function(pair) { var el = document.getElementById(pair[0]); if (el) el.textContent = pair[1]; });
-    // YoY header
     var lyEl = document.getElementById('liq-yoy-th');
-    if (lyEl) { var l2 = db.fy_labels[1].replace(/[^0-9]/g,'').slice(-2), l3 = db.fy_labels[2].replace(/[^0-9]/g,'').slice(-2); lyEl.textContent = l3 + ' vs ' + l2 + '%'; }
+    if (lyEl) { var l2 = fyL[1].replace(/[^0-9]/g,'').slice(-2), l3 = fyL[2].replace(/[^0-9]/g,'').slice(-2); lyEl.textContent = l3 + ' vs ' + l2 + '%'; }
+    // Sync Section 3 Financial Highlights headers to match Section 5
+    var h1=document.getElementById('h-fy1-label'); if(h1) h1.textContent=fyL[0];
+    var h2=document.getElementById('h-fy2-label'); if(h2) h2.textContent=fyL[1];
+    var h3=document.getElementById('h-fy3-label'); if(h3) h3.textContent=fyL[2];
+    // Update Section 3 YoY headers
+    var hy1=document.getElementById('h-yoy1-label');
+    var hy2=document.getElementById('h-yoy2-label');
+    if (hy1) hy1.textContent = (fyL[1]||'FY2') + ' vs ' + (fyL[0]||'FY1') + '%';
+    if (hy2) hy2.textContent = (fyL[2]||'FY3') + ' vs ' + (fyL[1]||'FY2') + '%';
+    // Also sync Section 5 th headers (these are contenteditable)
+    var tf1=document.getElementById('th-fy1'); if(tf1) tf1.textContent=fyL[0];
+    var tf2=document.getElementById('th-fy2'); if(tf2) tf2.textContent=fyL[1];
+    var tf3=document.getElementById('th-fy3'); if(tf3) tf3.textContent=fyL[2];
   }
   if (db.q_label) { var lqc = document.getElementById('liq-th-qcur'); if(lqc) lqc.textContent = db.q_label; }
   if (db.q_label_ly) { var lql = document.getElementById('liq-th-qly'); if(lql) lql.textContent = db.q_label_ly; }
