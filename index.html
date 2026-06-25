@@ -3292,29 +3292,51 @@ async function generateCM() {
     if (dbData.error) throw new Error(dbData.error);
 
     // ── SUBSIDIARY/PARENT LOGIC ──────────────────────────────────────────
-    // If buyer has a parent group, use parent name for AI analytics (better financial data)
     var db = dbData.air8_fields || {};
-    var displayName = val; // original name for display
-    var analyticsName = val; // name used for AI financial fetch
-    if (db.buyer_group && db.buyer_group.toLowerCase() !== val.toLowerCase()) {
-      analyticsName = db.buyer_group; // use parent for analytics
-      console.log('[CM] Subsidiary detected. Using parent "' + analyticsName + '" for analytics.');
+    var analyticsName = val; // name used for AI financial fetch (default = entered name)
+    var resolvedGroup = null;
+
+    // Step A: check if the sheet returned a parent_group for this buyer
+    var sheetParent = db.parent_group || '';
+    if (sheetParent && sheetParent.toLowerCase() !== val.toLowerCase()) {
+      analyticsName = sheetParent; // subsidiary → use parent for analytics
+      resolvedGroup = sheetParent;
+      console.log('[CM] Subsidiary detected. Parent: "' + analyticsName + '"');
     }
-    // If parent group has ≤3 entities, show all names in Obligor Name field
-    if (db.buyer_group) {
-      try {
-        var grpCheck = await fetch(CM_API + '/buyer-group?group=' + encodeURIComponent(db.buyer_group));
-        var grpData = await grpCheck.json();
-        if (grpData.found && grpData.buyers && grpData.buyers.length > 1 && grpData.buyers.length <= 3) {
-          var allNames = grpData.buyers.map(function(b) { return b.name; }).join(' / ');
-          // Show combined names in Section 2 Obligor Name
-          var nameEl = document.getElementById('s2-obligor');
-          if (nameEl) nameEl.value = allNames;
-          var hNameEl = document.getElementById('h-buyer-name');
-          if (hNameEl && !hNameEl.value) hNameEl.value = allNames;
+
+    // Step B: look up group (either by parent returned from sheet, or by entered name = parent directly)
+    var groupNameToSearch = resolvedGroup || val;
+    try {
+      var grpRes = await fetch(CM_API + '/buyer-group?group=' + encodeURIComponent(groupNameToSearch));
+      var grpData = await grpRes.json();
+      if (grpData.found && grpData.buyers && grpData.buyers.length > 0) {
+        // If resolved_parent came back (user entered subsidiary name), use that as analyticsName
+        if (grpData.resolved_parent) {
+          analyticsName = grpData.resolved_parent;
+          resolvedGroup = grpData.resolved_parent;
+        } else {
+          resolvedGroup = grpData.group;
         }
-      } catch(e) { /* ignore */ }
-    }
+        var n = grpData.buyers.length;
+        var obligorEl = document.getElementById('s2-obligor');
+        var hNameEl = document.getElementById('h-buyer-name');
+        var obligorText;
+        if (n <= 3) {
+          // Show all names
+          obligorText = grpData.buyers.map(function(b) { return b.name; }).join(' / ');
+        } else {
+          // Show parent + count
+          obligorText = resolvedGroup + ' and its subsidiaries (' + n + ' entities)';
+        }
+        if (obligorEl) obligorEl.value = obligorText;
+        if (hNameEl && !hNameEl.value) hNameEl.value = obligorText;
+        // Also update buyer parent field
+        var grpEl = document.getElementById('h-buyer-group');
+        if (grpEl && !grpEl.value) grpEl.value = resolvedGroup;
+        // Load appendix with group data
+        if (typeof loadGroupAppendix === 'function') loadGroupAppendix(resolvedGroup);
+      }
+    } catch(e) { console.warn('Group lookup failed:', e); }
 
     // Step 2: financials — use CIQ directly if uploaded, otherwise fetch via AI
     var financials;
