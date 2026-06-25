@@ -1978,7 +1978,7 @@ function loadBuyer(key) {
     const years = ['22','23','24'];
     // Section 3 Highlights: Turnover, GP%, EBITDA, Debt (total), Equity, FCF
     // Fill quarterly data for Section 3 if available
-    var hasQ3 = fin.q_revenue && fin.q_revenue[0];
+    var hasQ3 = db.q_revenue && db.q_revenue[0];
     if (hasQ3) {
       var s3qMap = [
         { row: 'h-turnover', qKey: 'q_revenue' },
@@ -1988,7 +1988,7 @@ function loadBuyer(key) {
         { row: 'h-equity', qKey: 'q_equity' }
       ];
       s3qMap.forEach(function(m) {
-        var src = fin[m.qKey];
+        var src = db[m.qKey];
         if (!src) return;
         var elCur = document.getElementById(m.row + '-q-cur');
         var elLy = document.getElementById(m.row + '-q-ly');
@@ -2000,8 +2000,8 @@ function loadBuyer(key) {
       // Show quarterly columns in Section 3
       document.querySelectorAll('.h-q-col').forEach(function(el) { el.style.display = 'table-cell'; });
       // Update Q headers
-      if (fin.q_label) { var qcEl = document.getElementById('h-q-cur-label'); if(qcEl) qcEl.textContent = fin.q_label; }
-      if (fin.q_label_ly) { var qlyEl = document.getElementById('h-q-ly-label'); if(qlyEl) qlyEl.textContent = fin.q_label_ly; }
+      if (db.q_label) { var qcEl = document.getElementById('h-q-cur-label'); if(qcEl) qcEl.textContent = db.q_label; }
+      if (db.q_label_ly) { var qlyEl = document.getElementById('h-q-ly-label'); if(qlyEl) qlyEl.textContent = db.q_label_ly; }
     }
     const highlightMap = [
       { row: 'turnover', key: 'revenue',    fmt: v => Math.round(v) },
