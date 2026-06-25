@@ -2905,8 +2905,8 @@ async function loadGroupAppendix(buyerGroup) {
     var totalInsured = 0, totalInsurance = 0;
     
     data.buyers.forEach(function(b) {
-      var insured = parseFloat((b.insured_arp_limit||'').replace(/[^0-9.]/g,'')) || 0;
-      var insurance = parseFloat((b.insurance_limit_usd||'').replace(/[^0-9.]/g,'')) || 0;
+      var insured = parseFloat(String(b.insured_arp_limit||0).replace(/[^0-9.]/g,'')) || 0;
+      var insurance = parseFloat(String(b.insurance_limit_usd||0).replace(/[^0-9.]/g,'')) || 0;
       totalInsured += insured;
       totalInsurance += insurance;
       
