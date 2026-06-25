@@ -980,6 +980,9 @@
           <th id="h-fy3-label">FY2024</th>
           <th id="h-yoy1-label" style="background:#374151;">23 vs 22%</th>
           <th id="h-yoy2-label" style="background:#374151;">24 vs 23%</th>
+          <th class="h-q-col" id="h-q-cur-label" style="display:none;">Latest Q</th>
+          <th class="h-q-col" id="h-q-ly-label" style="display:none;">Same Q LY</th>
+          <th class="h-q-col" style="background:#374151;display:none;">% Chg</th>
         </tr>
       </thead>
       <tbody id="highlights-body">
@@ -1356,6 +1359,9 @@ function buildHighlightsTable() {
       <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-24" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
       <td class="pct-cell calc" id="${row.id}-yoy1">-</td>
       <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
+      <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-cur" placeholder="0.0" style="text-align:right;width:72px;"></td>
+      <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-ly" placeholder="0.0" style="text-align:right;width:72px;"></td>
+      <td class="pct-cell calc h-q-col" id="${row.id}-q-pct" style="display:none;">-</td>
     `;
     tbody.appendChild(tr);
   });
@@ -1971,6 +1977,32 @@ function loadBuyer(key) {
   if (fin && (fin.revenue || fin.ebitda)) {
     const years = ['22','23','24'];
     // Section 3 Highlights: Turnover, GP%, EBITDA, Debt (total), Equity, FCF
+    // Fill quarterly data for Section 3 if available
+    var hasQ3 = fin.q_revenue && fin.q_revenue[0];
+    if (hasQ3) {
+      var s3qMap = [
+        { row: 'h-turnover', qKey: 'q_revenue' },
+        { row: 'h-ebitda', qKey: 'q_ebitda' },
+        { row: 'h-fcf', qKey: 'q_fcf' },
+        { row: 'h-debt', qKey: 'q_total_debt' },
+        { row: 'h-equity', qKey: 'q_equity' }
+      ];
+      s3qMap.forEach(function(m) {
+        var src = fin[m.qKey];
+        if (!src) return;
+        var elCur = document.getElementById(m.row + '-q-cur');
+        var elLy = document.getElementById(m.row + '-q-ly');
+        var elPct = document.getElementById(m.row + '-q-pct');
+        if (elCur && src[0]) elCur.value = Math.round(src[0]);
+        if (elLy && src[1]) elLy.value = Math.round(src[1]);
+        if (elPct && src[0] && src[1] && src[1] !== 0) elPct.textContent = (((src[0]-src[1])/Math.abs(src[1]))*100).toFixed(1) + '%';
+      });
+      // Show quarterly columns in Section 3
+      document.querySelectorAll('.h-q-col').forEach(function(el) { el.style.display = 'table-cell'; });
+      // Update Q headers
+      if (fin.q_label) { var qcEl = document.getElementById('h-q-cur-label'); if(qcEl) qcEl.textContent = fin.q_label; }
+      if (fin.q_label_ly) { var qlyEl = document.getElementById('h-q-ly-label'); if(qlyEl) qlyEl.textContent = fin.q_label_ly; }
+    }
     const highlightMap = [
       { row: 'turnover', key: 'revenue',    fmt: v => Math.round(v) },
       { row: 'gp',       key: 'gp_pct',    fmt: v => (v < 1 ? (v*100).toFixed(1) : v.toFixed(1)) },  // GP% as %
