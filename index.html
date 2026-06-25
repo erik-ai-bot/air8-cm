@@ -1159,28 +1159,28 @@
         <span class="rec-num">1</span>
         <div style="flex:1;">
           <div contenteditable="true" class="rec-label" style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px;outline:none;cursor:text;" title="Click to rename">Business Profile</div>
-          <div class="rich-area" contenteditable="true" data-placeholder="Founding year, core model, market position, store/channel count..."></div>
+          <div class="rich-area" contenteditable="true" id="rec-1" data-placeholder="Founding year, core model, market position, store/channel count..."></div>
         </div>
       </li>
       <li class="rec-point">
         <span class="rec-num">2</span>
         <div style="flex:1;">
           <div contenteditable="true" class="rec-label" style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px;outline:none;cursor:text;" title="Click to rename">Performance &amp; Liquidity</div>
-          <div class="rich-area" contenteditable="true" data-placeholder="Revenue % + latest Q, specific cash + RCF headroom + maturity date..."></div>
+          <div class="rich-area" contenteditable="true" id="rec-2" data-placeholder="Revenue % + latest Q, specific cash + RCF headroom + maturity date..."></div>
         </div>
       </li>
       <li class="rec-point">
         <span class="rec-num">3</span>
         <div style="flex:1;">
           <div contenteditable="true" class="rec-label" style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px;outline:none;cursor:text;" title="Click to rename">Outlook</div>
-          <div class="rich-area" contenteditable="true" data-placeholder="Management guidance (revenue +X-Y%, OI +X-Y%), key risk (tariff, capex, channel)..."></div>
+          <div class="rich-area" contenteditable="true" id="rec-3" data-placeholder="Management guidance (revenue +X-Y%, OI +X-Y%), key risk (tariff, capex, channel)..."></div>
         </div>
       </li>
       <li class="rec-point">
         <span class="rec-num">4</span>
         <div style="flex:1;">
           <div contenteditable="true" class="rec-label" style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:4px;outline:none;cursor:text;" title="Click to rename">Payment Track Record</div>
-          <div class="rich-area" contenteditable="true" data-placeholder="Weighted avg delay X days, X% dilution, GMV $Xm last 12 months..."></div>
+          <div class="rich-area" contenteditable="true" id="rec-4" data-placeholder="Weighted avg delay X days, X% dilution, GMV $Xm last 12 months..."></div>
         </div>
       </li>
     </ul>
@@ -1823,43 +1823,32 @@ async function exportAndSave() {
 
 function collectFormState() {
   const state = {};
-  // Only save elements that have actual content (skip empty — reduces size)
+  // Save all elements with IDs that have content
   document.querySelectorAll('[id]').forEach(el => {
     if (!el.id) return;
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
       if (el.value && el.value.trim()) {
-        // Skip financial metric inputs that are 0 (would overwrite real data on load)
         if (el.type === 'number' && el.id.startsWith('m-') && (parseFloat(el.value) === 0)) return;
         state[el.id] = el.value;
       }
     } else if (el.contentEditable === 'true') {
       var txt = (el.textContent || '').trim();
-      // Skip rec-label (titles), skip if empty
       if (!el.classList.contains('rec-label') && txt) state[el.id] = txt;
     }
   });
-  // Also save rec-point boxes by index (no IDs)
-  var recBoxes = document.querySelectorAll('.rec-point .rich-area[contenteditable]');
-  recBoxes.forEach(function(el,i) {
-    var txt = (el.textContent || '').trim();
-    if (txt) state['_rec_' + i] = txt;
-  });
-  // Save action plan
-  ['ap-1','ap-2'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el && el.textContent.trim()) state[id] = el.textContent.trim();
-  });
-  // Save risk rows (dynamic, no IDs — save by index)
-  var riskRows = document.querySelectorAll('#risks-body tr');
-  riskRows.forEach(function(tr, i) {
+  // Save risks as a single JSON array (robust — no index fragility)
+  var risks = [];
+  document.querySelectorAll('#risks-body tr').forEach(function(tr) {
     var sel = tr.querySelector('select');
     var divs = tr.querySelectorAll('div[contenteditable]');
-    if (!sel && divs.length === 0) return; // empty or non-data row
-    state['_risk_' + i + '_level'] = sel ? sel.value : '';
-    state['_risk_' + i + '_desc'] = divs[0] ? (divs[0].textContent || '').trim() : '';
-    state['_risk_' + i + '_mit'] = divs[1] ? (divs[1].textContent || '').trim() : '';
+    if (!sel && divs.length === 0) return;
+    risks.push({
+      level: sel ? sel.value : 'Low',
+      desc: divs[0] ? (divs[0].textContent || '').trim() : '',
+      mit: divs[1] ? (divs[1].textContent || '').trim() : ''
+    });
   });
-  state['_risk_count'] = riskRows.length;
+  if (risks.length > 0) state['_risks_json'] = JSON.stringify(risks);
   return state;
 }
 
@@ -2616,20 +2605,15 @@ async function loadDraft(id) {
     const dataResp = await fetch(CM_API + '/drafts/get?id=' + id);
     const { data, meta } = await dataResp.json();
     if (!data || Object.keys(data).length === 0) { alert('Draft data empty.'); return; }
+    // Restore all ID-based fields (inputs, selects, contenteditable)
     Object.entries(data).forEach(([elId, val]) => {
-      if (elId.startsWith('_rec_')) {
-        var idx = parseInt(elId.replace('_rec_',''));
-        var recBoxes = document.querySelectorAll('.rec-point .rich-area[contenteditable]');
-        if (recBoxes[idx]) recBoxes[idx].textContent = val;
-        return;
-      }
+      if (elId.startsWith('_')) return; // handled separately below
       const el = document.getElementById(elId);
       if (!el) return;
       if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
         el.value = val;
-        el.style.borderColor = ''; el.style.boxShadow = ''; // clear red borders
-      }
-      else if (el.contentEditable === 'true') {
+        el.style.borderColor = ''; el.style.boxShadow = '';
+      } else if (el.contentEditable === 'true') {
         el.textContent = val;
         el.classList.remove('required-empty');
       }
@@ -2638,25 +2622,21 @@ async function loadDraft(id) {
     document.querySelectorAll('input[style*="ef4444"], [style*="ef4444"]').forEach(function(el) {
       el.style.borderColor = ''; el.style.boxShadow = ''; el.style.outline = '';
     });
-    // Restore risk rows
-    var riskCount = parseInt(data['_risk_count'] || 0);
-    if (riskCount > 0) {
-      var tbody = document.getElementById('risks-body');
-      if (tbody) {
-        tbody.innerHTML = ''; // clear existing rows
-        for (var ri = 0; ri < riskCount; ri++) {
-          var lvl = data['_risk_' + ri + '_level'] || 'Low';
-          var desc = data['_risk_' + ri + '_desc'] || '';
-          var mit = data['_risk_' + ri + '_mit'] || '';
-          if (lvl || desc || mit) {
-            if (typeof addRiskRow === 'function') addRiskRow({level: lvl, desc: desc, mitigant: mit});
-          }
+    // Restore risk rows from JSON blob
+    if (data['_risks_json']) {
+      try {
+        var risks = JSON.parse(data['_risks_json']);
+        var tbody = document.getElementById('risks-body');
+        if (tbody && risks.length > 0) {
+          tbody.innerHTML = '';
+          risks.forEach(function(r) {
+            if (typeof addRiskRow === 'function') addRiskRow({level: r.level||'Low', desc: r.desc||'', mitigant: r.mit||''});
+          });
+          tbody.querySelectorAll('select').forEach(function(s) {
+            if (typeof updateRiskClass === 'function') updateRiskClass(s);
+          });
         }
-        // Re-apply risk row colors
-        tbody.querySelectorAll('select').forEach(function(s) {
-          if (typeof updateRiskClass === 'function') updateRiskClass(s);
-        });
-      }
+      } catch(e) { console.warn('Risk restore failed:', e); }
     }
     if (typeof calcMetrics === 'function') calcMetrics();
     if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
