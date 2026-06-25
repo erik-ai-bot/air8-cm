@@ -792,7 +792,7 @@
     <div class="header-grid">
       <div class="header-row">
         <span class="header-label">Date</span>
-        <span class="header-value"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-date-hidden').showPicker?document.getElementById('h-date-hidden').showPicker():document.getElementById('h-date-hidden').click()"><input type="date" id="h-date-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-date').value=v.replace(/-/g,'/');}"></span>
+        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-date-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-date').value=v.replace(/-/g,'/');}"></span></span>
       </div>
       <div class="header-row">
         <span class="header-label">Approval Level</span>
@@ -830,11 +830,11 @@
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Last</span>
-        <span class="header-value"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-review-last-hidden').showPicker?document.getElementById('h-review-last-hidden').showPicker():document.getElementById('h-review-last-hidden').click()"><input type="date" id="h-review-last-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-review-last').value=v.replace(/-/g,'/');}"></span>
+        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-review-last-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-review-last').value=v.replace(/-/g,'/');}"></span></span>
       </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Next</span>
-        <span class="header-value"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" onfocus="this.nextElementSibling.showPicker?this.nextElementSibling.showPicker():null" style="width:120px;" readonly onclick="document.getElementById('h-review-next-hidden').showPicker?document.getElementById('h-review-next-hidden').showPicker():document.getElementById('h-review-next-hidden').click()"><input type="date" id="h-review-next-hidden" style="position:absolute;left:-9999px;opacity:0;width:0;" onchange="var v=this.value;if(v){document.getElementById('h-review-next').value=v.replace(/-/g,'/');}"></span>
+        <span class="header-value"><span style="position:relative;display:inline-block;"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" style="width:120px;" readonly><input type="date" id="h-review-next-hidden" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="var v=this.value;if(v){document.getElementById('h-review-next').value=v.replace(/-/g,'/');}"></span></span>
       </div>
     </div>
 
