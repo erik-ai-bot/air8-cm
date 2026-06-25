@@ -805,13 +805,13 @@
       <span class="risk-cat-label">Risk Category</span>
       <span class="risk-badge current">
         Current: <select class="editable keep-color" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;" onchange="applyRatingColors()">
-          <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
+          <option value="" selected disabled>-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
         </select>
         <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
       <span class="risk-badge proposed">
         Proposed: <select class="editable keep-color" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;" onchange="applyRatingColors()">
-          <option value="" selected disabled>-</option><option>A</option><option>B</option><option>C</option><option>D</option>
+          <option value="" selected disabled>-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
         </select>
         <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
@@ -2642,7 +2642,18 @@ async function loadDraft(id) {
     if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
     if (typeof calcLiqYoY === 'function') calcLiqYoY();
     // Apply rating colors AFTER all fields restored — updates Section 2 + Section 7 spans
+    // Force-set select values again to ensure they stuck (browser quirk with valueless options)
+    var _rc = data['h-risk-current'] || '';
+    var _rp = data['h-risk-proposed'] || '';
+    var _rcs = data['h-risk-current-score'] || '';
+    var _rps = data['h-risk-proposed-score'] || '';
+    if (_rc) { var _selC = document.getElementById('h-risk-current'); if(_selC) _selC.value = _rc; }
+    if (_rp) { var _selP = document.getElementById('h-risk-proposed'); if(_selP) _selP.value = _rp; }
+    if (_rcs) { var _scsEl = document.getElementById('h-risk-current-score'); if(_scsEl) _scsEl.value = _rcs; }
+    if (_rps) { var _spsEl = document.getElementById('h-risk-proposed-score'); if(_spsEl) _spsEl.value = _rps; }
     if (typeof applyRatingColors === 'function') applyRatingColors();
+    // Also run after a tick to catch any async DOM updates
+    setTimeout(function() { if (typeof applyRatingColors === 'function') applyRatingColors(); }, 50);
     window._lastDraftId = id;
     const msg = document.getElementById('generate-msg');
     msg.style.display = 'inline';
