@@ -2114,14 +2114,16 @@ window.addEventListener('afterprint', function() {
 });
 
 async function exportAndSave() {
-  const buyer = document.getElementById('h-buyer-name')?.value ||
-                document.getElementById('buyer-search')?.value || '';
+  // PDF filename: Obligor Parent CM Date (or fall back to buyer name)
+  const obligorParent = document.getElementById('h-buyer-group')?.value || '';
+  const buyerName = document.getElementById('h-buyer-name')?.value ||
+                   document.getElementById('buyer-search')?.value || '';
+  const fileNameBase = (obligorParent || buyerName || 'CM').trim();
   const date = document.getElementById('h-date')?.value ||
                new Date().toISOString().split('T')[0].replace(/-/g,'/');
-  // Set document title to drive PDF filename: "Company Name CM Date"
   const oldTitle = document.title;
-  if (buyer) {
-    document.title = buyer + ' CM ' + date;
+  if (fileNameBase) {
+    document.title = fileNameBase + ' CM ' + date;
   }
   // Auto-save to Notion on export (override if exists)
   if (buyer) {
