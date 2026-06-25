@@ -594,31 +594,44 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Financial table: scale to fit full page width including KH column */
+    /* Financial table: match on-screen appearance */
     #tbl-metrics {
       table-layout: fixed !important;
       width: 100% !important;
-      font-size: 7px !important;
+      font-size: 8px !important;
     }
-    #tbl-metrics th, #tbl-metrics td { 
-      padding: 1px 3px !important;
-      font-size: 7px !important;
-      overflow: hidden !important;
+    #tbl-metrics th { 
+      padding: 3px 4px !important;
+      font-size: 8px !important;
     }
-    /* KH column: fixed proportion, text wraps cleanly */
-    .highlight-cell, #kh-pl, #kh-bs, #kh-cf { 
-      overflow: visible !important;
-      word-break: break-word !important;
-      white-space: normal !important;
-      font-size: 7px !important;
-      width: 20% !important;
-      max-width: 20% !important;
+    #tbl-metrics td { 
+      padding: 2px 4px !important;
+      font-size: 8px !important;
       vertical-align: top !important;
     }
-    td.highlight-cell { width: 20% !important; max-width: 20% !important; }
-    /* Number columns: tight */
-    #tbl-metrics .num-cell, #tbl-metrics .pct-cell { width: 6% !important; min-width: 0 !important; }
-    #tbl-metrics .label { width: 13% !important; min-width: 0 !important; }
+    /* KH column: max 6 lines, rest hidden - keeps table compact */
+    .highlight-cell, #kh-pl, #kh-bs, #kh-cf { 
+      word-break: break-word !important;
+      white-space: normal !important;
+      font-size: 7.5px !important;
+      width: 26% !important;
+      max-width: 26% !important;
+      vertical-align: top !important;
+      overflow: visible !important;
+      line-height: 1.35 !important;
+    }
+    td.highlight-cell { width: 26% !important; }
+    /* Number + pct columns: tighter */
+    #tbl-metrics .num-cell { width: 7% !important; min-width: 0 !important; }
+    #tbl-metrics .pct-cell { width: 5.5% !important; min-width: 0 !important; }
+    #tbl-metrics .label { width: 14% !important; min-width: 0 !important; white-space: normal !important; }
+    /* Group header rows: keep blue background */
+    #tbl-metrics tr.group-row td { 
+      background: #dbeafe !important; 
+      color: #1e40af !important; 
+      font-weight: 700 !important;
+      -webkit-print-color-adjust: exact !important;
+    }
     .add-row-btn, .del-row-btn { display: none !important; }
     * { font-size: 9px !important; line-height: 1.4 !important; font-family: Arial, sans-serif !important; }
     table { font-size: 9px !important; border-collapse: collapse !important; }
@@ -2875,6 +2888,11 @@ function closeDraftDropdown() {
 async function loadDraft(id) {
   closeDraftDropdown();
   window._obligorDisplayName = null; window._obligorParent = null; window._groupSums = null;
+  // Remind user if no CIQ screenshot uploaded (non-blocking warning)
+  if (!window._ciqData && !window._previousCM && _screenshotPasteCount === 0) {
+    var proceed = confirm('No CIQ screenshot uploaded yet.\n\nThe tool will use AI web search for financial data, which may be less accurate.\n\nClick OK to continue with web search, or Cancel to upload a CIQ screenshot first.');
+    if (!proceed) return;
+  }
   try {
     const dataResp = await fetch(CM_API + '/drafts/get?id=' + id);
     const { data, meta } = await dataResp.json();
