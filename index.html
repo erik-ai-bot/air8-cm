@@ -663,7 +663,7 @@
 
   <!-- BUYER -->
   <div class="cs-section">
-    <div class="cs-label">Buyer Name</div>
+    <div class="cs-label">Obligor Name</div>
     <div style="position:relative">
       <input type="text" id="buyer-search" placeholder="Enter buyer name..."
         oninput="onBuyerInput(this.value)"
@@ -787,11 +787,11 @@
         </select></span>
       </div>
       <div class="header-row">
-        <span class="header-label">Buyer Group</span>
-        <span class="header-value"><input type="text" class="editable" id="h-buyer-group" placeholder="Buyer Group Name"></span>
+        <span class="header-label">Buyer Parent</span>
+        <span class="header-value"><input type="text" class="editable" id="h-buyer-group" placeholder="Parent Company Name"></span>
       </div>
       <div class="header-row">
-        <span class="header-label">Buyer Name</span>
+        <span class="header-label">Obligor Name</span>
         <span class="header-value"><input type="text" class="editable" id="h-buyer-name" placeholder="Obligor Legal Name"></span>
       </div>
       <div class="header-row">
@@ -869,7 +869,7 @@
       <div class="info-box">
         <div class="info-box-title">Company Details</div>
         <div class="info-row">
-          <span class="info-label">Group / Parent Legal</span>
+          <span class="info-label">Buyer Parent</span>
           <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
         </div>
         <div class="info-row">
@@ -1263,7 +1263,7 @@
   <div class="section-title"><span class="num" style="background:#475569;">A</span> APPENDIX — GROUP EXPOSURE</div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
     <div style="font-size:13px;">
-      <span style="color:#64748b;font-weight:600;">Parent Group:</span>
+      <span style="color:#64748b;font-weight:600;">Buyer Parent:</span>
       <span id="appendix-group-name" style="font-weight:700;color:#0f172a;margin-left:8px;">—</span>
     </div>
     <div style="font-size:11px;color:#94a3b8;" id="appendix-date"></div>
@@ -3291,6 +3291,31 @@ async function generateCM() {
     const dbData = await dbRes.json();
     if (dbData.error) throw new Error(dbData.error);
 
+    // ── SUBSIDIARY/PARENT LOGIC ──────────────────────────────────────────
+    // If buyer has a parent group, use parent name for AI analytics (better financial data)
+    var db = dbData.air8_fields || {};
+    var displayName = val; // original name for display
+    var analyticsName = val; // name used for AI financial fetch
+    if (db.buyer_group && db.buyer_group.toLowerCase() !== val.toLowerCase()) {
+      analyticsName = db.buyer_group; // use parent for analytics
+      console.log('[CM] Subsidiary detected. Using parent "' + analyticsName + '" for analytics.');
+    }
+    // If parent group has ≤3 entities, show all names in Obligor Name field
+    if (db.buyer_group) {
+      try {
+        var grpCheck = await fetch(CM_API + '/buyer-group?group=' + encodeURIComponent(db.buyer_group));
+        var grpData = await grpCheck.json();
+        if (grpData.found && grpData.buyers && grpData.buyers.length > 1 && grpData.buyers.length <= 3) {
+          var allNames = grpData.buyers.map(function(b) { return b.name; }).join(' / ');
+          // Show combined names in Section 2 Obligor Name
+          var nameEl = document.getElementById('s2-obligor');
+          if (nameEl) nameEl.value = allNames;
+          var hNameEl = document.getElementById('h-buyer-name');
+          if (hNameEl && !hNameEl.value) hNameEl.value = allNames;
+        }
+      } catch(e) { /* ignore */ }
+    }
+
     // Step 2: financials — use CIQ directly if uploaded, otherwise fetch via AI
     var financials;
     var ciqHasData = window._ciqData && window._ciqData.revenue && Array.isArray(window._ciqData.revenue) && window._ciqData.revenue[2] && window._ciqData.revenue[2] > 0;
@@ -3327,7 +3352,7 @@ async function generateCM() {
       const finRes = await fetchWithRetry(CM_API + '/analyze/financials', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({buyer: val, product, oa_days: oaDays, ciq_data: null, prev_cm: prevCmSnippet})
+        body: JSON.stringify({buyer: analyticsName || val, product, oa_days: oaDays, ciq_data: null, prev_cm: prevCmSnippet})
       });
       financials = await finRes.json();
       if (financials.error) throw new Error(financials.error);
