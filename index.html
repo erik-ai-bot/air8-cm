@@ -606,6 +606,24 @@
     h1 { font-size: 12px !important; }
     input, select, [contenteditable] { font-size: 9px !important; }
     .section { page-break-inside: avoid; }
+    /* Hide empty inputs (showing placeholder) in PDF */
+    input.editable:placeholder-shown { visibility: hidden; }
+    /* Credit Ratings grid - ensure proper layout in PDF */
+    .ratings-grid { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 6px !important; }
+    .ratings-box { background: #fff7ed !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    /* Air8 rating spans - proper sizing, no overflow */
+    #s2-air8-current, #s2-air8-proposed {
+      display: inline-block !important;
+      min-width: 36px !important;
+      padding: 1px 5px !important;
+      font-size: 10px !important;
+      border-radius: 3px !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    /* Rating item - tighter layout in PDF */
+    .rating-item { overflow: hidden; }
+    .rating-item div[style*="flex"] { flex-wrap: wrap; gap: 2px !important; }
   }
 
   /* ===== MISC ===== */
