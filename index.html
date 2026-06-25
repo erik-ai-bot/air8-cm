@@ -1064,9 +1064,9 @@
           <th id="liq-th-fy3" contenteditable="true" title="Click to edit">FY2024</th>
           <th class="annual-yoy1" id="liq-yoy1-th" style="background:#374151;">23 vs 22%</th>
           <th id="liq-yoy-th" style="background:#374151;">24 vs 23%</th>
-          <th class="liq-q-col" id="liq-th-qcur">Latest Q</th>
-          <th class="liq-q-col" id="liq-th-qly">Same Q LY</th>
-          <th class="liq-q-col" id="liq-q-yoy-th" style="background:#374151;">% Chg</th>
+          <th class="liq-q-col" id="liq-th-qcur" style="min-width:80px;">Latest Q</th>
+          <th class="liq-q-col" id="liq-th-qly" style="min-width:80px;">Same Q LY</th>
+          <th class="liq-q-col" id="liq-q-yoy-th" style="background:#374151;min-width:60px;">% Chg</th>
           <th class="left" style="min-width:200px;">Key Highlights</th>
         </tr>
       </thead>
@@ -1078,8 +1078,8 @@
           <td class="num-cell"><input class="editable" id="liq-24" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
           <td class="pct-cell calc annual-yoy1" id="liq-yoy1">-</td>
           <td class="pct-cell calc" id="liq-yoy">-</td>
-          <td class="num-cell q-col"><input class="editable" id="liq-q-cur" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
-          <td class="num-cell q-col"><input class="editable" id="liq-q-ly" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-cur" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-ly" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
           <td class="pct-cell calc liq-q-col" id="liq-q-yoy">-</td>
           <td class="highlight-cell"><div contenteditable="true" class="rich-area" id="liq-kh" style="min-height:36px;" data-placeholder="Facility type, amount, maturity date, headroom details"></div></td>
         </tr>
