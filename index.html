@@ -180,6 +180,8 @@
   .cs-green:hover { background: rgba(16,185,129,.24); }
   .cs-status { font-size: 10px; color: #8b5cf6; margin-top: 6px; min-height: 14px; line-height: 1.4; word-break: break-word; }
   .cs-status.cs-green-text { color: #10b981; }
+  /* Status dropdown: options must be readable (dark text on light dropdown bg) */
+  #s8-status option { color: #0f172a; background: #ffffff; font-weight: 600; }
   #sidebar-toggle.active { background: rgba(37,99,235,.2) !important; color: #60a5fa !important; border-color: #3b82f6 !important; }
 
   /* ===== PAGE LAYOUT ===== */
@@ -588,16 +590,20 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Key highlights column — allow text to wrap */
+    /* Key highlights column — full text, no clipping */
     .highlight-cell, #kh-pl, #kh-bs, #kh-cf { 
       overflow: visible !important;
       word-break: break-word !important;
-      white-space: pre-wrap !important;
+      white-space: normal !important;
       font-size: 8px !important;
-      min-width: 140px !important;
+      width: 22% !important;
+      min-width: 120px !important;
       max-width: none !important;
+      vertical-align: top !important;
     }
-    td.highlight-cell { min-width: 140px !important; }
+    td.highlight-cell { width: 22% !important; }
+    /* Financial table: allow page to show full width */
+    #tbl-metrics { table-layout: auto !important; width: 100% !important; }
     .add-row-btn, .del-row-btn { display: none !important; }
     * { font-size: 9px !important; line-height: 1.4 !important; font-family: Arial, sans-serif !important; }
     table { font-size: 9px !important; border-collapse: collapse !important; }
