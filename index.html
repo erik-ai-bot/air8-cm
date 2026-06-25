@@ -553,10 +553,12 @@
     .cs-btn, .tb-sep, button, #empty-fields-badge { display: none !important; }
     #page {
       margin: 0 !important;
-      padding: 10px 14px !important;
+      margin-right: 0 !important;
+      padding: 6px 10px !important;
       box-shadow: none !important;
       border: none !important;
-      max-width: 100% !important;
+      max-width: none !important;
+      width: 100% !important;
     }
     * { box-shadow: none !important; }
     /* Only make div/span contenteditable transparent — NOT th/td (they need their dark background) */
@@ -594,42 +596,24 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Table containers: stretch full width */
-    div[style*="overflow-x"] { overflow: visible !important; width: 100% !important; }
-    /* Financial table: fixed layout so remaining width splits equally among number columns */
-    #tbl-metrics {
-      table-layout: fixed !important;
-      width: 100% !important;
-      font-size: 8px !important;
-    }
-    #tbl-metrics th, #tbl-metrics td { 
-      padding: 2px 5px !important; 
-      font-size: 8px !important; 
-      vertical-align: top !important;
-    }
-    /* Label col: fixed 10% */
-    #tbl-metrics .label { width: 10% !important; }
-    /* KH col: fixed 36% — leaves 54% for number columns to share equally */
-    td.highlight-cell, #kh-pl, #kh-bs, #kh-cf {
-      width: 36% !important;
-      font-size: 7.5px !important;
-      white-space: normal !important;
-      word-break: break-word !important;
-      vertical-align: top !important;
-      line-height: 1.4 !important;
+    /* Financial table: print as-is, just ensure color and overflow */
+    div[style*="overflow-x"] { overflow: visible !important; }
+    #tbl-metrics, #tbl-metrics * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
-    /* Number + pct cols: width:auto → browser divides remaining 54% EQUALLY
-       Works whether quarterly present (7 cols → 7.7% each) or not (5 cols → 10.8% each) */
-    #tbl-metrics .num-cell, #tbl-metrics .pct-cell { width: auto !important; }
-    /* Group header rows */
     #tbl-metrics tr.group-row td { 
       background: #dbeafe !important; color: #1e40af !important; font-weight: 700 !important;
-      -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+    }
+    td.highlight-cell, #kh-pl, #kh-bs, #kh-cf {
+      white-space: normal !important;
+      word-break: break-word !important;
+      vertical-align: top !important;
+      overflow: visible !important;
     }
     .kh-print-section { display: none !important; }
     .add-row-btn, .del-row-btn { display: none !important; }
+    body.sidebar-open #page { margin-right: 0 !important; }
     * { font-size: 9px !important; line-height: 1.4 !important; font-family: Arial, sans-serif !important; }
     table { font-size: 9px !important; border-collapse: collapse !important; }
     th, td { padding: 2px 4px !important; font-size: 9px !important; }
