@@ -3335,6 +3335,13 @@ async function generateCM() {
         if (grpEl && !grpEl.value) grpEl.value = resolvedGroup;
         // Load appendix with group data
         if (typeof loadGroupAppendix === 'function') loadGroupAppendix(resolvedGroup);
+        
+        // Store summed credit limits — used by fillAir8Fields to override single-buyer values
+        if (grpData.sums && grpData.buyers.length > 1) {
+          window._groupSums = grpData.sums;
+          window._groupSums._group = resolvedGroup;
+          console.log('[CM] Group sums:', window._groupSums);
+        }
       }
     } catch(e) { console.warn('Group lookup failed:', e); }
 
@@ -3735,24 +3742,29 @@ function fillAir8Fields(db, product, oaDays) {
   // Buyer master data from Google Sheet
   // Fill new Credit Limits section fields
   if (db.air8_insurance) { sv('cla-insurer', db.air8_insurance); sv('cla-air8-insco', db.air8_insurance); }
-  // Credit Limits — branch on refactoring vs normal insurance
+  // Credit Limits — use GROUP SUMS if parent group found, else single-buyer data
   function toM(v) { return v && v > 0 ? (v / 1000000).toFixed(4) : ''; }
-  if (db.refactoring_bank) {
-    // REFACTORING: DEUTSCHE BANK / WFDBS / FCB / UOB
-    // Fill refactoring table with BE (air8_insurance_limit_usdm) as Existing
-    sv('cl-refactor-bank', db.refactoring_bank);
+  // Override with group sums when available
+  var clData = db;
+  if (window._groupSums && window._groupSums._group) {
+    clData = Object.assign({}, db, window._groupSums);
+    window._groupSums = null; // consume once
+  }
+  if (clData.refactoring_bank) {
+    sv('cl-refactor-bank', clData.refactoring_bank);
     var rfEx = document.getElementById('cl-refactor-exist');
-    if (rfEx && db.air8_insurance_limit_usdm) rfEx.value = toM(db.air8_insurance_limit_usdm);
-    // Do NOT fill credit limit table (secured/residual/clean)
+    // For refactoring: use summed refactoring_exist (BE across refactoring subsidiaries)
+    var rfVal = clData.refactoring_exist || clData.air8_insurance_limit_usdm || 0;
+    if (rfEx && rfVal) rfEx.value = toM(rfVal);
   } else {
-    // NORMAL INSURANCE: fill credit limits table
-    if (db.cl_secured_exist) { var sel = document.getElementById('cla-secured-exist'); if(sel) sel.value = toM(db.cl_secured_exist); }
-    if (db.cl_secured_util) { var sul = document.getElementById('cla-secured-util'); if(sul) sul.value = toM(db.cl_secured_util); }
-    if (db.cl_residual_exist) { var rel = document.getElementById('cla-residual-exist'); if(rel) rel.value = toM(db.cl_residual_exist); }
-    if (db.cl_residual_util) { var rul = document.getElementById('cla-residual-util'); if(rul) rul.value = toM(db.cl_residual_util); }
-    if (db.cl_clean_exist !== undefined) { var cel = document.getElementById('cla-clean-exist'); if(cel) cel.value = toM(db.cl_clean_exist); }
-    if (db.cl_clean_util !== undefined) { var cul = document.getElementById('cla-clean-util'); if(cul) cul.value = toM(db.cl_clean_util); }
-    if (db.credit_ins_limit) { var cil = document.getElementById('cla-air8-ins'); if(cil) cil.value = toM(db.credit_ins_limit); }
+    // NORMAL INSURANCE: fill credit limits table (summed for group)
+    if (clData.cl_secured_exist) { var sel = document.getElementById('cla-secured-exist'); if(sel) sel.value = toM(clData.cl_secured_exist); }
+    if (clData.cl_secured_util) { var sul = document.getElementById('cla-secured-util'); if(sul) sul.value = toM(clData.cl_secured_util); }
+    if (clData.cl_residual_exist) { var rel = document.getElementById('cla-residual-exist'); if(rel) rel.value = toM(clData.cl_residual_exist); }
+    if (clData.cl_residual_util) { var rul = document.getElementById('cla-residual-util'); if(rul) rul.value = toM(clData.cl_residual_util); }
+    if (clData.cl_clean_exist !== undefined) { var cel = document.getElementById('cla-clean-exist'); if(cel) cel.value = toM(clData.cl_clean_exist); }
+    if (clData.cl_clean_util !== undefined) { var cul = document.getElementById('cla-clean-util'); if(cul) cul.value = toM(clData.cl_clean_util); }
+    if (clData.credit_ins_limit) { var cil = document.getElementById('cla-air8-ins'); if(cil) cil.value = toM(clData.credit_ins_limit); }
   }
   if (typeof calcCLATotals === 'function') calcCLATotals();
   if (db.air8_limit_total_usdm) {
