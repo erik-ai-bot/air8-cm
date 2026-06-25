@@ -3324,9 +3324,10 @@ async function generateCM() {
     // Step A: check if the sheet returned a parent_group for this buyer
     var sheetParent = db.parent_group || '';
     if (sheetParent && sheetParent.toLowerCase() !== val.toLowerCase()) {
-      analyticsName = sheetParent; // subsidiary → use parent for analytics
+      // Use parent for analytics — clean up name (strip alias in parentheses)
+      analyticsName = sheetParent.replace(/\s*\([^)]*\)\s*$/, '').trim();
       resolvedGroup = sheetParent;
-      console.log('[CM] Subsidiary detected. Parent: "' + analyticsName + '"');
+      console.log('[CM] Subsidiary detected. Parent for analytics: "' + analyticsName + '"');
     }
 
     // Step B: look up group (either by parent returned from sheet, or by entered name = parent directly)
@@ -3337,7 +3338,7 @@ async function generateCM() {
       if (grpData.found && grpData.buyers && grpData.buyers.length > 0) {
         // If resolved_parent came back (user entered subsidiary name), use that as analyticsName
         if (grpData.resolved_parent) {
-          analyticsName = grpData.resolved_parent;
+          analyticsName = grpData.resolved_parent.replace(/\s*\([^)]*\)\s*$/, '').trim();
           resolvedGroup = grpData.resolved_parent;
         } else {
           resolvedGroup = grpData.group;
@@ -3432,9 +3433,18 @@ async function generateCM() {
     // Apply Air8 formula calculator before filling form
     calculateAir8Metrics(buyer);
     fillAir8Fields(buyer, product, oaDays);
+    // Restore group display names if they were set (prevent AI from overwriting)
+    if (window._obligorDisplayName) {
+      var _on = document.getElementById('s2-obligor'); if(_on) _on.value = window._obligorDisplayName;
+      var _hn = document.getElementById('h-buyer-name'); if(_hn) _hn.value = window._obligorDisplayName;
+    }
+    if (window._obligorParent) {
+      var _hg = document.getElementById('h-buyer-group'); if(_hg) _hg.value = window._obligorParent;
+      var _sg = document.getElementById('s2-group'); if(_sg) _sg.value = window._obligorParent;
+    }
     applyRatingColors();
-    // Load group appendix if buyer has a parent group
-    var _grp = buyer.buyer_group || buyer.air8_entities || '';
+    // Load appendix using the resolved group (not AI-returned buyer_group which may differ)
+    var _grp = window._obligorParent || buyer.buyer_group || buyer.air8_entities || '';
     if (_grp && typeof loadGroupAppendix === 'function') loadGroupAppendix(_grp);
     // Auto-generate Request 1 if credit config has limit set (from buyer master)
     setTimeout(function() {
