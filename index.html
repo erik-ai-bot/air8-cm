@@ -1256,6 +1256,42 @@
 
 </div><!-- end #page -->
 
+
+
+<!-- APPENDIX: GROUP EXPOSURE -->
+<div class="section" id="appendix-section" style="display:none;">
+  <div class="section-title"><span class="num" style="background:#475569;">A</span> APPENDIX — GROUP EXPOSURE</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div style="font-size:13px;">
+      <span style="color:#64748b;font-weight:600;">Parent Group:</span>
+      <span id="appendix-group-name" style="font-weight:700;color:#0f172a;margin-left:8px;">—</span>
+    </div>
+    <div style="font-size:11px;color:#94a3b8;" id="appendix-date"></div>
+  </div>
+  <table id="appendix-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead>
+      <tr style="background:#1e3a5f;color:white;">
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Obligor</th>
+        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insured ARP Limit</th>
+        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insurance Limit (USD)</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Insurance Company</th>
+        <th style="padding:8px 10px;text-align:left;font-weight:700;">Funder</th>
+      </tr>
+    </thead>
+    <tbody id="appendix-tbody">
+    </tbody>
+    <tfoot id="appendix-tfoot" style="background:#dbeafe;">
+      <tr>
+        <td style="padding:8px 10px;font-weight:700;color:#1e40af;">Total</td>
+        <td id="appendix-total-insured" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
+        <td id="appendix-total-insurance" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
 <script>
 // ===== BUYER DATABASE =====
 const BUYERS = {}; // local buyer DB cleared for clean testing
@@ -4245,41 +4281,6 @@ document.addEventListener('DOMContentLoaded', () => {
   var btn = document.getElementById('sidebar-toggle');
   if (sb) { sb.classList.add('open'); document.body.classList.add('sidebar-open'); }
   if (btn) btn.classList.add('active');
-});
-
-<!-- APPENDIX: GROUP EXPOSURE -->
-<div class="section" id="appendix-section" style="display:none;">
-  <div class="section-title"><span class="num" style="background:#475569;">A</span> APPENDIX — GROUP EXPOSURE</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <div style="font-size:13px;">
-      <span style="color:#64748b;font-weight:600;">Parent Group:</span>
-      <span id="appendix-group-name" style="font-weight:700;color:#0f172a;margin-left:8px;">—</span>
-    </div>
-    <div style="font-size:11px;color:#94a3b8;" id="appendix-date"></div>
-  </div>
-  <table id="appendix-table" style="width:100%;border-collapse:collapse;font-size:12px;">
-    <thead>
-      <tr style="background:#1e3a5f;color:white;">
-        <th style="padding:8px 10px;text-align:left;font-weight:700;">Obligor</th>
-        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insured ARP Limit</th>
-        <th style="padding:8px 10px;text-align:right;font-weight:700;">Insurance Limit (USD)</th>
-        <th style="padding:8px 10px;text-align:left;font-weight:700;">Insurance Company</th>
-        <th style="padding:8px 10px;text-align:left;font-weight:700;">Funder</th>
-      </tr>
-    </thead>
-    <tbody id="appendix-tbody">
-    </tbody>
-    <tfoot id="appendix-tfoot" style="background:#dbeafe;">
-      <tr>
-        <td style="padding:8px 10px;font-weight:700;color:#1e40af;">Total</td>
-        <td id="appendix-total-insured" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
-        <td id="appendix-total-insurance" style="padding:8px 10px;text-align:right;font-weight:700;color:#1e40af;">—</td>
-        <td colspan="2"></td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
-
-</script>
+});</script>
 </body>
 </html>
