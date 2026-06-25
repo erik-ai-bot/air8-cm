@@ -3467,11 +3467,8 @@ async function generateCM() {
       if (headEl) headEl.value = buyer.air8_headroom_usdm;
     }
 
-    const dbNote = dbData.air8_db_found
-      ? '\u2705 Air8 DB fields merged. '
-      : '\u2139\ufe0f Not in Air8 DB — limit/insurance left blank. ';
     if (msg) {
-      msg.innerHTML = dbNote + 'Generated via AI. Verify financials before submission.';
+      msg.innerHTML = '\u2705 Generated. Verify financials before submission.';
       msg.style.display = 'block';
       setTimeout(()=>msg.style.display='none', 6000);
     }
