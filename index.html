@@ -594,6 +594,8 @@
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
+    /* Table containers: remove overflow-x scroll in print, stretch full width */
+    div[style*="overflow-x"] { overflow: visible !important; width: 100% !important; }
     /* Financial table PDF: number columns narrow, KH takes ALL remaining space */
     #tbl-metrics {
       table-layout: auto !important;
