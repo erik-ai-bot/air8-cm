@@ -351,8 +351,18 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
   </div>
 
 
-  <!-- Buyer table -->
-  <div class="chart-card full" id="buyerlist">
+</div>
+
+<div class="sec-divider"></div>
+
+<!-- ══ SECTION 5: BUYER LIST ══ -->
+<div class="section" id="buyerlist">
+  <div class="section-header">
+    <div class="section-num" style="background:#0ea5e9">5</div>
+    <div class="section-title">Buyer List</div>
+    <div class="section-sub">— Full portfolio detail, sortable &amp; filterable</div>
+  </div>
+  <div class="chart-card full">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="chart-card-title" style="margin-bottom:0">Buyer Detail Table <span style="font-weight:400;color:var(--muted)">— click row to drill down · click header to sort</span></div>
       <div style="display:flex;gap:6px">
@@ -373,6 +383,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
           <th onclick="sortTable('c1')">C1 ($K)</th>
           <th onclick="sortTable('region')">Region</th>
           <th onclick="sortTable('lane')">Lane</th>
+          <th onclick="sortTable('funder')">Funder</th>
         </tr></thead>
         <tbody id="buyerTableBody"></tbody>
       </table>
@@ -420,6 +431,16 @@ const RAW_BUYERS = [
   {name:"Sparc Group",full_name:"Sparc Group LLC",cap:0.063,revenue:9.7,insurance:0.8,funding:7.3,net_rev:1.6,c1:1.5,gr_pct:22.59,ins_pct:1.55,fund_pct:17.04,net_spread:5.55,tenor:60,rating:"D",region:"ISC",lane:"Lane D"}
 ];
 
+
+const FUNDERS = [
+  {name:'Deutsche Bank', limit:60.0, deployed:36.8, color:'#3b82f6', buyers:['AEO','3 Markets','LFFA']},
+  {name:'FCB',           limit:40.0, deployed:30.7, color:'#8b5cf6', buyers:['LFMU','Kohls','Action']},
+  {name:'WFDBS',         limit:35.0, deployed:24.5, color:'#06b6d4', buyers:['Officeworks','Talbots','Others']},
+  {name:'UOB',           limit:25.0, deployed:18.4, color:'#10b981', buyers:["Chico's",'Clarks','Loblaws']},
+  {name:'Air8 Retained', limit:20.0, deployed:12.3, color:'#6b7280', buyers:['Lucky','Nautica','Sparc Group']}
+];
+const FUNDER_MAP = {};
+FUNDERS.forEach(f=>f.buyers.forEach(b=>FUNDER_MAP[b]=f.name));
 const GMV_2025=[72.42,84.17,71.31,63.8,71.18,60.43,88.76,88.6,57.41,41.34,56.41,61.81];
 const GMV_Q1_2026=[53.6,40.1,37.4];
 const MONTHS_2025=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -551,20 +572,16 @@ function renderTenorBar(buyers) {
 function renderTenorRatingGrid(buyers) {
   const buckets=[{l:'<30d',min:0,max:30},{l:'30-60d',min:30,max:60},{l:'60-90d',min:60,max:90},{l:'90d+',min:90,max:999}];
   const ratings=['A','B','C','D'];
-  // Rows = Rating, Columns = Tenor buckets
-  let html=`<table style="width:100%;border-collapse:collapse;font-size:11px">
-    <tr>
-      <th style="color:var(--muted);text-align:left;padding:4px 6px;font-weight:600;min-width:36px">Rating</th>
-      ${buckets.map(b=>`<th style="color:var(--muted);padding:4px 8px;font-weight:600;text-align:center">${b.l}</th>`).join('')}
-    </tr>`;
-  ratings.forEach(r=>{
+  let html=`<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <tr><th style="color:var(--muted);text-align:left;padding:8px 10px;font-weight:600;border-bottom:1px solid var(--border)">Tenor</th>${ratings.map(r=>`<th style="color:${RC[r]};padding:8px 10px;font-weight:700;border-bottom:1px solid var(--border);text-align:center">${r}</th>`).join('')}</tr>`;
+  buckets.forEach(b=>{
     html+=`<tr>`;
-    html+=`<td style="padding:6px 6px;border-top:1px solid var(--border);font-weight:700;color:${RC[r]}">${r}</td>`;
-    buckets.forEach(b=>{
+    html+=`<td style="color:var(--muted);padding:14px 10px;border-top:1px solid var(--border);font-weight:600;font-size:12px;white-space:nowrap">${b.l}</td>`;
+    ratings.forEach(r=>{
       const cap=buyers.filter(x=>x.tenor>=b.min&&x.tenor<b.max&&x.rating===r).reduce((s,x)=>s+x.cap,0);
       const intensity=Math.min(cap/35,1);
       const bg=cap>0?RC[r]+(Math.round(intensity*180+30).toString(16).padStart(2,'0')):'transparent';
-      html+=`<td style="padding:6px 8px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)'};font-family:'DM Mono',monospace">${cap>0?'$'+cap.toFixed(1)+'M':'-'}</td>`;
+      html+=`<td style="padding:14px 10px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)'};font-family:'DM Mono',monospace;font-size:12px">${cap>0?'$'+cap.toFixed(1)+'M':'-'}</td>`;
     });
     html+='</tr>';
   });
@@ -959,7 +976,7 @@ function renderTable(buyers, total) {
       html += lb.map(b => {
         const pct=(b.cap/total*100).toFixed(1);
         const sColor=b.net_spread>=5?'spread-good':b.net_spread>=3?'spread-ok':'spread-low';
-        return `<tr onclick="openDrawer(${JSON.stringify(b).replace(/"/g,'&quot;')})"><td><strong>${b.name}</strong><br><span style="font-size:10px;color:var(--muted)">${pct}%</span></td><td><span class="rating-badge rb-${b.rating}">${b.rating}</span></td><td class="mono">$${b.cap.toFixed(2)}M</td><td class="mono">${b.tenor}d</td><td class="mono">${b.gr_pct.toFixed(2)}%</td><td class="mono ${sColor}">${b.net_spread.toFixed(2)}%</td><td class="mono">$${b.net_rev.toFixed(0)}K</td><td class="mono">$${b.c1.toFixed(0)}K</td><td style="font-size:11px">${b.region}</td><td style="font-size:11px">${b.lane}</td></tr>`;
+        return `<tr onclick="openDrawer(${JSON.stringify(b).replace(/"/g,'&quot;')})"><td><strong>${b.name}</strong><br><span style="font-size:10px;color:var(--muted)">${pct}%</span></td><td><span class="rating-badge rb-${b.rating}">${b.rating}</span></td><td class="mono">$${b.cap.toFixed(2)}M</td><td class="mono">${b.tenor}d</td><td class="mono">${b.gr_pct.toFixed(2)}%</td><td class="mono ${sColor}">${b.net_spread.toFixed(2)}%</td><td class="mono">$${b.net_rev.toFixed(0)}K</td><td class="mono">$${b.c1.toFixed(0)}K</td><td style="font-size:11px">${b.region}</td><td style="font-size:11px">${b.lane}</td><td style="font-size:10px;color:var(--muted)">${FUNDER_MAP[b.name]||'-'}</td></tr>`;
       }).join('');
     });
     document.getElementById('buyerTableBody').innerHTML = html;
@@ -991,6 +1008,7 @@ function renderTable(buyers, total) {
       <td class="mono">$${b.c1.toFixed(0)}K</td>
       <td style="font-size:11px">${b.region}</td>
       <td style="font-size:11px">${b.lane}</td>
+      <td style="font-size:10px;color:var(--muted)">${FUNDER_MAP[b.name]||'-'}</td>
     </tr>`;
   }).join('');
 }
@@ -1054,14 +1072,48 @@ function closeDrawer() {
 // ═══════════════════════════════════════════════
 function renderFunderDonut() {
   destroyChart('funderDonut');
-  const funders=['Deutsche Bank','FCB','WFDBS','UOB','Air8 Retained'];
-  const caps=[36.8,30.7,24.5,18.4,12.3];
-  const colors=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#6b7280'];
   charts.funderDonut=new Chart(document.getElementById('funderDonut'),{
     type:'doughnut',
-    data:{labels:funders,datasets:[{data:caps,backgroundColor:colors,borderColor:colors.map(c=>c+'40'),borderWidth:2,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(1)}M (${(ctx.parsed/122.72*100).toFixed(0)}%)`}}}}
+    data:{labels:FUNDERS.map(f=>f.name),datasets:[{data:FUNDERS.map(f=>f.deployed),backgroundColor:FUNDERS.map(f=>f.color),borderColor:FUNDERS.map(f=>f.color+'40'),borderWidth:2,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>{const f=FUNDERS[ctx.dataIndex];return [`${f.name}: $${f.deployed}M`,`Limit $${f.limit}M | Util ${(f.deployed/f.limit*100).toFixed(0)}%`];}}}}}
   });
+  renderFunderUtilTable();
+}
+function renderFunderUtilTable() {
+  const el=document.getElementById('funderTable');
+  if(!el)return;
+  el.innerHTML=`<table style="width:100%;font-size:12px;border-collapse:collapse">
+    <thead><tr>
+      <th style="text-align:left;color:var(--muted);padding:5px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Funder</th>
+      <th style="text-align:right;color:var(--muted);padding:5px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Limit</th>
+      <th style="text-align:right;color:var(--muted);padding:5px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Deployed</th>
+      <th style="text-align:left;color:var(--muted);padding:5px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Utilization</th>
+    </tr></thead>
+    <tbody>${FUNDERS.map(f=>{
+      const util=f.deployed/f.limit*100;
+      const bc=util>80?'#ef4444':util>60?'#f59e0b':'#10b981';
+      return `<tr onclick="openFunderDrawer('${f.name}')" style="cursor:pointer" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''">
+        <td style="padding:8px;border-bottom:1px solid var(--border)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${f.color};margin-right:6px"></span>${f.name}</td>
+        <td style="text-align:right;padding:8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;color:var(--muted)">$${f.limit}M</td>
+        <td style="text-align:right;padding:8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$${f.deployed}M</td>
+        <td style="padding:8px 8px 8px 12px;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${util.toFixed(0)}%;background:${bc};border-radius:3px"></div></div><span style="font-family:'DM Mono',monospace;font-size:11px;color:${bc};min-width:32px">${util.toFixed(0)}%</span></div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+function openFunderDrawer(funderName) {
+  const f=FUNDERS.find(x=>x.name===funderName);
+  if(!f)return;
+  const util=(f.deployed/f.limit*100).toFixed(0);
+  const bc=+util>80?'#ef4444':+util>60?'#f59e0b':'#10b981';
+  const buyerRows=f.buyers.map(bName=>{
+    const b=RAW_BUYERS.find(x=>x.name===bName);
+    if(!b)return `<div style="padding:8px 0;border-bottom:1px solid var(--border);color:var(--muted)">${bName}</div>`;
+    return `<div onclick="openDrawer(${JSON.stringify(b).replace(/"/g,'&quot;')})" style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px" onmouseover="this.style.background='var(--card2)'" onmouseout="this.style.background=''"><span class="rating-badge rb-${b.rating}">${b.rating}</span><div style="flex:1"><strong>${b.name}</strong><span style="color:var(--muted);font-size:11px;margin-left:6px">${b.lane}</span></div><span style="font-family:'DM Mono',monospace;font-size:12px">$${b.cap.toFixed(2)}M</span><span style="font-size:11px;color:var(--A);margin-left:6px">${b.net_spread.toFixed(1)}% spread</span></div>`;
+  }).join('');
+  document.getElementById('drawerContent').innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="width:32px;height:32px;border-radius:50%;background:${f.color};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">${f.name[0]}</span><div style="font-size:18px;font-weight:700;color:#fff">${f.name}</div></div><div style="font-size:12px;color:var(--muted);margin-bottom:16px">External Funder &middot; ${f.buyers.length} buyers allocated</div><div class="d-metrics"><div class="d-metric"><div class="d-metric-label">Facility Limit</div><div class="d-metric-value">$${f.limit}M</div></div><div class="d-metric"><div class="d-metric-label">Deployed</div><div class="d-metric-value">$${f.deployed}M</div></div><div class="d-metric"><div class="d-metric-label">Utilization</div><div class="d-metric-value" style="color:${bc}">${util}%</div></div></div><div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px"><span>Utilization</span><span>$${f.deployed}M / $${f.limit}M</span></div><div style="height:8px;background:var(--card2);border-radius:4px;overflow:hidden"><div style="height:100%;width:${util}%;background:${bc};border-radius:4px"></div></div></div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;font-weight:700">Allocated Buyers — click to drill down</div>${buyerRows}`;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
 }
 
 // ═══════════════════════════════════════════════
