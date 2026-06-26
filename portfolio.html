@@ -147,6 +147,11 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
 
 /* Divider */
 .sec-divider{height:1px;background:var(--border);margin:32px 0 0}
+
+/* GMV mode toggle */
+.gmv-toggle{font-size:11px;font-weight:600;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.gmv-toggle.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff}
+.gmv-toggle:hover:not(.active){border-color:var(--dim);color:var(--text)}
 </style>
 </head>
 <body>
@@ -245,11 +250,23 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
       <div id="treemap"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-card-title">GMV Trend — Monthly ($M)</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="chart-card-title" style="margin-bottom:0">GMV Trend — Actual vs Budget</div>
+        <div style="display:flex;gap:4px">
+          <button class="gmv-toggle active" id="gmvBtnMonthly" onclick="setGmvMode('monthly',this)">Monthly</button>
+          <button class="gmv-toggle" id="gmvBtnQuarterly" onclick="setGmvMode('quarterly',this)">Quarterly</button>
+        </div>
+      </div>
+      <div id="gmvVariance" style="margin-bottom:10px"></div>
       <div class="chart-wrap tall"><canvas id="gmvLine"></canvas></div>
+      <div class="legend" id="gmvLegend" style="margin-top:12px"></div>
     </div>
   </div>
 
+  <div class="chart-card full" style="margin-bottom:14px">
+    <div class="chart-card-title">Capital Deployed by Buyer & Lane — sorted by capital</div>
+    <div class="chart-wrap" style="height:340px"><canvas id="laneCapBar"></canvas></div>
+  </div>
   <div class="chart-card full">
     <div class="chart-card-title">Top Buyers — Capital Deployed ($M) vs Net Revenue ($K)</div>
     <div class="chart-wrap"><canvas id="buyerBar"></canvas></div>
@@ -282,7 +299,41 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     </div>
   </div>
 
-  <div class="grid-2">
+  
+  <!-- Refactoring & Funder Distribution -->
+  <div class="section-header" style="margin-top:28px">
+    <div style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">R</div>
+    <div class="section-title">Refactoring & Funder Distribution</div>
+    <div class="section-sub">— How portfolio capital is distributed to external funders</div>
+  </div>
+  <div class="grid-3" style="margin-bottom:14px">
+    <div class="chart-card">
+      <div class="chart-card-title">Capital by Funder</div>
+      <div class="chart-wrap"><canvas id="funderDonut"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Refactoring KPIs</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+        <div class="kpi" style="grid-column:1/-1"><div class="kpi-label">Refactored Ratio</div><div class="kpi-value" style="font-size:32px">65%</div><div class="kpi-sub">$79.8M of $122.7M refactored</div></div>
+        <div class="kpi"><div class="kpi-label">Retained on Book</div><div class="kpi-value" style="font-size:22px">35%</div><div class="kpi-sub">$42.9M</div></div>
+        <div class="kpi"><div class="kpi-label">Active Funders</div><div class="kpi-value" style="font-size:22px">4</div><div class="kpi-sub">External parties</div></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">Funder Breakdown</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:4px">
+        <thead><tr><th style="text-align:left;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Funder</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Cap ($M)</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Share</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Avg Spread</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Deutsche Bank</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$36.8M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">30%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--A)">4.8%</td></tr>
+          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">FCB</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$30.7M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">25%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--A)">4.5%</td></tr>
+          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">WFDBS</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$24.5M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">20%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--B)">4.2%</td></tr>
+          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">UOB</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$18.4M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">15%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--B)">4.0%</td></tr>
+          <tr><td style="padding:7px 8px">Air8 Retained</td><td style="text-align:right;padding:7px 8px;font-family:'DM Mono',monospace">$12.3M</td><td style="text-align:right;padding:7px 8px">10%</td><td style="text-align:right;padding:7px 8px;color:var(--C)">5.1%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<div class="grid-2">
     <div class="chart-card">
       <div class="chart-card-title">Revenue Waterfall by Rating ($K)</div>
       <div class="chart-wrap tall"><canvas id="waterfallBar"></canvas></div>
@@ -296,7 +347,13 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
 
   <!-- Buyer table -->
   <div class="chart-card full">
-    <div class="chart-card-title" style="margin-bottom:12px">Buyer Detail Table <span style="font-weight:400;color:var(--muted)">— click any row to drill down · click column header to sort</span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="chart-card-title" style="margin-bottom:0">Buyer Detail Table <span style="font-weight:400;color:var(--muted)">— click row to drill down · click header to sort</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="filter-pill active" id="btnFlatList" onclick="setTableMode('flat',this)">Flat List</button>
+        <button class="filter-pill" id="btnGroupLane" onclick="setTableMode('lane',this)">Group by Lane</button>
+      </div>
+    </div> <span style="font-weight:400;color:var(--muted)">— click any row to drill down · click column header to sort</span></div>
     <div style="overflow-x:auto">
       <table class="buyer-table" id="buyerTable">
         <thead><tr>
@@ -360,6 +417,10 @@ const RAW_BUYERS = [
 const GMV_2025=[72.42,84.17,71.31,63.8,71.18,60.43,88.76,88.6,57.41,41.34,56.41,61.81];
 const GMV_Q1_2026=[53.6,40.1,37.4];
 const MONTHS_2025=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const BUDGET_2026_MONTHLY=[84.2,67.7,84.8,92.4,110.7,121.7,130.2,132.9,139.2,118.7,121.7,112.3];
+const BUDGET_2026_Q=[236.6,324.7,402.3,352.7];
+const ACTUAL_2025_Q=[227.9,195.4,234.8,159.6];
+const ACTUAL_2026_Q1=131.1;
 const RC={A:'#10b981',B:'#f59e0b',C:'#f97316',D:'#ef4444'};
 
 // ═══════════════════════════════════════════════
@@ -367,6 +428,7 @@ const RC={A:'#10b981',B:'#f59e0b',C:'#f97316',D:'#ef4444'};
 // ═══════════════════════════════════════════════
 let filters = { rating:'ALL', region:'ALL', lane:'ALL' };
 let sortKey = 'cap', sortDir = -1;
+let gmvMode = 'monthly';
 let charts = {};
 
 function setFilter(type, val, btn) {
@@ -423,6 +485,8 @@ function renderAll() {
   renderLaneDonut(buyers);
   renderRegionBar(buyers);
   renderLFDonut(buyers, total);
+  renderFunderDonut();
+  renderLaneCapBar(buyers);
   renderWaterfallBar(buyers);
   renderConcList(buyers, total);
   renderTable(buyers, total);
@@ -586,25 +650,128 @@ function renderTreemap(buyers, total) {
 }
 
 // ═══════════════════════════════════════════════
-// GMV LINE
+// GMV — TOGGLE & DISPATCH
 // ═══════════════════════════════════════════════
+function setGmvMode(mode, btn) {
+  gmvMode = mode;
+  document.querySelectorAll('.gmv-toggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGMVLine();
+}
+
 function renderGMVLine() {
   destroyChart('gmvLine');
-  const labels=[...MONTHS_2025,'Jan 26','Feb 26','Mar 26'];
-  const data2025=[...GMV_2025,null,null,null];
-  const data2026=[...new Array(12).fill(null),...GMV_Q1_2026];
-  charts.gmvLine=new Chart(document.getElementById('gmvLine'),{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'2025 GMV',data:data2025,borderColor:'#1a56db',backgroundColor:'#1a56db18',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#1a56db'},
-      {label:'2026 Q1',data:data2026,borderColor:'#10b981',backgroundColor:'#10b98118',tension:.35,fill:true,pointRadius:4,pointBackgroundColor:'#10b981',borderDash:[]}
+  if (gmvMode === 'monthly') _renderGMVMonthly();
+  else _renderGMVQuarterly();
+  _renderGMVVariance();
+  _renderGMVLegend();
+}
+
+// ── Monthly view (line chart) ──
+function _renderGMVMonthly() {
+  const labels = [
+    ...MONTHS_2025.map(m => m+"'25"),
+    "Jan'26","Feb'26","Mar'26","Apr'26","May'26","Jun'26",
+    "Jul'26","Aug'26","Sep'26","Oct'26","Nov'26","Dec'26"
+  ];
+  const act2025 = [...GMV_2025, ...new Array(12).fill(null)];
+  const act2026 = [...new Array(12).fill(null), ...GMV_Q1_2026, ...new Array(9).fill(null)];
+  const bud2026 = [...new Array(12).fill(null), ...BUDGET_2026_MONTHLY];
+  charts.gmvLine = new Chart(document.getElementById('gmvLine'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'2025 Actual', data:act2025,
+        borderColor:'#3b82f6', backgroundColor:'#3b82f618',
+        tension:.35, fill:true, pointRadius:3, pointBackgroundColor:'#3b82f6', borderWidth:2 },
+      { label:'2026 Actual', data:act2026,
+        borderColor:'#10b981', backgroundColor:'#10b98118',
+        tension:.35, fill:true, pointRadius:5, pointBackgroundColor:'#10b981', borderWidth:2.5 },
+      { label:'2026 Budget', data:bud2026,
+        borderColor:'#f59e0b', backgroundColor:'transparent',
+        tension:.35, fill:false, pointRadius:3, pointBackgroundColor:'#f59e0b',
+        borderWidth:2, borderDash:[6,4] }
     ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.parsed.y?`$${ctx.parsed.y.toFixed(1)}M`:null}}},
-      scales:{x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',maxRotation:0}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:false}},
-      annotation:{annotations:{divLine:{type:'line',x:MONTHS_2025.length-0.5,borderColor:'#607090',borderDash:[4,4],borderWidth:1}}}
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>ctx.parsed.y!=null?`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M`:null}}
+      },
+      scales: {
+        x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',maxRotation:45,font:{size:10}}},
+        y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:false}
+      }
     }
   });
+}
+
+// ── Quarterly view (grouped bars + budget line) ──
+function _renderGMVQuarterly() {
+  charts.gmvLine = new Chart(document.getElementById('gmvLine'), {
+    type: 'bar',
+    data: { labels: ['Q1','Q2','Q3','Q4'], datasets: [
+      { label:'2025 Actual', data:ACTUAL_2025_Q,
+        backgroundColor:'#3b82f699', borderColor:'#3b82f6',
+        borderWidth:1, borderRadius:4, order:3 },
+      { label:'2026 Actual', data:[ACTUAL_2026_Q1,null,null,null],
+        backgroundColor:'#10b98199', borderColor:'#10b981',
+        borderWidth:1, borderRadius:4, order:3 },
+      { label:'2026 Projected', data:[null,BUDGET_2026_Q[1],BUDGET_2026_Q[2],BUDGET_2026_Q[3]],
+        backgroundColor:'#10b98130', borderColor:'#10b98170',
+        borderWidth:1.5, borderRadius:4, order:3 },
+      { label:'2026 Budget', type:'line', data:BUDGET_2026_Q,
+        borderColor:'#f59e0b', backgroundColor:'transparent',
+        tension:.2, pointRadius:6, pointBackgroundColor:'#f59e0b',
+        borderWidth:2.5, borderDash:[6,4], fill:false, order:1 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>ctx.parsed.y!=null?`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M`:null}}
+      },
+      scales: {
+        x:{grid:{color:'#1e2d4840'},ticks:{color:'#a0b0c8',font:{size:13,weight:'600'}}},
+        y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ── Variance badge ──
+function _renderGMVVariance() {
+  const el = document.getElementById('gmvVariance');
+  if (!el) return;
+  const variance = ACTUAL_2026_Q1 - BUDGET_2026_Q[0];
+  const pct = (variance / BUDGET_2026_Q[0] * 100).toFixed(1);
+  el.innerHTML =
+    `<div style="display:inline-flex;align-items:center;gap:10px;background:#ef444412;border:1px solid #ef444430;border-radius:8px;padding:7px 14px;font-size:12px;flex-wrap:wrap">` +
+    `<span style="color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-size:10px">Q1 2026 Variance</span>` +
+    `<span style="color:#e2e8f5;font-family:'DM Mono',monospace">Actual <strong style="color:#10b981">$${ACTUAL_2026_Q1.toFixed(1)}M</strong> vs Budget <strong style="color:#f59e0b">$${BUDGET_2026_Q[0].toFixed(1)}M</strong></span>` +
+    `<span style="background:#ef444425;color:#ef4444;border-radius:4px;padding:2px 8px;font-weight:700;font-family:'DM Mono',monospace;font-size:11px">${pct}%&nbsp;&nbsp;(${variance.toFixed(1)}M)</span>` +
+    `</div>`;
+}
+
+// ── Legend ──
+function _renderGMVLegend() {
+  const el = document.getElementById('gmvLegend');
+  if (!el) return;
+  const isMonthly = gmvMode === 'monthly';
+  const items = isMonthly ? [
+    { color:'#3b82f6', label:'2025 Actual', type:'line' },
+    { color:'#10b981', label:'2026 Actual', type:'line' },
+    { color:'#f59e0b', label:'2026 Budget', type:'dash' }
+  ] : [
+    { color:'#3b82f699', label:'2025 Actual', type:'bar', border:'#3b82f6' },
+    { color:'#10b98199', label:'2026 Actual', type:'bar', border:'#10b981' },
+    { color:'#10b98130', label:'2026 Projected', type:'bar', border:'#10b98170' },
+    { color:'#f59e0b', label:'2026 Budget Line', type:'dash' }
+  ];
+  el.innerHTML = items.map(i => {
+    let icon;
+    if (i.type==='bar') icon = `<div style="width:12px;height:10px;border-radius:2px;background:${i.color};border:1px solid ${i.border||i.color};flex-shrink:0"></div>`;
+    else if (i.type==='dash') icon = `<svg width="20" height="10" style="flex-shrink:0;margin-top:1px"><line x1="0" y1="5" x2="20" y2="5" stroke="${i.color}" stroke-width="2" stroke-dasharray="5,3"/></svg>`;
+    else icon = `<div style="width:18px;height:2px;background:${i.color};border-radius:2px;flex-shrink:0;margin-top:4px"></div>`;
+    return `<div class="legend-item">${icon}${i.label}</div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════
@@ -723,12 +890,38 @@ function renderConcList(buyers, total) {
 // ═══════════════════════════════════════════════
 // TABLE
 // ═══════════════════════════════════════════════
+let tableMode = 'flat';
+function setTableMode(mode, btn) {
+  tableMode = mode;
+  document.getElementById('btnFlatList').className = 'filter-pill' + (mode==='flat'?' active':'');
+  document.getElementById('btnGroupLane').className = 'filter-pill' + (mode==='lane'?' active':'');
+  renderTable(getFiltered(), getFiltered().reduce((s,b)=>s+b.cap,0));
+}
+
 function sortTable(key) {
   if (sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=-1;}
   renderTable(getFiltered(), getFiltered().reduce((s,b)=>s+b.cap,0));
 }
 
 function renderTable(buyers, total) {
+  if (tableMode === 'lane') {
+    const lanes = ['Lane A','Lane B','Lane C','Lane D'];
+    const laneColors = {'Lane A':'#3b82f6','Lane B':'#10b981','Lane C':'#f59e0b','Lane D':'#ef4444'};
+    let html = '';
+    lanes.forEach(lane => {
+      const lb = [...buyers].filter(b=>b.lane===lane).sort((a,b)=>b.cap-a.cap);
+      if (!lb.length) return;
+      const laneCap = lb.reduce((s,b)=>s+b.cap,0);
+      html += `<tr><td colspan="10" style="padding:8px 12px;background:${laneColors[lane]}22;border-bottom:2px solid ${laneColors[lane]}44;font-weight:700;color:${laneColors[lane]};font-size:12px">${lane} &nbsp;·&nbsp; ${lb.length} buyers &nbsp;·&nbsp; $${laneCap.toFixed(1)}M</td></tr>`;
+      html += lb.map(b => {
+        const pct=(b.cap/total*100).toFixed(1);
+        const sColor=b.net_spread>=5?'spread-good':b.net_spread>=3?'spread-ok':'spread-low';
+        return `<tr onclick="openDrawer(${JSON.stringify(b).replace(/"/g,'&quot;')})"><td><strong>${b.name}</strong><br><span style="font-size:10px;color:var(--muted)">${pct}%</span></td><td><span class="rating-badge rb-${b.rating}">${b.rating}</span></td><td class="mono">$${b.cap.toFixed(2)}M</td><td class="mono">${b.tenor}d</td><td class="mono">${b.gr_pct.toFixed(2)}%</td><td class="mono ${sColor}">${b.net_spread.toFixed(2)}%</td><td class="mono">$${b.net_rev.toFixed(0)}K</td><td class="mono">$${b.c1.toFixed(0)}K</td><td style="font-size:11px">${b.region}</td><td style="font-size:11px">${b.lane}</td></tr>`;
+      }).join('');
+    });
+    document.getElementById('buyerTableBody').innerHTML = html;
+    return;
+  }
   const sorted=[...buyers].sort((a,b)=>(a[sortKey]<b[sortKey]?-1:1)*sortDir);
   document.getElementById('buyerTableBody').innerHTML=sorted.map(b=>{
     const pct=(b.cap/total*100).toFixed(1);
@@ -801,6 +994,56 @@ function closeDrawer() {
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════
+// FUNDER DONUT
+// ═══════════════════════════════════════════════
+function renderFunderDonut() {
+  destroyChart('funderDonut');
+  const funders=['Deutsche Bank','FCB','WFDBS','UOB','Air8 Retained'];
+  const caps=[36.8,30.7,24.5,18.4,12.3];
+  const colors=['#3b82f6','#8b5cf6','#06b6d4','#10b981','#6b7280'];
+  charts.funderDonut=new Chart(document.getElementById('funderDonut'),{
+    type:'doughnut',
+    data:{labels:funders,datasets:[{data:caps,backgroundColor:colors,borderColor:colors.map(c=>c+'40'),borderWidth:2,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(1)}M (${(ctx.parsed/122.72*100).toFixed(0)}%)`}}}}
+  });
+}
+
+// ═══════════════════════════════════════════════
+// LANE CAPITAL BAR
+// ═══════════════════════════════════════════════
+function renderLaneCapBar(buyers) {
+  destroyChart('laneCapBar');
+  const sorted=[...buyers].sort((a,b)=>b.cap-a.cap).slice(0,15);
+  charts.laneCapBar=new Chart(document.getElementById('laneCapBar'),{
+    type:'bar',
+    data:{
+      labels:sorted.map(b=>`${b.name} [${b.lane.replace('Lane ','')}]`),
+      datasets:[{
+        label:'Capital Deployed ($M)',
+        data:sorted.map(b=>b.cap),
+        backgroundColor:sorted.map(b=>RC[b.rating]+'cc'),
+        borderColor:sorted.map(b=>RC[b.rating]),
+        borderWidth:1,
+        borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.x.toFixed(2)}M | ${sorted[ctx.dataIndex].rating}-rated | ${sorted[ctx.dataIndex].lane}`}}
+      },
+      scales:{
+        x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:true,title:{display:true,text:'Capital Deployed ($M)',color:'#607090'}},
+        y:{grid:{display:false},ticks:{color:'#a0b0c8',font:{size:11}}}
+      }
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   renderAll();
   // Re-render treemap on resize
