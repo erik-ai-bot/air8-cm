@@ -59,7 +59,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
 
 /* CHART GRID */
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;align-items:stretch}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .grid-21{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px}
 .grid-12{display:grid;grid-template-columns:1fr 1.4fr;gap:14px;margin-bottom:14px}
@@ -163,6 +163,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     <a class="nav-link" href="#capital">② Capital & Returns</a>
     <a class="nav-link" href="#allocation">③ Asset Allocation</a>
     <a class="nav-link" href="#refactoring">④ Refactoring</a>
+    <a class="nav-link" href="#buyerlist">⑤ Buyer List</a>
   </div>
   <div class="nav-right">Portfolio Dashboard · Q1 2026</div>
 </nav>
@@ -214,7 +215,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
       <div class="chart-card-title">Tenor Buckets (days)</div>
       <div class="chart-wrap"><canvas id="tenorBar"></canvas></div>
     </div>
-    <div class="chart-card" style="height:auto;align-self:start">
+    <div class="chart-card">
       <div class="chart-card-title">Tenor × Rating (WA per bucket)</div>
       <div id="tenorRatingGrid" style="margin-top:4px;overflow:hidden"></div>
     </div>
@@ -320,11 +321,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     <div class="section-sub">— Capital distribution to external funders</div>
   </div>
 <!-- Refactoring & Funder Distribution -->
-  <div class="section-header" style="margin-top:28px">
-    <div style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">R</div>
-    <div class="section-title">Refactoring & Funder Distribution</div>
-    <div class="section-sub">— How portfolio capital is distributed to external funders</div>
-  </div>
+
   <div class="grid-3" style="margin-bottom:14px">
     <div class="chart-card">
       <div class="chart-card-title">Capital by Funder</div>
@@ -355,7 +352,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
 
 
   <!-- Buyer table -->
-  <div class="chart-card full">
+  <div class="chart-card full" id="buyerlist">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="chart-card-title" style="margin-bottom:0">Buyer Detail Table <span style="font-weight:400;color:var(--muted)">— click row to drill down · click header to sort</span></div>
       <div style="display:flex;gap:6px">
@@ -437,7 +434,7 @@ const RC={A:'#10b981',B:'#f59e0b',C:'#f97316',D:'#ef4444'};
 // ═══════════════════════════════════════════════
 let filters = { rating:'ALL', region:'ALL', lane:'ALL' };
 let sortKey = 'cap', sortDir = -1;
-let gmvMode = 'monthly';
+let gmvMode = 'quarterly';
 let charts = {};
 
 function setFilter(type, val, btn) {
@@ -1102,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Re-render treemap on resize
   window.addEventListener('resize', ()=>renderTreemap(getFiltered(), getFiltered().reduce((s,b)=>s+b.cap,0)));
   // Nav highlight on scroll
-  const sections=['quality','capital','allocation','refactoring'];
+  const sections=['quality','capital','allocation','refactoring','buyerlist'];
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
       if(e.isIntersecting){
