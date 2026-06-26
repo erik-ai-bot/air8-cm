@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Beyond Code — Getting Business Results</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1117;--surface:#161b27;--surface2:#1e2535;
+  --text:#e8edf5;--muted:#7a8ba0;--border:#243048;
+  --orange:#f97316;--orange-dim:#f9731620;--orange-border:#f9731640;
+  --green:#10b981;--blue:#3b82f6;--red:#ef4444;--amber:#f59e0b;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden}
+.deck{width:100%;height:100%;position:relative}
+.slide{display:none;position:absolute;inset:0;padding:48px 64px;flex-direction:column;justify-content:center;animation:fadeIn .35s ease}
+.slide.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Progress bar */
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--orange);transition:width .3s ease;z-index:100}
+
+/* Slide counter */
+#counter{position:fixed;bottom:20px;right:28px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;z-index:100}
+
+/* Nav hints */
+#nav-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);z-index:100}
+
+/* Typography */
+.tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:12px}
+h1{font-size:52px;font-weight:800;line-height:1.1;color:#fff}
+h2{font-size:36px;font-weight:700;line-height:1.2;color:#fff;margin-bottom:8px}
+h3{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.sub{font-size:18px;color:var(--muted);font-weight:400;line-height:1.6;margin-top:12px}
+.body{font-size:15px;color:#c0cce0;line-height:1.7}
+.mono{font-family:'DM Mono',monospace;font-size:13px}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
+.card-orange{background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:12px;padding:20px 24px}
+.card-green{background:#10b98115;border:1px solid #10b98130;border-radius:12px;padding:20px 24px}
+.card-red{background:#ef444415;border:1px solid #ef444430;border-radius:12px;padding:20px 24px}
+
+/* Grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* List */
+ul.clean{list-style:none;padding:0}
+ul.clean li{padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;color:#c0cce0;display:flex;align-items:flex-start;gap:10px}
+ul.clean li:last-child{border-bottom:none}
+ul.clean li::before{content:'›';color:var(--orange);font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* Accent lines */
+.accent-line{width:48px;height:3px;background:var(--orange);border-radius:2px;margin-bottom:24px}
+
+/* Big stat */
+.big-stat{font-size:72px;font-weight:800;color:var(--orange);line-height:1}
+.big-stat-label{font-size:14px;color:var(--muted);margin-top:6px}
+
+/* Table */
+.compare-table{width:100%;border-collapse:collapse;font-size:13px}
+.compare-table th{background:var(--surface2);padding:10px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.compare-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:#c0cce0;vertical-align:top}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table td:first-child{color:var(--text);font-weight:500}
+.compare-table td.good{color:var(--green)}
+.compare-table td.bad{color:var(--red)}
+
+/* Poll option */
+.poll-opt{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:14px;color:#c0cce0}
+.poll-opt:hover{border-color:var(--orange);color:#fff;background:var(--orange-dim)}
+
+/* Scenario label */
+.scenario-badge{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:16px}
+
+/* Step flow */
+.step-flow{display:flex;align-items:flex-start;gap:0}
+.step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.step-circle{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;position:relative;z-index:1}
+.step-line{position:absolute;top:18px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+.step:last-child .step-line{display:none}
+.step-label{margin-top:10px;font-size:11px;color:#c0cce0;text-align:center;padding:0 4px;line-height:1.5}
+
+/* Highlight box */
+.highlight{background:var(--orange-dim);border-left:3px solid var(--orange);padding:14px 18px;border-radius:0 8px 8px 0;font-size:14px;color:#e8edf5;line-height:1.6}
+
+/* Quote */
+.quote{font-size:20px;font-weight:500;color:#fff;line-height:1.5;position:relative;padding-left:20px;border-left:3px solid var(--orange)}
+
+/* Title slide specifics */
+.title-slide{background:radial-gradient(ellipse at 30% 50%, #f9731608 0%, transparent 60%)}
+.title-meta{display:flex;align-items:center;gap:12px;margin-top:32px}
+.title-meta-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0}
+
+/* Audience Q slide */
+.audience-q{background:var(--surface2);border:2px dashed var(--orange-border);border-radius:16px;padding:28px 32px;text-align:center}
+.audience-q .emoji{font-size:48px;margin-bottom:12px}
+.audience-q h3{font-size:22px;color:#fff}
+.audience-q p{font-size:14px;color:var(--muted);margin-top:8px}
+
+/* Two-column layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;width:100%}
+
+/* Arrow connector */
+.arrow-connector{display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--orange);padding:0 8px}
+
+/* Result badge */
+.result-badge{display:inline-flex;align-items:center;gap:6px;background:#10b98120;border:1px solid #10b98140;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--green)}
+
+/* Enhancement row */
+.enh-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.enh-row:last-child{border-bottom:none}
+.enh-num{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* Takeaway card */
+.takeaway{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.takeaway:last-child{border-bottom:none}
+.tk-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.tk-text h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.tk-text p{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* Logo */
+.logo-air8{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--orange)}
+
+/* Footer line on slides */
+.slide-footer{position:absolute;bottom:24px;left:64px;right:64px;display:flex;justify-content:space-between;align-items:center}
+.slide-footer-left{font-size:10px;color:var(--border)}
+
+/* Overflow scroll for content-heavy slides */
+.scroll-content{overflow-y:auto;max-height:calc(100vh - 160px);padding-right:8px}
+.scroll-content::-webkit-scrollbar{width:3px}
+.scroll-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="nav-hint">← → to navigate · Space to advance</div>
+
+<div class="deck">
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide title-slide" id="s1">
+  <div class="logo-air8" style="margin-bottom:48px">Air8 Tech × Business</div>
+  <div class="tag">Internal Sharing Session</div>
+  <h1>AI Beyond Code</h1>
+  <h1 style="color:var(--orange)">Getting Business Results</h1>
+  <p class="sub" style="max-width:560px">How to use AI as a business thinking partner — not just a coding assistant.</p>
+  <div class="title-meta">
+    <div class="title-meta-item"><div class="dot"></div>40 min + 20 min Q&A</div>
+    <div class="title-meta-item"><div class="dot"></div>Interactive</div>
+    <div class="title-meta-item"><div class="dot"></div>Real project examples</div>
+  </div>
+</div>
+
+<!-- SLIDE 2: AGENDA -->
+<div class="slide" id="s2">
+  <div class="accent-line"></div>
+  <div class="tag">Today's Plan</div>
+  <h2>What We'll Cover</h2>
+  <div style="margin-top:28px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:800px">
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">📊</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Opening Poll</div><div style="font-size:12px;color:var(--muted)">How are you actually using AI today?</div></div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">🔄</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Mindset Shift</div><div style="font-size:12px;color:var(--muted)">Dev mode vs Business mode</div></div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">🎯</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">3 Real Scenarios</div><div style="font-size:12px;color:var(--muted)">Expert tasks · Credit analysis · Feedback loops</div></div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">🗺️</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Thinking Routes</div><div style="font-size:12px;color:var(--muted)">How to frame AI for business outcomes</div></div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">🚀</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Enhancement Thinking</div><div style="font-size:12px;color:var(--muted)">How to keep improving after it works</div></div>
+    </div>
+    <div class="card" style="display:flex;gap:14px;align-items:flex-start">
+      <span style="font-size:22px">💬</span>
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Q&A (20 min)</div><div style="font-size:12px;color:var(--muted)">Open discussion</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: POLL -->
+<div class="slide" id="s3">
+  <div class="accent-line"></div>
+  <div class="tag">Opening Poll</div>
+  <h2>Besides writing code —<br>what do you use AI for daily?</h2>
+  <p class="sub" style="margin-bottom:28px;font-size:15px">Raise your hand or shout out. There's no wrong answer.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:760px">
+    <div class="poll-opt">✍️ &nbsp; Draft emails or messages</div>
+    <div class="poll-opt">🔍 &nbsp; Research a topic I don't know</div>
+    <div class="poll-opt">📋 &nbsp; Summarise long documents</div>
+    <div class="poll-opt">💡 &nbsp; Brainstorm ideas or options</div>
+    <div class="poll-opt">📊 &nbsp; Analyse data or results</div>
+    <div class="poll-opt">🧠 &nbsp; Help me make a decision</div>
+    <div class="poll-opt">📄 &nbsp; Write a report or proposal</div>
+    <div class="poll-opt" style="color:var(--muted)">🤷 &nbsp; Honestly, just coding</div>
+  </div>
+</div>
+
+<!-- SLIDE 4: THE GAP -->
+<div class="slide" id="s4">
+  <div class="accent-line"></div>
+  <div class="tag">The Observation</div>
+  <h2>You're good at AI for code.<br>But that's only part of the value.</h2>
+  <div style="margin-top:32px;display:flex;gap:24px;max-width:900px">
+    <div style="flex:1">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:16px;font-weight:700">What most devs use AI for</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)"><span>💻</span> Write / fix / refactor code</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)"><span>🐛</span> Debug errors</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)"><span>📝</span> Write documentation</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)"><span>🔧</span> Explain concepts or APIs</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--orange);padding:0 8px">→</div>
+    <div style="flex:1">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:16px;font-weight:700">What AI can actually do</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--orange-dim);border-radius:8px;border:1px solid var(--orange-border)"><span>📊</span> Analyse financial data like a credit analyst</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--orange-dim);border-radius:8px;border:1px solid var(--orange-border)"><span>🔁</span> Run expert workflows end-to-end</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--orange-dim);border-radius:8px;border:1px solid var(--orange-border)"><span>🧠</span> Learn from feedback and improve itself</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#c0cce0;padding:9px 14px;background:var(--orange-dim);border-radius:8px;border:1px solid var(--orange-border)"><span>⚡</span> Replace 3-day manual tasks in 30s</div>
+      </div>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:24px;max-width:700px">The gap isn't AI's capability. It's knowing what business outcome you want — and trusting AI to get there.</div>
+</div>
+
+<!-- SLIDE 5: TWO MODES -->
+<div class="slide" id="s5">
+  <div class="accent-line"></div>
+  <div class="tag">Mindset</div>
+  <h2>Two Ways to Use AI</h2>
+  <div style="margin-top:24px;overflow-x:auto">
+    <table class="compare-table" style="max-width:860px">
+      <thead><tr><th>Dimension</th><th style="color:#ef4444">🔧 Dev Mode (Current)</th><th style="color:var(--green)">🎯 Business Mode (Target)</th></tr></thead>
+      <tbody>
+        <tr><td>Starting question</td><td class="bad">"Write me a function that…"</td><td class="good">"What should the output look like for the business user?"</td></tr>
+        <tr><td>What you give AI</td><td class="bad">Technical specification</td><td class="good">Business context + desired result</td></tr>
+        <tr><td>Trust level</td><td class="bad">Trusts AI for syntax only</td><td class="good">Trusts AI for judgment and analysis</td></tr>
+        <tr><td>When you build code</td><td class="bad">First instinct</td><td class="good">Only after asking if code is even needed</td></tr>
+        <tr><td>Domain gap</td><td class="bad">Blocked by lack of business knowledge</td><td class="good">AI bridges the domain gap</td></tr>
+        <tr><td>Result</td><td class="bad">~20% of AI's value</td><td class="good">~80% of AI's value</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SLIDE 6: OVER-ENGINEERING -->
+<div class="slide" id="s6">
+  <div class="accent-line"></div>
+  <div class="tag">The Trap</div>
+  <h2>Over-engineering = Under-asking</h2>
+  <div class="two-col" style="margin-top:28px;max-width:860px">
+    <div class="card-red">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--red);margin-bottom:14px;font-weight:700">Path A — Build First</div>
+      <ul class="clean">
+        <li>Define data model for financial ratios</li>
+        <li>Build extraction pipeline from 10-K filings</li>
+        <li>Write rules engine for ratio classification</li>
+        <li>Build rating logic (A/B/C/D thresholds)</li>
+        <li>Generate report template</li>
+      </ul>
+      <div style="margin-top:16px;font-size:13px;color:var(--muted)">⏱ 2–3 days · Complex to maintain</div>
+    </div>
+    <div class="card-green">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:14px;font-weight:700">Path B — Ask First</div>
+      <ul class="clean">
+        <li>Describe the business output needed</li>
+        <li>Define the rules as plain language instructions</li>
+        <li>Let AI extract, classify, and write the analysis</li>
+        <li>Review output → refine prompt if needed</li>
+      </ul>
+      <div style="margin-top:16px;font-size:13px;color:var(--muted)">⏱ 30 seconds · Self-improving</div>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top:22px;max-width:760px">When you over-engineer, it's often because you didn't <em>ask AI first</em>. Asking AI first changes <strong>what you build</strong>, not whether you build.</div>
+</div>
+
+<!-- SLIDE 7: SCENARIO 1 SETUP — EXPERT TASKS -->
+<div class="slide" id="s7">
+  <div class="scenario-badge"><span style="color:var(--orange)">●</span> Scenario 1 of 3</div>
+  <div class="tag">Expert Task Management</div>
+  <h2>The Situation</h2>
+  <div style="margin-top:24px;max-width:780px">
+    <div class="card" style="padding:24px 28px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Business Problem</div>
+      <p style="font-size:16px;color:#e0e8f5;line-height:1.7">We have a team of external experts (compliance, quality, supply chain) who review supplier documents and give feedback. Every day, someone needs to:<br><br>
+      ① Check which tasks are pending in the system<br>
+      ② Figure out which expert handles which task<br>
+      ③ Send each expert their task list<br>
+      ④ Collect their feedback<br>
+      ⑤ Apply feedback to documents → confirm with expert<br>
+      ⑥ Update task status when done</p>
+    </div>
+    <div class="card" style="padding:14px 20px;background:var(--surface2)">
+      <span style="font-size:12px;color:var(--muted)">Today: manually done. Inconsistent. Experts sometimes don't respond. Status tracking is a mess.</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: SCENARIO 1 AUDIENCE Q -->
+<div class="slide" id="s8">
+  <div class="scenario-badge"><span style="color:var(--orange)">●</span> Scenario 1 of 3</div>
+  <div class="tag">Your Turn</div>
+  <h2>What would YOU ask AI<br>to help with here?</h2>
+  <div style="margin-top:32px;max-width:700px">
+    <div class="audience-q">
+      <div class="emoji">🤔</div>
+      <h3>Take 60 seconds</h3>
+      <p>Given this scenario, what's the first thing you'd ask AI for? What would you expect it to do (or not do)?</p>
+    </div>
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Common dev instinct</div>
+        <div style="font-size:13px;color:#c0cce0">"Build a notification system with Notion integration and Telegram bot"</div>
+      </div>
+      <div class="card" style="padding:14px 18px;border-color:var(--orange-border)">
+        <div style="font-size:11px;color:var(--orange);margin-bottom:6px">What did we actually do?</div>
+        <div style="font-size:13px;color:#c0cce0">→ Next slide</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: SCENARIO 1 SOLUTION -->
+<div class="slide" id="s9">
+  <div class="scenario-badge"><span style="color:var(--orange)">●</span> Scenario 1 of 3</div>
+  <div class="tag">Business Thinking + Thinking Route</div>
+  <h2 style="font-size:26px">Expert Review Bot — What Actually Got Built</h2>
+  <div style="margin-top:20px;display:grid;grid-template-columns:1.2fr 1fr;gap:20px;max-width:920px">
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:12px;font-weight:700">Thinking Route</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">1</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">What's the output the business user needs?</strong><br>Expert gets a clear task list. Manager sees status.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">2</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">What data exists?</strong><br>Notion DB (tasks, status, expert mapping) + Google Sheet (expert contacts + Telegram IDs)</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">3</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Can AI do the judgment calls?</strong><br>Which tasks are relevant to this expert? What's urgent? Yes — AI reads the DB and decides.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">4</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">What's the feedback loop?</strong><br>Expert replies → AI applies edits to docs → Expert confirms → Notion updated</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">5</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Does this need code?</strong><br>Minimal: a shell script + cron. AI does the rest.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:12px;font-weight:700">Result</div>
+      <div class="card-green" style="margin-bottom:12px">
+        <div style="font-size:13px;color:#c0cce0;line-height:1.7">Runs every evening at 9pm. AI reads Notion, writes personalised task messages, sends via Telegram, waits for replies, applies edits to HTML docs, confirms with expert, marks tasks done.</div>
+        <div style="margin-top:10px"><span class="result-badge">✓ Fully automated</span></div>
+      </div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber);margin-bottom:10px;font-weight:700">Further Enhancement Thinking</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">Escalate if no reply in 24h</div></div>
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">Track expert response quality over time</div></div>
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">AI learns which feedback patterns recur → pre-apply</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: SCENARIO 2 SETUP — CM TOOL -->
+<div class="slide" id="s10">
+  <div class="scenario-badge"><span style="color:var(--blue)">●</span> Scenario 2 of 3</div>
+  <div class="tag">Financial Analytics</div>
+  <h2>The Situation</h2>
+  <div style="margin-top:24px;max-width:800px">
+    <div class="card" style="padding:24px 28px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Business Problem</div>
+      <p style="font-size:16px;color:#e0e8f5;line-height:1.7">The credit team writes a Credit Memorandum for every new buyer — a 10-page analysis covering financials, risk rating, recommendation. Each one takes a senior analyst half a day to research and write.<br><br>
+      The team wants to use AI to draft the first version — but the quality must meet investment-grade credit standards. Formulas are specific to Air8 (not textbook finance). Tone varies by rating band (A vs B vs C buyer). And it needs to get the numbers right.</p>
+    </div>
+    <div style="display:flex;gap:12px">
+      <div class="card" style="flex:1;padding:12px 18px;background:var(--surface2)"><span style="font-size:12px;color:var(--muted)">Non-trivial domain: most devs don't know what EBITDA/Interest coverage means</span></div>
+      <div class="card" style="flex:1;padding:12px 18px;background:var(--surface2)"><span style="font-size:12px;color:var(--muted)">Stakes: wrong analysis = wrong credit limit = real financial risk</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: SCENARIO 2 AUDIENCE Q -->
+<div class="slide" id="s11">
+  <div class="scenario-badge"><span style="color:var(--blue)">●</span> Scenario 2 of 3</div>
+  <div class="tag">Your Turn</div>
+  <h2>What would YOU ask AI here?<br><span style="color:var(--muted);font-size:0.7em">You don't know the finance domain.</span></h2>
+  <div style="margin-top:28px;max-width:760px">
+    <div class="audience-q">
+      <div class="emoji">💭</div>
+      <h3>Think about this honestly</h3>
+      <p>Would you trust AI to do professional financial analysis? What would stop you? How would you even start?</p>
+    </div>
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Sceptic instinct</div>
+        <div style="font-size:13px;color:#c0cce0">"AI will get the numbers wrong. You need a real analyst."</div>
+      </div>
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Over-engineer instinct</div>
+        <div style="font-size:13px;color:#c0cce0">"Build a scraper for SEC filings, compute ratios in Python, connect to a LLM for the writeup."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: SCENARIO 2 SOLUTION -->
+<div class="slide" id="s12">
+  <div class="scenario-badge"><span style="color:var(--blue)">●</span> Scenario 2 of 3</div>
+  <div class="tag">Business Thinking + Thinking Route</div>
+  <h2 style="font-size:26px">Credit Memo Tool — How We Approached It</h2>
+  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:920px">
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin-bottom:10px;font-weight:700">Thinking Route</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">1</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Start with the output, not the tech</strong><br>What does a good CM look like? Get a real example from the analyst.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">2</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Encode the domain knowledge explicitly</strong><br>Write Air8's exact formulas (EBITDA = EBIT + D&A, not press release), rating rules, FY labeling into a KB. The model follows rules, it doesn't need to "know" finance.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">3</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Split into two AI calls</strong><br>Step 1: extract numbers. Step 2: write analysis. Separating prevents timeout, improves each.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;margin-top:2px">4</div>
+          <div style="font-size:13px;color:#c0cce0"><strong style="color:#fff">Trust the analyst to review, not rebuild</strong><br>AI drafts. Analyst edits what's wrong. Time savings: 80%+.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:10px;font-weight:700">Key Insight</div>
+      <div class="card-green" style="margin-bottom:12px">
+        <div style="font-size:13px;color:#c0cce0;line-height:1.7">Quality lives in the <strong style="color:#fff">Knowledge Base and prompts</strong>, not in the model. Even a weaker (cheaper) model can produce investment-grade analysis if the rules are explicit enough.</div>
+      </div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber);margin-bottom:10px;font-weight:700">Further Enhancement Thinking</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">Save AI raw output (v0) before analyst edits</div></div>
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">Compare v0 vs final → find patterns → update KB</div></div>
+        <div class="enh-row"><div class="enh-num">+</div><div style="font-size:12px;color:#c0cce0">Switch to cheaper model when KB is strong enough</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: SCENARIO 3 SETUP — FEEDBACK LOOP -->
+<div class="slide" id="s13">
+  <div class="scenario-badge"><span style="color:var(--green)">●</span> Scenario 3 of 3</div>
+  <div class="tag">Feedback Loop & Continuous Improvement</div>
+  <h2>The Situation</h2>
+  <div style="margin-top:24px;max-width:800px">
+    <div class="card" style="padding:24px 28px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Business Problem</div>
+      <p style="font-size:16px;color:#e0e8f5;line-height:1.7">You've launched an AI feature. It works — but the output quality isn't consistently good. Sometimes it's great, sometimes it misses the mark. The analyst fixes it manually every time.<br><br>
+      How do you systematically improve the AI over time without fine-tuning a model? Without a data science team? Using only the edits your business users are already making?</p>
+    </div>
+    <div class="card" style="padding:14px 18px;background:var(--surface2)">
+      <span style="font-size:12px;color:var(--muted)">Most dev teams: "It's good enough. The users can just edit it." — No feedback mechanism, no improvement loop.</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: SCENARIO 3 AUDIENCE Q -->
+<div class="slide" id="s14">
+  <div class="scenario-badge"><span style="color:var(--green)">●</span> Scenario 3 of 3</div>
+  <div class="tag">Your Turn</div>
+  <h2>How would you improve AI output quality<br>without retraining the model?</h2>
+  <div style="margin-top:28px;max-width:760px">
+    <div class="audience-q">
+      <div class="emoji">🔄</div>
+      <h3>What's your first instinct?</h3>
+      <p>Would you fine-tune? Build an evaluation framework? Collect labelled training data? Or something simpler?</p>
+    </div>
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Complex instinct</div>
+        <div style="font-size:13px;color:#c0cce0">"Fine-tune the model on our data. Build an evaluation pipeline. RLHF."</div>
+      </div>
+      <div class="card" style="padding:14px 18px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Realistic constraint</div>
+        <div style="font-size:13px;color:#c0cce0">"We don't have a data science team. We just need it to get better."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 15: SCENARIO 3 SOLUTION -->
+<div class="slide" id="s15">
+  <div class="scenario-badge"><span style="color:var(--green)">●</span> Scenario 3 of 3</div>
+  <div class="tag">Business Thinking + Thinking Route</div>
+  <h2 style="font-size:26px">The v0 → v1 Learning Loop</h2>
+  <div style="margin-top:16px;max-width:920px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px">
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase">AI Generates</div>
+        <div style="font-size:22px;font-weight:800;color:var(--orange)">v0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Raw AI output<br>Auto-saved silently</div>
+      </div>
+      <div style="font-size:24px;color:var(--border)">→</div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase">User Edits</div>
+        <div style="font-size:22px;font-weight:800;color:var(--blue)">v1</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Analyst's version<br>Saved to Notion</div>
+      </div>
+      <div style="font-size:24px;color:var(--border)">→</div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase">Review Diff</div>
+        <div style="font-size:22px;font-weight:800;color:var(--amber)">Δ</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">What changed?<br>Pattern analysis</div>
+      </div>
+      <div style="font-size:24px;color:var(--border)">→</div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase">Update KB</div>
+        <div style="font-size:22px;font-weight:800;color:var(--green)">v0+1</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Better rules in prompt<br>Better AI next time</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px">Why this works</div>
+        <ul class="clean">
+          <li>Every edit is free training data — no extra work from users</li>
+          <li>Quality lives in the KB, not the model weights</li>
+          <li>Works with any LLM — swap models freely</li>
+          <li>Business experts are the teachers, not data scientists</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px">Enhancement thinking applied today</div>
+        <ul class="clean">
+          <li>Simpler causal language (shorter = clearer)</li>
+          <li>Debt+leverage in ONE section, not split</li>
+          <li>Outlook bullet must name specific mgmt strategy</li>
+          <li>$ not USD, % change not full absolute pairs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 16: FRAMEWORK -->
+<div class="slide" id="s16">
+  <div class="accent-line"></div>
+  <div class="tag">The Framework</div>
+  <h2>Business Result First</h2>
+  <p class="sub" style="margin-bottom:28px;font-size:15px">Use this mental model every time you approach a new problem with AI.</p>
+  <div style="max-width:720px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--orange)">
+        <div style="font-size:22px;font-weight:800;color:var(--orange);min-width:32px">1</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">What does the business user actually need?</div><div style="font-size:13px;color:var(--muted)">Not what you think they need — what does the output look like in their hands?</div></div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--orange)">
+        <div style="font-size:22px;font-weight:800;color:var(--orange);min-width:32px">2</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">What would good output look like?</div><div style="font-size:13px;color:var(--muted)">Find a real example. Get the standard. If it's a document, get the template.</div></div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--orange)">
+        <div style="font-size:22px;font-weight:800;color:var(--orange);min-width:32px">3</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Ask AI: "Given [context], produce [output] meeting [criteria]"</div><div style="font-size:13px;color:var(--muted)">Encode the domain rules explicitly. Don't rely on the model's general knowledge.</div></div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--orange)">
+        <div style="font-size:22px;font-weight:800;color:var(--orange);min-width:32px">4</div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Only then: decide if code is needed</div><div style="font-size:13px;color:var(--muted)">Sometimes AI alone is enough. Sometimes a thin wrapper is all you need. Rarely a full system.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 17: THINKING ROUTES VISUAL -->
+<div class="slide" id="s17">
+  <div class="accent-line"></div>
+  <div class="tag">Thinking Route</div>
+  <h2>How to Think, Not Just What to Ask</h2>
+  <div style="margin-top:24px;max-width:880px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div class="card" style="border-top:3px solid var(--orange)">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--orange);margin-bottom:12px;font-weight:700">Getting Started</div>
+        <ul class="clean">
+          <li>"Show me what good output looks like for this"</li>
+          <li>"What information do I need to produce X?"</li>
+          <li>"Explain [domain concept] as if I'm going to write instructions for an AI"</li>
+          <li>"What are the edge cases or common mistakes in [domain]?"</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--blue)">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin-bottom:12px;font-weight:700">When Something's Wrong</div>
+        <ul class="clean">
+          <li>"Here's what you produced vs what I expected — what rule was wrong?"</li>
+          <li>"Why did you [specific decision]? Walk me through your reasoning."</li>
+          <li>"If I wanted this output to be better, what's missing from my instructions?"</li>
+          <li>"Here's a good example and a bad example — what's the difference?"</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);margin-bottom:12px;font-weight:700">Thinking Further Ahead</div>
+        <ul class="clean">
+          <li>"If this works, what would the next limitation be?"</li>
+          <li>"What data would make this smarter over time?"</li>
+          <li>"How would this break at scale or in edge cases?"</li>
+          <li>"What's the simplest way to capture user corrections automatically?"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 18: TAKEAWAYS -->
+<div class="slide" id="s18">
+  <div class="accent-line"></div>
+  <div class="tag">Key Takeaways</div>
+  <h2>What to Remember</h2>
+  <div style="margin-top:24px;max-width:720px">
+    <div class="takeaway">
+      <div class="tk-icon">🎯</div>
+      <div class="tk-text"><h4>Start with the output, not the technology</h4><p>Before writing any code or prompt — define what "good" looks like. Get a real example from the business user.</p></div>
+    </div>
+    <div class="takeaway">
+      <div class="tk-icon">📚</div>
+      <div class="tk-text"><h4>Quality lives in the KB, not the model</h4><p>Encode domain rules explicitly. A well-prompted cheaper model beats a smart model with vague instructions.</p></div>
+    </div>
+    <div class="takeaway">
+      <div class="tk-icon">🔄</div>
+      <div class="tk-text"><h4>Every user edit is free training data</h4><p>Capture v0 vs v1. The difference between what AI produced and what the expert corrected is your roadmap for improvement.</p></div>
+    </div>
+    <div class="takeaway">
+      <div class="tk-icon">💡</div>
+      <div class="tk-text"><h4>AI bridges the domain gap — trust it for judgment</h4><p>You don't need to be a credit analyst to produce credit analysis. You need to know what the output should look like.</p></div>
+    </div>
+    <div class="takeaway">
+      <div class="tk-icon">🚀</div>
+      <div class="tk-text"><h4>This week: try one business problem, no code</h4><p>Pick something you'd normally build. Ask AI first. See how much of it AI handles directly.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 19: Q&A -->
+<div class="slide" id="s19">
+  <div style="text-align:center;max-width:600px;margin:0 auto">
+    <div style="font-size:64px;margin-bottom:24px">💬</div>
+    <div class="tag" style="display:block;text-align:center;margin-bottom:16px">20 Minutes</div>
+    <h1 style="font-size:56px">Q&A</h1>
+    <p class="sub" style="text-align:center;margin-top:16px">What did you see differently after today?<br>What will you try first?</p>
+    <div style="margin-top:40px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--muted)">Ask anything about the demos</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--muted)">Share your scepticism</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;color:var(--muted)">Propose a use case from your work</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+var slides = document.querySelectorAll('.slide');
+var total = slides.length;
+var current = 0;
+
+function show(n) {
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, total - 1));
+  slides[current].classList.add('active');
+  document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+  document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); show(current + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); show(current - 1); }
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(total - 1);
+});
+
+document.addEventListener('click', function(e) {
+  if (e.clientX > window.innerWidth / 2) show(current + 1);
+  else show(current - 1);
+});
+
+show(0);
+</script>
+</body>
+</html>
