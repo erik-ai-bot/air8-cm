@@ -10,7 +10,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#080e1a;--surface:#0f1625;--card:#141d2e;--card2:#192035;--border:#1e2d48;
-  --text:#e2e8f5;--muted:#607090;--dim:#3a4d6a;
+  --text:#e2e8f5;--muted:#8ab0d0;--dim:#5a7090;
   --blue-accent:#1a56db;--og2:#1a56db18;--ogb:#1a56db35;
   --A:#10b981;--B:#f59e0b;--C:#f97316;--D:#ef4444;
   --An:#10b98118;--Bn:#f59e0b18;--Cn:#f9731618;--Dn:#ef444418;
@@ -152,6 +152,37 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
 .gmv-toggle{font-size:11px;font-weight:600;padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
 .gmv-toggle.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff}
 .gmv-toggle:hover:not(.active){border-color:var(--dim);color:var(--text)}
+
+[data-theme="light"] {
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --card:#f8fafc;
+  --card2:#eef2f7;
+  --border:#d1dce8;
+  --text:#1a2740;
+  --muted:#4a6080;
+  --dim:#8090a8;
+  --blue-accent:#1a56db;
+  --og2:#1a56db12;
+  --ogb:#1a56db30;
+  --A:#059669;
+  --B:#d97706;
+  --C:#ea580c;
+  --D:#dc2626;
+  --An:#05966912;
+  --Bn:#d9770612;
+  --Cn:#ea580c12;
+  --Dn:#dc262612;
+}
+[data-theme="light"] .nav { background:rgba(240,244,248,.95); border-bottom:1px solid var(--border); }
+[data-theme="light"] .filter-bar { background:var(--surface); }
+[data-theme="light"] .kpi { border:1px solid var(--border); }
+[data-theme="light"] .chart-card { border:1px solid var(--border); }
+[data-theme="light"] .buyer-table td, [data-theme="light"] .buyer-table th { color:var(--text); }
+[data-theme="light"] .rating-badge { filter:saturate(1.1) brightness(0.9); }
+[data-theme="light"] .drawer { background:var(--surface); }
+[data-theme="light"] .drawer-overlay { background:rgba(0,0,0,0.3); }
+[data-theme="light"] .t-name, [data-theme="light"] .t-cap, [data-theme="light"] .t-badge { text-shadow:none; color:#fff; }
 </style>
 </head>
 <body>
@@ -165,7 +196,12 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     <a class="nav-link" href="#refactoring">④ Refactoring</a>
     <a class="nav-link" href="#buyerlist">⑤ Buyer List</a>
   </div>
-  <div class="nav-right">Portfolio Dashboard · Q1 2026</div>
+  <div class="nav-right" style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:11px;color:var(--muted)">Portfolio Dashboard · Q1 2026</span>
+    <button id="themeToggle" onclick="toggleTheme()" style="background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;cursor:pointer;font-size:12px;color:var(--text);font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px">
+      <span id="themeIcon">☀️</span><span id="themeLabel">Light</span>
+    </button>
+  </div>
 </nav>
 
 <div class="filter-bar">
@@ -1140,6 +1176,23 @@ function renderLaneCapBar(buyers) {
   });
 }
 
+
+// ─── THEME TOGGLE ───
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    html.removeAttribute('data-theme');
+    document.getElementById('themeIcon').textContent = '☀️';
+    document.getElementById('themeLabel').textContent = 'Light';
+  } else {
+    html.setAttribute('data-theme', 'light');
+    document.getElementById('themeIcon').textContent = '🌙';
+    document.getElementById('themeLabel').textContent = 'Dark';
+  }
+  // Redraw all charts for new background
+  setTimeout(renderAll, 50);
+}
 document.addEventListener('DOMContentLoaded', ()=>{
   renderAll();
   // Re-render treemap on resize
