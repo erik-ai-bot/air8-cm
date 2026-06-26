@@ -336,26 +336,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
       </div>
     </div>
     <div class="chart-card">
-      <div class="chart-card-title">Funder Breakdown</div>
-      <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:4px">
-        <thead><tr><th style="text-align:left;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Funder</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Cap ($M)</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Share</th><th style="text-align:right;color:var(--muted);padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)">Avg Spread</th></tr></thead>
-        <tbody>
-          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Deutsche Bank</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$36.8M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">30%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--A)">4.8%</td></tr>
-          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">FCB</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$30.7M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">25%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--A)">4.5%</td></tr>
-          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">WFDBS</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$24.5M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">20%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--B)">4.2%</td></tr>
-          <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">UOB</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace">$18.4M</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border)">15%</td><td style="text-align:right;padding:7px 8px;border-bottom:1px solid var(--border);color:var(--B)">4.0%</td></tr>
-          <tr><td style="padding:7px 8px">Air8 Retained</td><td style="text-align:right;padding:7px 8px;font-family:'DM Mono',monospace">$12.3M</td><td style="text-align:right;padding:7px 8px">10%</td><td style="text-align:right;padding:7px 8px;color:var(--C)">5.1%</td></tr>
-        </tbody>
-      </table>
+      <div class="chart-card-title">Funder Utilization — click row to drill into buyers</div>
+      <div id="funderTable" style="margin-top:4px"></div>
     </div>
   </div>
-
 
 </div>
 
 <div class="sec-divider"></div>
 
-<!-- ══ SECTION 5: BUYER LIST ══ -->
+<!-- ══ SECTION 5: BUYER LIST ══ --><!-- ══ SECTION 5: BUYER LIST ══ -->
 <div class="section" id="buyerlist">
   <div class="section-header">
     <div class="section-num" style="background:#0ea5e9">5</div>
