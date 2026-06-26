@@ -11,7 +11,7 @@
 :root{
   --bg:#080e1a;--surface:#0f1625;--card:#141d2e;--card2:#192035;--border:#1e2d48;
   --text:#e2e8f5;--muted:#607090;--dim:#3a4d6a;
-  --orange:#f97316;--og2:#f9731618;--ogb:#f9731635;
+  --blue-accent:#1a56db;--og2:#1a56db18;--ogb:#1a56db35;
   --A:#10b981;--B:#f59e0b;--C:#f97316;--D:#ef4444;
   --An:#10b98118;--Bn:#f59e0b18;--Cn:#f9731618;--Dn:#ef444418;
 }
@@ -19,7 +19,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;gap:0;height:52px}
-.nav-logo{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-right:24px;white-space:nowrap}
+.nav-logo{font-size:11px;font-weight:800;letter-spacing:2px;color:#1a56db;text-transform:uppercase;margin-right:24px;white-space:nowrap}
 .nav-links{display:flex;gap:4px;flex:1}
 .nav-link{font-size:12px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .2s;white-space:nowrap}
 .nav-link:hover,.nav-link.active{color:#fff;background:var(--card2)}
@@ -29,15 +29,15 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .filter-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-right:4px}
 .filter-pill{font-size:12px;font-weight:600;padding:4px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s}
-.filter-pill:hover{border-color:var(--orange);color:var(--text)}
-.filter-pill.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.filter-pill:hover{border-color:var(--blue-accent);color:var(--text)}
+.filter-pill.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff}
 .filter-pill.active-A{background:var(--A);border-color:var(--A);color:#fff}
 .filter-pill.active-B{background:var(--B);border-color:var(--B);color:#000}
 .filter-pill.active-C{background:var(--C);border-color:var(--C);color:#fff}
 .filter-pill.active-D{background:var(--D);border-color:var(--D);color:#fff}
 .filter-sep{width:1px;height:20px;background:var(--border)}
 .filter-select{font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif}
-.filter-select:focus{outline:none;border-color:var(--orange)}
+.filter-select:focus{outline:none;border-color:var(--blue-accent)}
 .filter-count{margin-left:auto;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
 
 /* MAIN LAYOUT */
@@ -46,14 +46,14 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 /* SECTIONS */
 .section{padding-top:36px}
 .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.section-num{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.section-num{width:24px;height:24px;border-radius:50%;background:var(--blue-accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
 .section-title{font-size:16px;font-weight:700;color:#fff}
 .section-sub{font-size:12px;color:var(--muted);margin-left:4px}
 
 /* KPI STRIP */
 .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--orange)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--blue-accent)}
 .kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px;font-weight:600}
 .kpi-value{font-size:22px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;line-height:1}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
@@ -70,9 +70,9 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
 .chart-card-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:14px}
 .chart-wrap{position:relative}
-.chart-wrap canvas{max-height:220px}
-.chart-wrap.tall canvas{max-height:300px}
-.chart-wrap.xtall canvas{max-height:380px}
+.chart-wrap{height:220px}.chart-wrap canvas{height:220px!important}
+.chart-wrap.tall{height:300px}.chart-wrap.tall canvas{height:300px!important}
+.chart-wrap.xtall{height:380px}.chart-wrap.xtall canvas{height:380px!important}
 
 /* TREEMAP */
 #treemap{position:relative;width:100%;height:280px;overflow:hidden;border-radius:8px}
@@ -290,7 +290,7 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     <div class="chart-card">
       <div class="chart-card-title">Concentration Risk — Top 5 Buyers</div>
       <div id="concList" style="margin-top:4px"></div>
-      <div style="margin-top:16px;padding:10px 12px;background:var(--og2);border:1px solid var(--ogb);border-radius:8px;font-size:12px;color:#e0a060" id="concAlert"></div>
+      <div style="margin-top:16px;padding:10px 12px;background:#1a56db18;border:1px solid #1a56db35;border-radius:8px;font-size:12px;color:#e0a060" id="concAlert"></div>
     </div>
   </div>
 
@@ -454,7 +454,7 @@ function renderRatingDonut(buyers) {
   charts.ratingDonut=new Chart(document.getElementById('ratingDonut'),{
     type:'doughnut',
     data:{labels,datasets:[{data,backgroundColor:labels.map(r=>RC[r]),borderColor:labels.map(r=>RC[r]+'60'),borderWidth:2,hoverOffset:6}]},
-    options:{cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M (${(ctx.parsed/(ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0))*100).toFixed(0)}%)`}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M (${(ctx.parsed/(ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0))*100).toFixed(0)}%)`}}}}
   });
   document.getElementById('ratingLegend').innerHTML=labels.map(r=>
     `<div class="legend-item"><div class="legend-dot" style="background:${RC[r]}"></div>${r}: $${byRating[r].cap.toFixed(1)}M (${byRating[r].count})</div>`
@@ -472,7 +472,7 @@ function renderTenorBar(buyers) {
   charts.tenorBar=new Chart(document.getElementById('tenorBar'),{
     type:'bar',
     data:{labels:buckets.map(b=>b.l),datasets:[{data:byCap,backgroundColor:colors,borderRadius:6}]},
-    options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.y.toFixed(2)}M`}}},scales:{x:{grid:{color:'#1e2d4840'}},y:{grid:{color:'#1e2d4840'},ticks:{callback:v=>'$'+v.toFixed(0)+'M',color:'#607090'},beginAtZero:true}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.y.toFixed(2)}M`}}},scales:{x:{grid:{color:'#1e2d4840'}},y:{grid:{color:'#1e2d4840'},ticks:{callback:v=>'$'+v.toFixed(0)+'M',color:'#607090'},beginAtZero:true}}}
   });
 }
 
@@ -515,7 +515,7 @@ function renderScatter(buyers) {
   charts.scatterChart=new Chart(document.getElementById('scatterChart'),{
     type:'bubble',
     data:{datasets},
-    options:{
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{labels:{color:'#a0b0c8',font:{size:11}}},
         tooltip:{callbacks:{label:ctx=>`${ctx.raw.name}: Tenor ${ctx.raw.x}d | Spread ${ctx.raw.y.toFixed(2)}% | Cap $${ctx.raw.cap.toFixed(2)}M`}}
@@ -596,10 +596,10 @@ function renderGMVLine() {
   charts.gmvLine=new Chart(document.getElementById('gmvLine'),{
     type:'line',
     data:{labels,datasets:[
-      {label:'2025 GMV',data:data2025,borderColor:'#f97316',backgroundColor:'#f9731618',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#f97316'},
+      {label:'2025 GMV',data:data2025,borderColor:'#1a56db',backgroundColor:'#1a56db18',tension:.35,fill:true,pointRadius:3,pointBackgroundColor:'#1a56db'},
       {label:'2026 Q1',data:data2026,borderColor:'#10b981',backgroundColor:'#10b98118',tension:.35,fill:true,pointRadius:4,pointBackgroundColor:'#10b981',borderDash:[]}
     ]},
-    options:{
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.parsed.y?`$${ctx.parsed.y.toFixed(1)}M`:null}}},
       scales:{x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',maxRotation:0}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:false}},
       annotation:{annotations:{divLine:{type:'line',x:MONTHS_2025.length-0.5,borderColor:'#607090',borderDash:[4,4],borderWidth:1}}}
@@ -622,11 +622,7 @@ function renderBuyerBar(buyers) {
         {label:'Net Revenue ($K)',data:top.map(b=>b.net_rev),backgroundColor:'#ffffff20',borderColor:'#ffffff50',borderWidth:1,borderRadius:4,type:'bar',yAxisID:'y2'}
       ]
     },
-    options:{
-      plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}}},
-      scales:{
-        x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090'}},
-        y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},title:{display:true,text:'Cap ($M)',color:'#607090'}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}}},scales:{x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090'}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},title:{display:true,text:'Cap ($M)',color:'#607090'}},
         y2:{position:'right',grid:{display:false},ticks:{color:'#607090',callback:v=>'$'+v+'K'},title:{display:true,text:'NR ($K)',color:'#607090'}}
       }
     }
@@ -644,7 +640,7 @@ function renderLaneDonut(buyers) {
   charts.laneDonut=new Chart(document.getElementById('laneDonut'),{
     type:'doughnut',
     data:{labels:lanes,datasets:[{data,backgroundColor:colors,borderColor:colors.map(c=>c+'40'),borderWidth:2,hoverOffset:6}]},
-    options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M`}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M`}}}}
   });
 }
 
@@ -659,7 +655,7 @@ function renderRegionBar(buyers) {
   charts.regionBar=new Chart(document.getElementById('regionBar'),{
     type:'bar',
     data:{labels:regions,datasets:[{data,backgroundColor:colors,borderRadius:6}]},
-    options:{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.x.toFixed(2)}M`}}},scales:{x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#a0b0c8',font:{size:12}}}}}
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.x.toFixed(2)}M`}}},scales:{x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#a0b0c8',font:{size:12}}}}}
   });
 }
 
@@ -674,7 +670,7 @@ function renderLFDonut(buyers, total) {
   charts.lfDonut=new Chart(document.getElementById('lfDonut'),{
     type:'doughnut',
     data:{labels:['LF (Agency)','Non-LF (Direct)'],datasets:[{data:[lfCap,nonLfCap].map(v=>+v.toFixed(2)),backgroundColor:['#3b82f6','#f97316'],borderColor:['#3b82f640','#f9731640'],borderWidth:2,hoverOffset:6}]},
-    options:{cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M (${(ctx.parsed/total*100).toFixed(0)}%)`}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#a0b0c8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${ctx.parsed.toFixed(2)}M (${(ctx.parsed/total*100).toFixed(0)}%)`}}}}
   });
   document.getElementById('lfSplitCards').innerHTML=`
     <div class="split-item"><div class="split-item-label">LF</div><div class="split-item-val">$${lfCap.toFixed(1)}M</div><div class="split-item-sub">${(lfCap/total*100).toFixed(0)}% of portfolio</div></div>
@@ -701,7 +697,7 @@ function renderWaterfallBar(buyers) {
         {label:'C1 ($K)',data:ratings.map(r=>s(byR(r),'c1')),backgroundColor:'#10b98199',borderRadius:4}
       ]
     },
-    options:{plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}}},scales:{x:{stacked:false,grid:{color:'#1e2d4840'},ticks:{color:'#a0b0c8'}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'K'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}}},scales:{x:{stacked:false,grid:{color:'#1e2d4840'},ticks:{color:'#a0b0c8'}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'K'}}}}
   });
 }
 
