@@ -161,7 +161,8 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
   <div class="nav-links">
     <a class="nav-link" href="#quality">① Asset Quality</a>
     <a class="nav-link" href="#capital">② Capital & Returns</a>
-    <a class="nav-link" href="#distribution">③ Distribution</a>
+    <a class="nav-link" href="#allocation">③ Asset Allocation</a>
+    <a class="nav-link" href="#refactoring">④ Refactoring</a>
   </div>
   <div class="nav-right">Portfolio Dashboard · Q1 2026</div>
 </nav>
@@ -269,14 +270,21 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
   </div>
 </div>
 
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-card-title">Revenue Waterfall by Rating ($K)</div>
+      <div class="chart-wrap tall"><canvas id="waterfallBar"></canvas></div>
+        </div>
+
 <div class="sec-divider"></div>
 
 <!-- ══ SECTION 3: DISTRIBUTION ══ -->
-<div class="section" id="distribution">
+<div class="section" id="allocation">
   <div class="section-header">
     <div class="section-num">3</div>
-    <div class="section-title">Distribution & Structure</div>
-    <div class="section-sub">— Lane, region, LF/Non-LF, revenue waterfall, concentration</div>
+    <div class="section-title">Asset Allocation</div>
+    <div class="section-sub">— Lane, region, LF/Non-LF breakdown, buyer concentration</div>
   </div>
 
   <div class="grid-3">
@@ -296,7 +304,16 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
   </div>
 
   
-  <!-- Refactoring & Funder Distribution -->
+  <div class="sec-divider"></div>
+
+<!-- ══ SECTION 4: REFACTORING ══ -->
+<div class="section" id="refactoring">
+  <div class="section-header">
+    <div class="section-num" style="background:#8b5cf6">4</div>
+    <div class="section-title">Refactoring</div>
+    <div class="section-sub">— Capital distribution to external funders</div>
+  </div>
+<!-- Refactoring & Funder Distribution -->
   <div class="section-header" style="margin-top:28px">
     <div style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">R</div>
     <div class="section-title">Refactoring & Funder Distribution</div>
@@ -330,9 +347,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     </div>
   </div>
 <div class="grid-2">
-    <div class="chart-card">
-      <div class="chart-card-title">Revenue Waterfall by Rating ($K)</div>
-      <div class="chart-wrap tall"><canvas id="waterfallBar"></canvas></div>
     </div>
     <div class="chart-card">
       <div class="chart-card-title">Concentration Risk — Top 5 Buyers</div>
@@ -664,31 +678,36 @@ function renderGMVLine() {
 
 // ── Monthly view (line chart) ──
 function _renderGMVMonthly() {
+  destroyChart('gmvLine');
   const labels = [
-    ...MONTHS_2025.map(m => m+"'25"),
+    ...MONTHS_2025.map(m=>m+"'25"),
     "Jan'26","Feb'26","Mar'26","Apr'26","May'26","Jun'26",
     "Jul'26","Aug'26","Sep'26","Oct'26","Nov'26","Dec'26"
   ];
-  const act2025 = [...GMV_2025, ...new Array(12).fill(null)];
-  const act2026 = [...new Array(12).fill(null), ...GMV_Q1_2026, ...new Array(9).fill(null)];
-  const bud2026 = [...new Array(12).fill(null), ...BUDGET_2026_MONTHLY];
+  const actual = [...GMV_2025, 53.6, 40.1, 37.4, ...new Array(9).fill(null)];
+  const projected = [...new Array(15).fill(null), 65.0, 93.3, 93.3, 87.7, 80.0, 75.0];
+  const budget = [...new Array(12).fill(null), ...BUDGET_2026_MONTHLY];
   charts.gmvLine = new Chart(document.getElementById('gmvLine'), {
     type: 'line',
     data: { labels, datasets: [
-      { label:'2025 Actual', data:act2025,
-        borderColor:'#3b82f6', backgroundColor:'#3b82f618',
-        tension:.35, fill:true, pointRadius:3, pointBackgroundColor:'#3b82f6', borderWidth:2 },
-      { label:'2026 Actual', data:act2026,
-        borderColor:'#10b981', backgroundColor:'#10b98118',
-        tension:.35, fill:true, pointRadius:5, pointBackgroundColor:'#10b981', borderWidth:2.5 },
-      { label:'2026 Budget', data:bud2026,
+      { label:'Actual',
+        data: actual,
+        borderColor:'#1a56db', backgroundColor:'#1a56db15',
+        tension:.35, fill:true, pointRadius:3, pointBackgroundColor:'#1a56db', borderWidth:2 },
+      { label:'Projected',
+        data: projected,
+        borderColor:'#1a56db88', backgroundColor:'transparent',
+        tension:.35, fill:false, pointRadius:3, pointBackgroundColor:'#1a56db88',
+        borderWidth:2, borderDash:[5,4] },
+      { label:'Budget',
+        data: budget,
         borderColor:'#f59e0b', backgroundColor:'transparent',
         tension:.35, fill:false, pointRadius:3, pointBackgroundColor:'#f59e0b',
         borderWidth:2, borderDash:[6,4] }
     ]},
     options: { responsive:true, maintainAspectRatio:false,
       plugins: {
-        legend:{display:false},
+        legend:{labels:{color:'#a0b0c8',font:{size:11},usePointStyle:true}},
         tooltip:{callbacks:{label:ctx=>ctx.parsed.y!=null?`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M`:null}}
       },
       scales: {
@@ -843,19 +862,46 @@ function renderWaterfallBar(buyers) {
   const ratings=['A','B','C','D'];
   const byR=r=>buyers.filter(b=>b.rating===r);
   const s=(arr,k)=>arr.reduce((t,b)=>t+b[k],0);
+  // Stacked bar: each bar shows how gross revenue is composed
+  // C1 (what we keep, green) + Insurance (cost, red) + Funding (cost, amber)
   charts.waterfallBar=new Chart(document.getElementById('waterfallBar'),{
     type:'bar',
     data:{
-      labels:ratings,
+      labels:ratings.map(r=>{
+        const total=s(byR(r),'revenue');
+        const c1=s(byR(r),'c1');
+        return `Rating ${r} ($${total.toFixed(0)}K)`;
+      }),
       datasets:[
-        {label:'Gross Revenue ($K)',data:ratings.map(r=>s(byR(r),'revenue')),backgroundColor:'#3b82f680',borderRadius:0},
-        {label:'Insurance ($K)',data:ratings.map(r=>-s(byR(r),'insurance')),backgroundColor:'#ef444460',borderRadius:0},
-        {label:'Funding Cost ($K)',data:ratings.map(r=>-s(byR(r),'funding')),backgroundColor:'#f59e0b60',borderRadius:0},
-        {label:'Net Revenue ($K)',data:ratings.map(r=>s(byR(r),'net_rev')),backgroundColor:'#10b98170',borderRadius:0},
-        {label:'C1 ($K)',data:ratings.map(r=>s(byR(r),'c1')),backgroundColor:'#10b98199',borderRadius:4}
+        {label:'C1 — Net Profit',
+          data:ratings.map(r=>s(byR(r),'c1')),
+          backgroundColor:'#10b981',borderRadius:{topLeft:4,bottomLeft:4},stack:'cost'},
+        {label:'Funding Cost',
+          data:ratings.map(r=>s(byR(r),'funding')),
+          backgroundColor:'#fbbf24',stack:'cost'},
+        {label:'Insurance',
+          data:ratings.map(r=>s(byR(r),'insurance')),
+          backgroundColor:'#f87171',stack:'cost'}
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a0b0c8',font:{size:11}}}},scales:{x:{stacked:false,grid:{color:'#1e2d4840'},ticks:{color:'#a0b0c8'}},y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'K'}}}}
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      indexAxis:'y',
+      plugins:{
+        legend:{labels:{color:'#e2e8f5',font:{size:12},padding:16,usePointStyle:true}},
+        tooltip:{callbacks:{
+          label:ctx=>{
+            const b=byR(ratings[ctx.dataIndex]);
+            const rev=s(b,'revenue');
+            return `${ctx.dataset.label}: $${ctx.parsed.x.toFixed(0)}K (${(ctx.parsed.x/rev*100).toFixed(1)}% of GR)`;
+          }
+        }}
+      },
+      scales:{
+        x:{stacked:true,grid:{color:'#1e2d4848'},ticks:{color:'#a0b0c8',callback:v=>'$'+v+'K'},title:{display:true,text:'Revenue ($K)',color:'#a0b0c8'}},
+        y:{stacked:true,grid:{display:false},ticks:{color:'#e2e8f5',font:{size:12,weight:'600'}}}
+      }
+    }
   });
 }
 
@@ -1057,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Re-render treemap on resize
   window.addEventListener('resize', ()=>renderTreemap(getFiltered(), getFiltered().reduce((s,b)=>s+b.cap,0)));
   // Nav highlight on scroll
-  const sections=['quality','capital','distribution'];
+  const sections=['quality','capital','allocation','refactoring'];
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
       if(e.isIntersecting){
