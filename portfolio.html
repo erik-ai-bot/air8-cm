@@ -26,7 +26,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
 .nav-right{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto}
 
 /* GLOBAL FILTER BAR */
-.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-bar{position:sticky;top:52px;z-index:99;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .filter-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-right:4px}
 .filter-pill{font-size:12px;font-weight:600;padding:4px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s}
 .filter-pill:hover{border-color:var(--blue-accent);color:var(--text)}
@@ -213,9 +213,9 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
       <div class="chart-card-title">Tenor Buckets (days)</div>
       <div class="chart-wrap"><canvas id="tenorBar"></canvas></div>
     </div>
-    <div class="chart-card">
+    <div class="chart-card" style="height:auto;align-self:start">
       <div class="chart-card-title">Tenor × Rating (WA per bucket)</div>
-      <div id="tenorRatingGrid" style="margin-top:4px"></div>
+      <div id="tenorRatingGrid" style="margin-top:4px;overflow:hidden"></div>
     </div>
   </div>
 
@@ -263,10 +263,6 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
     </div>
   </div>
 
-  <div class="chart-card full" style="margin-bottom:14px">
-    <div class="chart-card-title">Capital Deployed by Buyer & Lane — sorted by capital</div>
-    <div class="chart-wrap" style="height:340px"><canvas id="laneCapBar"></canvas></div>
-  </div>
   <div class="chart-card full">
     <div class="chart-card-title">Top Buyers — Capital Deployed ($M) vs Net Revenue ($K)</div>
     <div class="chart-wrap"><canvas id="buyerBar"></canvas></div>
@@ -486,7 +482,6 @@ function renderAll() {
   renderRegionBar(buyers);
   renderLFDonut(buyers, total);
   renderFunderDonut();
-  renderLaneCapBar(buyers);
   renderWaterfallBar(buyers);
   renderConcList(buyers, total);
   renderTable(buyers, total);
@@ -706,37 +701,33 @@ function _renderGMVMonthly() {
 
 // ── Quarterly view (grouped bars + budget line) ──
 function _renderGMVQuarterly() {
-  charts.gmvLine = new Chart(document.getElementById('gmvLine'), {
-    type: 'bar',
-    data: { labels: ['Q1','Q2','Q3','Q4'], datasets: [
-      { label:'2025 Actual', data:ACTUAL_2025_Q,
-        backgroundColor:'#3b82f699', borderColor:'#3b82f6',
-        borderWidth:1, borderRadius:4, order:3 },
-      { label:'2026 Actual', data:[ACTUAL_2026_Q1,null,null,null],
-        backgroundColor:'#10b98199', borderColor:'#10b981',
-        borderWidth:1, borderRadius:4, order:3 },
-      { label:'2026 Projected', data:[null,BUDGET_2026_Q[1],BUDGET_2026_Q[2],BUDGET_2026_Q[3]],
-        backgroundColor:'#10b98130', borderColor:'#10b98170',
-        borderWidth:1.5, borderRadius:4, order:3 },
-      { label:'2026 Budget', type:'line', data:BUDGET_2026_Q,
-        borderColor:'#f59e0b', backgroundColor:'transparent',
-        tension:.2, pointRadius:6, pointBackgroundColor:'#f59e0b',
-        borderWidth:2.5, borderDash:[6,4], fill:false, order:1 }
+  destroyChart('gmvLine');
+  // 2026 only: Q1 actual + Q2-Q4 projected
+  const labels=['Q1 2026\n(Actual)','Q2 2026\n(Proj)','Q3 2026\n(Proj)','Q4 2026\n(Proj)'];
+  const actuals=[131.1,null,null,null];
+  const projected=[null,195,280,225];
+  const budget=BUDGET_2026_Q||[236.6,324.7,402.3,352.7];
+  charts.gmvLine=new Chart(document.getElementById('gmvLine'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'2026 Actual',data:actuals,backgroundColor:'#1a56dbcc',borderColor:'#1a56db',borderWidth:1,borderRadius:4},
+      {label:'2026 Projected',data:projected,backgroundColor:'#1a56db55',borderColor:'#1a56db',borderWidth:1,borderRadius:4,borderDash:[4,4]},
+      {label:'Budget 2026',data:budget,type:'line',borderColor:'#f59e0b',borderWidth:2,borderDash:[6,3],pointStyle:'circle',pointRadius:5,pointBackgroundColor:'#f59e0b',fill:false,tension:0.1,yAxisID:'y'}
     ]},
-    options: { responsive:true, maintainAspectRatio:false,
-      plugins: {
-        legend:{display:false},
-        tooltip:{callbacks:{label:ctx=>ctx.parsed.y!=null?`${ctx.dataset.label}: $${ctx.parsed.y.toFixed(1)}M`:null}}
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#a0b0c8',font:{size:11},usePointStyle:true}},
+        tooltip:{callbacks:{label:ctx=>ctx.parsed.y?`$${ctx.parsed.y.toFixed(1)}M`:null}}
       },
-      scales: {
-        x:{grid:{color:'#1e2d4840'},ticks:{color:'#a0b0c8',font:{size:13,weight:'600'}}},
-        y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},beginAtZero:true}
+      scales:{
+        x:{grid:{color:'#1e2d4840'},ticks:{color:'#607090'}},
+        y:{grid:{color:'#1e2d4840'},ticks:{color:'#607090',callback:v=>'$'+v+'M'},title:{display:true,text:'GMV ($M)',color:'#607090'},beginAtZero:true}
       }
     }
   });
 }
 
-// ── Variance badge ──
 function _renderGMVVariance() {
   const el = document.getElementById('gmvVariance');
   if (!el) return;
@@ -899,7 +890,13 @@ function setTableMode(mode, btn) {
 }
 
 function sortTable(key) {
-  if (sortKey===key) sortDir*=-1; else {sortKey=key;sortDir=-1;}
+  if (sortKey===key) {
+    sortDir*=-1;
+  } else {
+    sortKey=key;
+    // Rating & Lane: default A first (ascending), others default high-first (descending)
+    sortDir = (key==='rating'||key==='lane') ? 1 : -1;
+  }
   renderTable(getFiltered(), getFiltered().reduce((s,b)=>s+b.cap,0));
 }
 
@@ -922,7 +919,18 @@ function renderTable(buyers, total) {
     document.getElementById('buyerTableBody').innerHTML = html;
     return;
   }
-  const sorted=[...buyers].sort((a,b)=>(a[sortKey]<b[sortKey]?-1:1)*sortDir);
+  let sorted;
+  if (sortKey==='region') {
+    // Count buyers per region, sort regions by count, then buyers within region
+    const counts={};
+    buyers.forEach(b=>{counts[b.region]=(counts[b.region]||0)+1;});
+    sorted=[...buyers].sort((a,b)=>{
+      const rc=(counts[b.region]-counts[a.region])*sortDir;
+      return rc!==0?rc:(b.cap-a.cap);
+    });
+  } else {
+    sorted=[...buyers].sort((a,b)=>(a[sortKey]<b[sortKey]?-1:1)*sortDir);
+  }
   document.getElementById('buyerTableBody').innerHTML=sorted.map(b=>{
     const pct=(b.cap/total*100).toFixed(1);
     const sColor=b.net_spread>=5?'spread-good':b.net_spread>=3?'spread-ok':'spread-low';
