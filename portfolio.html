@@ -491,7 +491,7 @@ function renderTenorRatingGrid(buyers) {
       const cap=buyers.filter(x=>x.tenor>=b.min&&x.tenor<b.max&&x.rating===r).reduce((s,x)=>s+x.cap,0);
       const intensity=Math.min(cap/35,1);
       const bg=cap>0?RC[r]+(Math.round(intensity*180+30).toString(16).padStart(2,'0')):'transparent';
-      html+=`<td style="padding:5px 6px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)');font-family:'DM Mono',monospace">${cap>0?'$'+cap.toFixed(1)+'M':'—'}</td>`;
+      html+=`<td style="padding:5px 6px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)'};font-family:'DM Mono',monospace">${cap>0?'$'+cap.toFixed(1)+'M':'—'}</td>`;
     });
     html+='</tr>';
   });
@@ -716,7 +716,8 @@ function renderConcList(buyers, total) {
     </div>`;
   }).join('');
   const risk=top5pct>70?'⚠️ High':top5pct>50?'⚠️ Moderate':'✓ Acceptable';
-  document.getElementById('concAlert').innerHTML=`<strong>${top5pct>70?'⚠️ Concentration Alert':'📊 Concentration Note'}</strong> — Top 5 buyers represent <strong>${top5pct.toFixed(1)}%</strong> of total capital. ${top5pct>70?'Consider diversification to reduce single-buyer risk.':'Concentration within acceptable range for trade finance portfolio.'}`;
+  const _alertTitle=top5pct>70?'⚠️ Concentration Alert':'📊 Concentration Note';
+  document.getElementById('concAlert').innerHTML=`<strong>${_alertTitle}</strong> — Top 5 buyers represent <strong>${top5pct.toFixed(1)}%</strong> of total capital. ${top5pct>70?'Consider diversification to reduce single-buyer risk.':'Concentration within acceptable range for trade finance portfolio.'}`;
 }
 
 // ═══════════════════════════════════════════════
@@ -781,7 +782,7 @@ function openDrawer(buyer) {
       <div class="wf-row">
         <div class="wf-label">${r.l}</div>
         <div class="wf-bar-wrap"><div class="wf-bar" style="width:${(r.v/maxVal*100).toFixed(0)}%;background:${r.color}"></div></div>
-        <div class="wf-val" style="color:${r.neg?'#ef4444':'#e2e8f5'}">$${r.v.toFixed(0)}K</div>
+        <div class="wf-val" style="color:${r.neg?`#ef4444`:`#e2e8f5`}">$${r.v.toFixed(0)}K</div>
         <div class="wf-pct">${(r.v/maxVal*100).toFixed(0)}%</div>
       </div>`).join('')}
     </div>
