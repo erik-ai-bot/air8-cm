@@ -255,8 +255,8 @@ footer{text-align:center;padding:24px;font-size:11px;color:var(--dim);border-top
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="chart-card-title" style="margin-bottom:0">GMV Trend — Actual vs Budget</div>
         <div style="display:flex;gap:4px">
-          <button class="gmv-toggle active" id="gmvBtnMonthly" onclick="setGmvMode('monthly',this)">Monthly</button>
-          <button class="gmv-toggle" id="gmvBtnQuarterly" onclick="setGmvMode('quarterly',this)">Quarterly</button>
+          <button class="gmv-toggle" id="gmvBtnMonthly" onclick="setGmvMode('monthly',this)">Monthly</button>
+          <button class="gmv-toggle active" id="gmvBtnQuarterly" onclick="setGmvMode('quarterly',this)">Quarterly</button>
         </div>
       </div>
       <div id="gmvVariance" style="margin-bottom:10px"></div>
@@ -549,18 +549,22 @@ function renderTenorBar(buyers) {
 // TENOR × RATING GRID
 // ═══════════════════════════════════════════════
 function renderTenorRatingGrid(buyers) {
-  const buckets=[{l:'<30d',min:0,max:30},{l:'30–60d',min:30,max:60},{l:'60–90d',min:60,max:90},{l:'90d+',min:90,max:999}];
+  const buckets=[{l:'<30d',min:0,max:30},{l:'30-60d',min:30,max:60},{l:'60-90d',min:60,max:90},{l:'90d+',min:90,max:999}];
   const ratings=['A','B','C','D'];
+  // Rows = Rating, Columns = Tenor buckets
   let html=`<table style="width:100%;border-collapse:collapse;font-size:11px">
-    <tr><th style="color:var(--muted);text-align:left;padding:4px 6px;font-weight:600">Tenor</th>${ratings.map(r=>`<th style="color:${RC[r]};padding:4px 6px;font-weight:700">${r}</th>`).join('')}</tr>`;
-  buckets.forEach(b=>{
+    <tr>
+      <th style="color:var(--muted);text-align:left;padding:4px 6px;font-weight:600;min-width:36px">Rating</th>
+      ${buckets.map(b=>`<th style="color:var(--muted);padding:4px 8px;font-weight:600;text-align:center">${b.l}</th>`).join('')}
+    </tr>`;
+  ratings.forEach(r=>{
     html+=`<tr>`;
-    html+=`<td style="color:var(--muted);padding:5px 6px;border-top:1px solid var(--border)">${b.l}</td>`;
-    ratings.forEach(r=>{
+    html+=`<td style="padding:6px 6px;border-top:1px solid var(--border);font-weight:700;color:${RC[r]}">${r}</td>`;
+    buckets.forEach(b=>{
       const cap=buyers.filter(x=>x.tenor>=b.min&&x.tenor<b.max&&x.rating===r).reduce((s,x)=>s+x.cap,0);
       const intensity=Math.min(cap/35,1);
       const bg=cap>0?RC[r]+(Math.round(intensity*180+30).toString(16).padStart(2,'0')):'transparent';
-      html+=`<td style="padding:5px 6px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)'};font-family:'DM Mono',monospace">${cap>0?'$'+cap.toFixed(1)+'M':'—'}</td>`;
+      html+=`<td style="padding:6px 8px;border-top:1px solid var(--border);background:${bg};border-radius:4px;text-align:center;color:${cap>0?'#fff':'var(--dim)'};font-family:'DM Mono',monospace">${cap>0?'$'+cap.toFixed(1)+'M':'-'}</td>`;
     });
     html+='</tr>';
   });
