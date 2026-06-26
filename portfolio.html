@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Air8 Asset Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0f1c;
+    --surface: #111827;
+    --card: #1a2235;
+    --card-hover: #1f2a42;
+    --border: #2a3550;
+    --orange: #f97316;
+    --orange-dim: rgba(249,115,22,0.15);
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --rating-a: #10b981;
+    --rating-b: #f59e0b;
+    --rating-c: #f97316;
+    --rating-d: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--orange);
+  }
+  .logo span { color: var(--text); }
+  .badge-live {
+    background: rgba(16,185,129,0.15);
+    color: var(--green);
+    border: 1px solid rgba(16,185,129,0.3);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .as-of { background: var(--card); padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 16px 28px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tab {
+    padding: 10px 20px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.2s;
+    position: relative;
+    bottom: -1px;
+  }
+  .tab:hover { color: var(--text); background: var(--card); }
+  .tab.active {
+    background: var(--bg);
+    color: var(--orange);
+    border-color: var(--border);
+    font-weight: 600;
+  }
+
+  /* ── Content ── */
+  .tab-content { display: none; padding: 24px 28px; }
+  .tab-content.active { display: block; }
+
+  /* ── KPI Strip ── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .kpi-card:hover { border-color: var(--orange); }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .kpi-value .unit { font-size: 14px; color: var(--text-muted); font-weight: 400; margin-left: 2px; }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+  .kpi-accent { color: var(--orange) !important; }
+
+  /* ── Chart grid ── */
+  .chart-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .chart-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .chart-row-2 { grid-template-columns: 1.6fr 1fr; }
+  .chart-row-2b { grid-template-columns: 1fr 1fr; }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .chart-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .chart-wrap {
+    position: relative;
+  }
+  .chart-wrap canvas { width: 100% !important; }
+
+  /* ── Buyer Analysis ── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .filter-btn-group { display: flex; gap: 4px; }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .filter-btn:hover { border-color: var(--orange); color: var(--text); }
+  .filter-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+  .filter-btn.rating-a.active { background: var(--rating-a); border-color: var(--rating-a); }
+  .filter-btn.rating-b.active { background: var(--rating-b); border-color: var(--rating-b); }
+  .filter-btn.rating-c.active { background: var(--rating-c); border-color: var(--rating-c); }
+  .filter-btn.rating-d.active { background: var(--rating-d); border-color: var(--rating-d); }
+
+  .filter-select {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+  }
+  .filter-select option { background: var(--card); }
+
+  /* ── Treemap ── */
+  .treemap-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  #treemap {
+    position: relative;
+    width: 100%;
+    height: 280px;
+  }
+  .treemap-cell {
+    position: absolute;
+    border: 2px solid var(--bg);
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4px;
+  }
+  .treemap-cell:hover { opacity: 0.85; transform: scale(1.01); z-index: 10; }
+  .treemap-cell .cell-name { font-weight: 700; font-size: 12px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); line-height: 1.2; }
+  .treemap-cell .cell-cap { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+  .treemap-cell .cell-rating { font-size: 10px; color: rgba(255,255,255,0.7); }
+
+  /* ── Table ── */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    background: rgba(26,34,53,0.8);
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+  .data-table th:hover { color: var(--text); }
+  .data-table th.sorted { color: var(--orange); }
+  .sort-icon { margin-left: 4px; opacity: 0.5; }
+  .data-table td {
+    padding: 10px 14px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(42,53,80,0.5);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--card-hover); }
+
+  .rating-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .rating-badge.A { background: rgba(16,185,129,0.2); color: var(--rating-a); }
+  .rating-badge.B { background: rgba(245,158,11,0.2); color: var(--rating-b); }
+  .rating-badge.C { background: rgba(249,115,22,0.2); color: var(--rating-c); }
+  .rating-badge.D { background: rgba(239,68,68,0.2); color: var(--rating-d); }
+
+  /* ── Drawer ── */
+  .drawer-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    display: none;
+    backdrop-filter: blur(2px);
+  }
+  .drawer-overlay.open { display: block; }
+  .drawer {
+    position: fixed;
+    top: 0; right: -480px;
+    width: 480px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 201;
+    transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+    padding: 28px;
+  }
+  .drawer.open { right: 0; }
+  .drawer-close {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .drawer-close:hover { color: var(--text); border-color: var(--orange); }
+  .drawer-buyer-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .drawer-full-name { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  .drawer-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .drawer-tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .drawer-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+  .drawer-chart-wrap { height: 200px; margin-bottom: 20px; }
+  .drawer-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .drawer-metric {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .drawer-metric-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+  .drawer-metric-value { font-size: 16px; font-weight: 700; }
+
+  /* ── Tab 3 ── */
+  .section-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .section-sub { font-size: 11px; color: var(--text-dim); margin-bottom: 16px; }
+
+  .concentration-list { display: flex; flex-direction: column; gap: 8px; }
+  .conc-item { display: flex; align-items: center; gap: 10px; }
+  .conc-name { font-size: 12px; color: var(--text); width: 80px; flex-shrink: 0; }
+  .conc-bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(42,53,80,0.8);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .conc-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .conc-pct { font-size: 12px; font-weight: 600; width: 45px; text-align: right; }
+
+  .split-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .split-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .split-card-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .split-card-value { font-size: 28px; font-weight: 800; }
+  .split-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  @media (max-width: 1100px) {
+    .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+    .chart-row-3 { grid-template-columns: 1fr 1fr; }
+    .chart-row-2 { grid-template-columns: 1fr; }
+    .chart-row-2b { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo">Air<span>8</span></div>
+    <div class="badge-live">Live</div>
+    <span style="font-size:13px;color:var(--text-muted);font-weight:500;">Asset Portfolio Dashboard</span>
+  </div>
+  <div class="header-right">
+    <div class="as-of">📅 As of June 2026</div>
+    <div class="as-of">22 Buyers • $122.72M Deployed</div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<nav class="tabs">
+  <div class="tab active" onclick="switchTab(0)">📊 Portfolio Overview</div>
+  <div class="tab" onclick="switchTab(1)">🏢 Buyer Analysis</div>
+  <div class="tab" onclick="switchTab(2)">📈 C1 & Distribution</div>
+</nav>
+
+<!-- Tab 1: Portfolio Overview -->
+<div class="tab-content active" id="tab-0">
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Cap Deployed</div>
+      <div class="kpi-value kpi-accent">$122.72<span class="unit">M</span></div>
+      <div class="kpi-sub">22 active buyers</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">WA Tenor</div>
+      <div class="kpi-value">56<span class="unit">days</span></div>
+      <div class="kpi-sub">Weighted average</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">WA Gross Return</div>
+      <div class="kpi-value">9.50<span class="unit">%</span></div>
+      <div class="kpi-sub">Annualised</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">WA Net Spread</div>
+      <div class="kpi-value">4.63<span class="unit">%</span></div>
+      <div class="kpi-sub">After costs</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Net Revenue</div>
+      <div class="kpi-value">$5,971<span class="unit">K</span></div>
+      <div class="kpi-sub">Total NR</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">C1 Contribution</div>
+      <div class="kpi-value">$5,673<span class="unit">K</span></div>
+      <div class="kpi-sub">After expenses</div>
+    </div>
+  </div>
+
+  <!-- Row 1: 3 charts -->
+  <div class="chart-row chart-row-3">
+    <div class="chart-card">
+      <div class="chart-title">Rating Distribution</div>
+      <div class="chart-subtitle">By cap deployed ($M)</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="ratingDonut"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Tenor Buckets</div>
+      <div class="chart-subtitle">Number of buyers by tenor range</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="tenorBar"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Region Breakdown</div>
+      <div class="chart-subtitle">Capital deployed by region</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="regionBar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: GMV + Lane -->
+  <div class="chart-row chart-row-2">
+    <div class="chart-card">
+      <div class="chart-title">GMV Trend</div>
+      <div class="chart-subtitle">Monthly volume 2025 (Jan–Dec) + 2026 Q1 (Jan–Mar)</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="gmvLine"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Lane Distribution</div>
+      <div class="chart-subtitle">Capital by risk lane</div>
+      <div class="chart-wrap" style="height:220px;">
+        <canvas id="laneDonut"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 2: Buyer Analysis -->
+<div class="tab-content" id="tab-1">
+  <div class="filter-bar">
+    <span class="filter-label">Rating:</span>
+    <div class="filter-btn-group">
+      <button class="filter-btn active" data-rating="all" onclick="setRatingFilter('all')">All</button>
+      <button class="filter-btn rating-a" data-rating="A" onclick="setRatingFilter('A')">A</button>
+      <button class="filter-btn rating-b" data-rating="B" onclick="setRatingFilter('B')">B</button>
+      <button class="filter-btn rating-c" data-rating="C" onclick="setRatingFilter('C')">C</button>
+      <button class="filter-btn rating-d" data-rating="D" onclick="setRatingFilter('D')">D</button>
+    </div>
+    <span class="filter-label" style="margin-left:12px;">Region:</span>
+    <select class="filter-select" id="regionFilter" onchange="applyFilters()">
+      <option value="all">All Regions</option>
+      <option value="ISC">ISC</option>
+      <option value="GC">GC</option>
+      <option value="SEA/ROW">SEA/ROW</option>
+    </select>
+    <span class="filter-label" style="margin-left:8px;">Lane:</span>
+    <select class="filter-select" id="laneFilter" onchange="applyFilters()">
+      <option value="all">All Lanes</option>
+      <option value="Lane A">Lane A</option>
+      <option value="Lane B">Lane B</option>
+      <option value="Lane C">Lane C</option>
+      <option value="Lane D">Lane D</option>
+    </select>
+    <span id="filter-count" style="font-size:12px;color:var(--text-muted);margin-left:auto;"></span>
+  </div>
+
+  <!-- Treemap -->
+  <div class="treemap-container">
+    <div class="chart-title" style="margin-bottom:4px;">Capital Deployment Treemap</div>
+    <div class="chart-subtitle">Cell size = capital deployed ($M) · Color = credit rating</div>
+    <div id="treemap"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="data-table" id="buyerTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable('name')">Buyer <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('rating')">Rating <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('cap')" class="sorted">Cap ($M) <span class="sort-icon">↓</span></th>
+          <th onclick="sortTable('tenor')">Tenor <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('gr_pct')">GR% <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('net_spread')">Net Spread <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('net_rev')">NR ($K) <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('c1')">C1 ($K) <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('region')">Region <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('lane')">Lane <span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="buyerTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tab 3: C1 & Distribution -->
+<div class="tab-content" id="tab-2">
+
+  <!-- Row: stacked horizontal + lane bar -->
+  <div class="chart-row chart-row-2b" style="margin-bottom:16px;">
+    <div class="chart-card">
+      <div class="chart-title">Revenue Waterfall by Rating Group</div>
+      <div class="chart-subtitle">Gross Revenue → Insurance → Funding → Net Revenue → C1 ($K)</div>
+      <div class="chart-wrap" style="height:260px;">
+        <canvas id="waterfallChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Capital by Lane</div>
+      <div class="chart-subtitle">Total cap deployed per risk lane ($M)</div>
+      <div class="chart-wrap" style="height:260px;">
+        <canvas id="laneBar"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: LF split + concentration -->
+  <div class="chart-row chart-row-2b">
+    <div class="chart-card">
+      <div class="chart-title">LF vs Non-LF Split</div>
+      <div class="chart-subtitle">LF entities: LFFA, LFMU, 3 Markets, Ross (LF)</div>
+      <div style="margin-bottom:12px;">
+        <div class="split-cards">
+          <div class="split-card">
+            <div class="split-card-label">LF Group</div>
+            <div class="split-card-value" style="color:var(--orange);" id="lfCap">—</div>
+            <div class="split-card-sub" id="lfPct">—</div>
+          </div>
+          <div class="split-card">
+            <div class="split-card-label">Non-LF</div>
+            <div class="split-card-value" style="color:var(--green);" id="nonLfCap">—</div>
+            <div class="split-card-sub" id="nonLfPct">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:160px;">
+        <canvas id="lfDonut"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Portfolio Concentration Risk</div>
+      <div class="chart-subtitle">Top 5 buyers as % of total capital deployed</div>
+      <div id="concentrationList" class="concentration-list" style="margin-top:12px;"></div>
+      <div style="margin-top:16px;padding:12px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:8px;">
+        <div style="font-size:11px;color:var(--orange);font-weight:600;margin-bottom:4px;">⚠ Concentration Alert</div>
+        <div style="font-size:11px;color:var(--text-muted);" id="concAlert">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  <div class="drawer-buyer-name" id="drawerName"></div>
+  <div class="drawer-full-name" id="drawerFullName"></div>
+  <div class="drawer-meta" id="drawerMeta"></div>
+  <div class="drawer-section-title">Revenue Waterfall</div>
+  <div class="drawer-chart-wrap"><canvas id="drawerChart"></canvas></div>
+  <div class="drawer-section-title">Key Metrics</div>
+  <div class="drawer-metrics" id="drawerMetrics"></div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────
+const DATA = {
+  summary: { total_cap:122.72, total_nr:5971.4, total_c1:5672.9, buyer_count:22, wa_tenor:56, wa_gr:9.5, wa_spread:4.63 },
+  monthly_gmv_2025: [72.42,84.17,71.31,63.8,71.18,60.43,88.76,88.6,57.41,41.34,56.41,61.81],
+  monthly_gmv_q1_2026: [53.6,40.1,37.4],
+  buyers: [
+    {name:"AEO",full_name:"AMERICAN EAGLE OUTFITTERS INC.",cap:31.972,revenue:2320.9,insurance:493.1,funding:1240.1,net_rev:587.7,c1:558.3,gr_pct:7.26,ins_pct:1.54,fund_pct:1.84,net_spread:5.42,tenor:42,rating:"A",region:"ISC",lane:"Lane A"},
+    {name:"3 Markets",full_name:"3 Markets",cap:19.225,revenue:1602.7,insurance:120.2,funding:1203.0,net_rev:279.5,c1:265.5,gr_pct:13.39,ins_pct:2.05,fund_pct:8.34,net_spread:5.05,tenor:60,rating:"A",region:"SEA/ROW",lane:"Lane A"},
+    {name:"LFFA",full_name:"LF Fashion/Miles",cap:17.205,revenue:777.3,insurance:62.2,funding:572.0,net_rev:143.1,c1:136.0,gr_pct:8.05,ins_pct:1.53,fund_pct:4.52,net_spread:3.53,tenor:50,rating:"A",region:"ISC",lane:"Lane A"},
+    {name:"Kohls",full_name:"KOHL'S INC",cap:13.721,revenue:1156.7,insurance:96.7,funding:507.7,net_rev:552.3,c1:524.7,gr_pct:8.43,ins_pct:1.41,fund_pct:4.02,net_spread:4.41,tenor:66,rating:"B",region:"ISC",lane:"Lane A"},
+    {name:"LFMU",full_name:"LF Markets USA",cap:10.259,revenue:825.3,insurance:66.0,funding:618.9,net_rev:140.4,c1:133.4,gr_pct:11.58,ins_pct:1.53,fund_pct:8.05,net_spread:3.53,tenor:38,rating:"A",region:"SEA/ROW",lane:"Lane A"},
+    {name:"Others",full_name:"OTHERS",cap:7.966,revenue:736.0,insurance:73.6,funding:552.0,net_rev:110.4,c1:104.9,gr_pct:11.2,ins_pct:1.96,fund_pct:9.24,net_spread:1.96,tenor:57,rating:"B",region:"ISC",lane:"Lane C"},
+    {name:"Action",full_name:"ACTION SERVICE & DISTRIBUTIE B.V.",cap:5.521,revenue:417.6,insurance:28.5,funding:279.0,net_rev:110.1,c1:104.6,gr_pct:7.56,ins_pct:1.57,fund_pct:1.99,net_spread:5.57,tenor:91,rating:"A",region:"GC",lane:"Lane A"},
+    {name:"Clarks",full_name:"C & J CLARK AMERICA,INC.",cap:4.849,revenue:346.6,insurance:16.2,funding:183.8,net_rev:146.5,c1:139.2,gr_pct:7.15,ins_pct:1.14,fund_pct:3.02,net_spread:4.13,tenor:140,rating:"C",region:"ISC",lane:"Lane A"},
+    {name:"Officeworks",full_name:"OFFICEWORKS LTD",cap:4.145,revenue:461.3,insurance:98.6,funding:209.4,net_rev:153.3,c1:145.6,gr_pct:11.13,ins_pct:3.74,fund_pct:3.7,net_spread:7.43,tenor:59,rating:"B",region:"GC",lane:"Lane A"},
+    {name:"Talbots",full_name:"THE TALBOTS LLC",cap:3.089,revenue:347.4,insurance:28.1,funding:117.1,net_rev:202.2,c1:192.1,gr_pct:11.25,ins_pct:1.71,fund_pct:6.54,net_spread:4.71,tenor:51,rating:"C",region:"ISC",lane:"Lane A"},
+    {name:"Ross (LF)",full_name:"ROSS PROCUREMENT INC",cap:1.062,revenue:74.1,insurance:10.4,funding:47.9,net_rev:15.7,c1:14.9,gr_pct:6.97,ins_pct:1.48,fund_pct:1.48,net_spread:5.49,tenor:48,rating:"A",region:"ISC",lane:"Lane A"},
+    {name:"Chico's",full_name:"CHICO'S RETAIL SERVICES INC",cap:1.081,revenue:138.8,insurance:33.4,funding:54.6,net_rev:50.8,c1:48.3,gr_pct:12.84,ins_pct:3.14,fund_pct:4.7,net_spread:8.14,tenor:45,rating:"C",region:"ISC",lane:"Lane A"},
+    {name:"Loblaws",full_name:"LOBLAWS INC",cap:0.457,revenue:59.1,insurance:4.9,funding:16.9,net_rev:37.2,c1:35.3,gr_pct:12.91,ins_pct:1.57,fund_pct:8.14,net_spread:4.77,tenor:60,rating:"B",region:"ISC",lane:"Lane C"},
+    {name:"Premium Brands",full_name:"PREMIUM BRANDS OPCO LLC.",cap:0.414,revenue:45.1,insurance:11.6,funding:15.7,net_rev:17.9,c1:17.0,gr_pct:10.9,ins_pct:3.08,fund_pct:4.32,net_spread:6.58,tenor:50,rating:"C",region:"ISC",lane:"Lane C"},
+    {name:"1616 Holdings",full_name:"1616 HOLDINGS, INC",cap:0.27,revenue:28.4,insurance:2.4,funding:13.6,net_rev:12.4,c1:11.8,gr_pct:10.52,ins_pct:1.5,fund_pct:4.59,net_spread:5.93,tenor:60,rating:"B",region:"ISC",lane:"Lane C"},
+    {name:"PriceSmart",full_name:"PRICESMART, INC",cap:0.26,revenue:24.3,insurance:2.0,funding:9.6,net_rev:12.7,c1:12.1,gr_pct:9.34,ins_pct:1.45,fund_pct:4.88,net_spread:4.46,tenor:60,rating:"B",region:"ISC",lane:"Lane C"},
+    {name:"Wolverine",full_name:"WOLVERINE WORLD WIDE, INC.",cap:0.15,revenue:28.1,insurance:1.6,funding:5.6,net_rev:21.0,c1:19.9,gr_pct:18.68,ins_pct:1.74,fund_pct:13.94,net_spread:4.74,tenor:60,rating:"C",region:"ISC",lane:"Lane D"},
+    {name:"BJ's",full_name:"BJ'S WHOLESALE CLUB INC.",cap:0.206,revenue:37.1,insurance:1.6,funding:7.6,net_rev:27.9,c1:26.5,gr_pct:18.0,ins_pct:1.45,fund_pct:13.52,net_spread:4.48,tenor:60,rating:"B",region:"ISC",lane:"Lane C"},
+    {name:"Kroger",full_name:"KROGER",cap:0.19,revenue:17.0,insurance:1.1,funding:8.6,net_rev:7.4,c1:7.0,gr_pct:8.97,ins_pct:1.29,fund_pct:3.89,net_spread:5.08,tenor:60,rating:"A",region:"ISC",lane:"Lane B"},
+    {name:"Lucky",full_name:"LUCKY OPCO LLC",cap:0.407,revenue:72.4,insurance:4.6,funding:18.3,net_rev:49.5,c1:47.0,gr_pct:17.82,ins_pct:1.56,fund_pct:12.16,net_spread:5.66,tenor:60,rating:"D",region:"ISC",lane:"Lane D"},
+    {name:"Nautica",full_name:"NAUTICA OPCO LLC",cap:0.133,revenue:16.5,insurance:1.3,funding:8.3,net_rev:6.9,c1:6.6,gr_pct:18.13,ins_pct:1.5,fund_pct:12.63,net_spread:5.5,tenor:60,rating:"D",region:"ISC",lane:"Lane D"},
+    {name:"Sparc Group",full_name:"Sparc Group LLC",cap:0.063,revenue:9.7,insurance:0.8,funding:7.3,net_rev:1.6,c1:1.5,gr_pct:22.59,ins_pct:1.55,fund_pct:17.04,net_spread:5.55,tenor:60,rating:"D",region:"ISC",lane:"Lane D"}
+  ]
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+const RATING_COLORS = { A:'#10b981', B:'#f59e0b', C:'#f97316', D:'#ef4444' };
+const RATING_BG = { A:'rgba(16,185,129,0.15)', B:'rgba(245,158,11,0.15)', C:'rgba(249,115,22,0.15)', D:'rgba(239,68,68,0.15)' };
+
+function fmt$(v, suffix='M') { return `$${v.toFixed(suffix==='K'?0:3).replace(/\B(?=(\d{3})+(?!\d))/g,',')}${suffix}`; }
+function fmtK(v) { return `$${Math.round(v).toLocaleString()}K`; }
+function fmtPct(v) { return `${v.toFixed(1)}%`; }
+function fmtM(v) { return `$${v.toFixed(3)}M`; }
+
+const defaultPlugin = {
+  legend: {
+    labels: {
+      color: '#94a3b8',
+      font: { family:'Inter', size:11 },
+      padding: 12,
+      boxWidth: 12,
+      boxHeight: 12
+    }
+  },
+  tooltip: {
+    backgroundColor: '#1a2235',
+    borderColor: '#2a3550',
+    borderWidth: 1,
+    titleColor: '#f1f5f9',
+    bodyColor: '#94a3b8',
+    padding: 10,
+    titleFont: { family:'Inter', size:12 },
+    bodyFont: { family:'Inter', size:11 }
+  }
+};
+
+// ── Tab 1 Charts ──────────────────────────────────────────────────────────
+
+// Rating Donut
+(function(){
+  const buyers = DATA.buyers;
+  const ratingGroups = { A:{cap:0,count:0}, B:{cap:0,count:0}, C:{cap:0,count:0}, D:{cap:0,count:0} };
+  buyers.forEach(b => { ratingGroups[b.rating].cap += b.cap; ratingGroups[b.rating].count++; });
+  const labels = Object.keys(ratingGroups).map(r => `${r} (${ratingGroups[r].count})`);
+  const vals = Object.keys(ratingGroups).map(r => +ratingGroups[r].cap.toFixed(3));
+  const colors = ['#10b981','#f59e0b','#f97316','#ef4444'];
+
+  new Chart(document.getElementById('ratingDonut'), {
+    type: 'doughnut',
+    data: { labels, datasets:[{ data:vals, backgroundColor:colors, borderColor:'#0a0f1c', borderWidth:3, hoverBorderWidth:3 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins: {
+        ...defaultPlugin,
+        datalabels: {
+          color:'#fff', font:{family:'Inter',size:11,weight:'700'},
+          formatter:(v,ctx)=>{ const t=vals.reduce((a,b)=>a+b,0); return v/t>0.05?`$${v.toFixed(1)}M`:''; }
+        },
+        tooltip: { ...defaultPlugin.tooltip, callbacks:{ label:ctx=>`${ctx.label}: $${ctx.raw.toFixed(3)}M (${(ctx.raw/122.72*100).toFixed(1)}%)` } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+})();
+
+// Tenor Buckets
+(function(){
+  const buckets = {'<30d':0,'30–60d':0,'60–90d':0,'90d+':0};
+  DATA.buyers.forEach(b=>{
+    if(b.tenor<30) buckets['<30d']++;
+    else if(b.tenor<=60) buckets['30–60d']++;
+    else if(b.tenor<=90) buckets['60–90d']++;
+    else buckets['90d+']++;
+  });
+  new Chart(document.getElementById('tenorBar'),{
+    type:'bar',
+    data:{labels:Object.keys(buckets),datasets:[{data:Object.values(buckets),backgroundColor:['#10b981','#f59e0b','#f97316','#ef4444'],borderRadius:6,borderSkipped:false}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ ...defaultPlugin, legend:{display:false}, datalabels:{color:'#f1f5f9',anchor:'end',align:'top',font:{family:'Inter',size:12,weight:'700'}} },
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'}},
+        y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'},beginAtZero:true,title:{display:true,text:'# Buyers',color:'#64748b',font:{family:'Inter',size:10}}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+})();
+
+// Region Bar
+(function(){
+  const regions = {};
+  DATA.buyers.forEach(b=>{ regions[b.region]=(regions[b.region]||0)+b.cap; });
+  const sorted = Object.entries(regions).sort((a,b)=>b[1]-a[1]);
+  new Chart(document.getElementById('regionBar'),{
+    type:'bar',
+    data:{labels:sorted.map(r=>r[0]),datasets:[{data:sorted.map(r=>+r[1].toFixed(2)),backgroundColor:['#f97316','#10b981','#3b82f6'],borderRadius:6,borderSkipped:false}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{ ...defaultPlugin, legend:{display:false}, datalabels:{color:'#f1f5f9',anchor:'end',align:'right',font:{family:'Inter',size:11,weight:'600'},formatter:v=>`$${v.toFixed(1)}M`} },
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'},title:{display:true,text:'Cap ($M)',color:'#64748b',font:{family:'Inter',size:10}}},
+        y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{display:false}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+})();
+
+// GMV Line
+(function(){
+  const months2025 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months2026 = ['Jan','Feb','Mar'];
+  const allLabels = [...months2025.map(m=>`${m} '25`),...months2026.map(m=>`${m} '26`)];
+  const gmv2025 = DATA.monthly_gmv_2025;
+  const gmv2026 = DATA.monthly_gmv_q1_2026;
+
+  // Pad 2026 data with nulls for the 2025 range
+  const data2025Full = [...gmv2025, null, null, null];
+  const data2026Full = [null,...new Array(11).fill(null), ...gmv2026];
+  // Connection point
+  data2026Full[11] = gmv2025[11]; // connect at Dec25
+
+  const plugin_divider = {
+    id:'divider',
+    beforeDraw:(chart)=>{
+      const ctx=chart.ctx; const xAxis=chart.scales.x;
+      const x=xAxis.getPixelForTick(11);
+      ctx.save(); ctx.beginPath();
+      ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(148,163,184,0.3)'; ctx.lineWidth=1;
+      ctx.moveTo(x,chart.chartArea.top); ctx.lineTo(x,chart.chartArea.bottom);
+      ctx.stroke(); ctx.restore();
+    }
+  };
+
+  new Chart(document.getElementById('gmvLine'),{
+    type:'line',
+    data:{labels:allLabels,datasets:[
+      {label:'2025 GMV',data:data2025Full,borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.08)',borderWidth:2.5,fill:true,tension:0.3,pointBackgroundColor:'#f97316',pointRadius:3,pointHoverRadius:5,spanGaps:false},
+      {label:'2026 Q1',data:data2026Full,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,0.08)',borderWidth:2.5,fill:true,tension:0.3,pointBackgroundColor:'#10b981',pointRadius:3,pointHoverRadius:5,spanGaps:false}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ ...defaultPlugin, datalabels:{display:false}, tooltip:{...defaultPlugin.tooltip,callbacks:{label:ctx=>ctx.raw!==null?`${ctx.dataset.label}: $${ctx.raw}M`:''}}} },
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:10}},grid:{color:'rgba(42,53,80,0.3)'}},
+        y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'},title:{display:true,text:'GMV ($M)',color:'#64748b',font:{family:'Inter',size:10}}}
+      }
+    },
+    plugins:[plugin_divider]
+  });
+})();
+
+// Lane Donut
+(function(){
+  const lanes = {};
+  DATA.buyers.forEach(b=>{ lanes[b.lane]=(lanes[b.lane]||0)+b.cap; });
+  const laneOrder=['Lane A','Lane B','Lane C','Lane D'];
+  const vals=laneOrder.map(l=>+(lanes[l]||0).toFixed(2));
+  const colors=['#10b981','#3b82f6','#f59e0b','#ef4444'];
+  new Chart(document.getElementById('laneDonut'),{
+    type:'doughnut',
+    data:{labels:laneOrder,datasets:[{data:vals,backgroundColor:colors,borderColor:'#0a0f1c',borderWidth:3}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{
+        ...defaultPlugin,
+        datalabels:{color:'#fff',font:{family:'Inter',size:11,weight:'700'},formatter:(v,ctx)=>v>2?`$${v.toFixed(1)}M`:''},
+        tooltip:{...defaultPlugin.tooltip,callbacks:{label:ctx=>`${ctx.label}: $${ctx.raw.toFixed(2)}M (${(ctx.raw/122.72*100).toFixed(1)}%)`}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+})();
+
+// ── Tab 2: Buyer Analysis ─────────────────────────────────────────────────
+let currentRatingFilter = 'all';
+let sortKey = 'cap';
+let sortDir = -1;
+let drawerChart = null;
+
+function getFilteredBuyers() {
+  const region = document.getElementById('regionFilter').value;
+  const lane = document.getElementById('laneFilter').value;
+  return DATA.buyers.filter(b => {
+    if (currentRatingFilter !== 'all' && b.rating !== currentRatingFilter) return false;
+    if (region !== 'all' && b.region !== region) return false;
+    if (lane !== 'all' && b.lane !== lane) return false;
+    return true;
+  });
+}
+
+function setRatingFilter(rating) {
+  currentRatingFilter = rating;
+  document.querySelectorAll('.filter-btn[data-rating]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.rating === rating);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  renderTable();
+  renderTreemap();
+  const filtered = getFilteredBuyers();
+  document.getElementById('filter-count').textContent = `Showing ${filtered.length} of ${DATA.buyers.length} buyers`;
+}
+
+function sortTable(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = key === 'cap' ? -1 : 1; }
+  document.querySelectorAll('.data-table th').forEach(th => th.classList.remove('sorted'));
+  renderTable();
+}
+
+function renderTable() {
+  const buyers = getFilteredBuyers().slice().sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+    return sortDir * (av - bv);
+  });
+  const tbody = document.getElementById('buyerTableBody');
+  tbody.innerHTML = buyers.map(b => `
+    <tr onclick="openDrawer('${b.name}')">
+      <td><strong>${b.name}</strong></td>
+      <td><span class="rating-badge ${b.rating}">${b.rating}</span></td>
+      <td><strong style="color:var(--orange)">${fmtM(b.cap)}</strong></td>
+      <td>${b.tenor}d</td>
+      <td>${fmtPct(b.gr_pct)}</td>
+      <td style="color:${b.net_spread>=5?'#10b981':b.net_spread>=4?'#f59e0b':'#94a3b8'}">${fmtPct(b.net_spread)}</td>
+      <td>${fmtK(b.net_rev)}</td>
+      <td>${fmtK(b.c1)}</td>
+      <td><span style="font-size:11px;background:var(--card);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">${b.region}</span></td>
+      <td><span style="font-size:11px;color:var(--text-muted)">${b.lane}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderTreemap() {
+  const buyers = getFilteredBuyers().slice().sort((a,b) => b.cap - a.cap);
+  const container = document.getElementById('treemap');
+  const W = container.offsetWidth || 900;
+  const H = 280;
+  container.innerHTML = '';
+
+  if (!buyers.length) return;
+
+  const totalCap = buyers.reduce((s,b)=>s+b.cap,0);
+
+  // Simple squarified treemap
+  function squarify(items, rect) {
+    if (!items.length) return;
+    if (items.length === 1) {
+      place(items[0], rect);
+      return;
+    }
+    const total = items.reduce((s,i)=>s+i.area,0);
+    const { x, y, w, h } = rect;
+    const isHoriz = w > h;
+    let row = [], rest = [...items];
+    let rowArea = 0;
+    let bestRatio = Infinity;
+
+    while (rest.length) {
+      const item = rest[0];
+      const newRowArea = rowArea + item.area;
+      const rowLen = isHoriz ? h : w;
+      const rowThick = isHoriz ? (newRowArea / total) * w : (newRowArea / total) * h;
+      let maxRatio = 0;
+      [...row, item].forEach(i => {
+        const cellLen = (i.area / newRowArea) * rowLen;
+        const ratio = Math.max(rowThick / cellLen, cellLen / rowThick);
+        if (ratio > maxRatio) maxRatio = ratio;
+      });
+      if (maxRatio < bestRatio || row.length === 0) {
+        row.push(item); rest.shift(); rowArea = newRowArea; bestRatio = maxRatio;
+      } else break;
+    }
+
+    const rowThick = isHoriz ? (rowArea / total) * w : (rowArea / total) * h;
+    let pos = isHoriz ? y : x;
+    row.forEach(item => {
+      const cellLen = (item.area / rowArea) * (isHoriz ? h : w);
+      if (isHoriz) place(item, { x, y: pos, w: rowThick, h: cellLen });
+      else place(item, { x: pos, y, w: cellLen, h: rowThick });
+      pos += cellLen;
+    });
+
+    if (rest.length) {
+      if (isHoriz) squarify(rest, { x: x + rowThick, y, w: w - rowThick, h, total: rest.reduce((s,i)=>s+i.area,0) });
+      else squarify(rest, { x, y: y + rowThick, w, h: h - rowThick, total: rest.reduce((s,i)=>s+i.area,0) });
+    }
+  }
+
+  function place(item, rect) {
+    const pad = 2;
+    const el = document.createElement('div');
+    el.className = 'treemap-cell';
+    el.style.left = (rect.x + pad) + 'px';
+    el.style.top = (rect.y + pad) + 'px';
+    el.style.width = Math.max(rect.w - pad*2, 0) + 'px';
+    el.style.height = Math.max(rect.h - pad*2, 0) + 'px';
+    el.style.background = RATING_COLORS[item.buyer.rating];
+    el.style.opacity = '0.85';
+
+    const showName = rect.w > 50 && rect.h > 30;
+    const showCap = rect.w > 60 && rect.h > 45;
+    if (showName) el.innerHTML = `<div class="cell-name">${item.buyer.name}</div>`;
+    if (showCap) el.innerHTML += `<div class="cell-cap">$${item.buyer.cap.toFixed(1)}M</div>`;
+    if (showCap) el.innerHTML += `<div class="cell-rating">${item.buyer.rating}</div>`;
+
+    el.addEventListener('click', () => openDrawer(item.buyer.name));
+    container.appendChild(el);
+  }
+
+  const items = buyers.map(b => ({ buyer: b, area: (b.cap / totalCap) * W * H }));
+  squarify(items, { x:0, y:0, w:W, h:H });
+}
+
+// ── Drawer ────────────────────────────────────────────────────────────────
+function openDrawer(buyerName) {
+  const b = DATA.buyers.find(x => x.name === buyerName);
+  if (!b) return;
+
+  document.getElementById('drawerName').textContent = b.name;
+  document.getElementById('drawerFullName').textContent = b.full_name;
+
+  const pct = (b.cap / DATA.summary.total_cap * 100).toFixed(1);
+  document.getElementById('drawerMeta').innerHTML = `
+    <span class="rating-badge ${b.rating}" style="width:auto;padding:4px 12px;border-radius:20px;">${b.rating} Rated</span>
+    <span class="drawer-tag">${b.region}</span>
+    <span class="drawer-tag">${b.lane}</span>
+    <span class="drawer-tag">${pct}% of portfolio</span>
+    <span class="drawer-tag">${b.tenor}d tenor</span>
+  `;
+
+  document.getElementById('drawerMetrics').innerHTML = `
+    <div class="drawer-metric"><div class="drawer-metric-label">Cap Deployed</div><div class="drawer-metric-value" style="color:var(--orange)">${fmtM(b.cap)}</div></div>
+    <div class="drawer-metric"><div class="drawer-metric-label">Gross Return</div><div class="drawer-metric-value">${fmtPct(b.gr_pct)}</div></div>
+    <div class="drawer-metric"><div class="drawer-metric-label">Net Spread</div><div class="drawer-metric-value" style="color:${b.net_spread>=5?'var(--green)':'var(--amber)'}">${fmtPct(b.net_spread)}</div></div>
+    <div class="drawer-metric"><div class="drawer-metric-label">Net Revenue</div><div class="drawer-metric-value">${fmtK(b.net_rev)}</div></div>
+    <div class="drawer-metric"><div class="drawer-metric-label">C1</div><div class="drawer-metric-value" style="color:var(--green)">${fmtK(b.c1)}</div></div>
+    <div class="drawer-metric"><div class="drawer-metric-label">Portfolio Share</div><div class="drawer-metric-value">${pct}%</div></div>
+  `;
+
+  if (drawerChart) drawerChart.destroy();
+  drawerChart = new Chart(document.getElementById('drawerChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Gross Rev', 'Insurance', 'Funding Cost', 'Net Revenue', 'C1'],
+      datasets: [{
+        data: [b.revenue, -b.insurance, -b.funding, b.net_rev, b.c1],
+        backgroundColor: [
+          'rgba(249,115,22,0.7)',
+          'rgba(239,68,68,0.6)',
+          'rgba(239,68,68,0.5)',
+          'rgba(16,185,129,0.7)',
+          'rgba(16,185,129,0.9)'
+        ],
+        borderColor: ['#f97316','#ef4444','#ef4444','#10b981','#10b981'],
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          color: '#f1f5f9', anchor: 'end', align: ctx => ctx.raw > 0 ? 'top' : 'bottom',
+          font: { family:'Inter', size:10, weight:'600' },
+          formatter: v => `$${Math.abs(Math.round(v))}K`
+        },
+        tooltip: { ...defaultPlugin.tooltip, callbacks: { label: ctx => `$${Math.abs(ctx.raw).toLocaleString()}K` } }
+      },
+      scales: {
+        x: { ticks: { color:'#94a3b8', font:{family:'Inter',size:10} }, grid: { display:false } },
+        y: { ticks: { color:'#94a3b8', font:{family:'Inter',size:10} }, grid: { color:'rgba(42,53,80,0.3)' }, title: { display:true, text:'$K', color:'#64748b', font:{family:'Inter',size:9} } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+// Init tab 2
+renderTable();
+setTimeout(() => { renderTreemap(); applyFilters(); }, 100);
+
+// ── Tab 3 Charts ──────────────────────────────────────────────────────────
+
+// Waterfall by Rating Group
+(function(){
+  const groups = { A:{rev:0,ins:0,fund:0,nr:0,c1:0}, B:{rev:0,ins:0,fund:0,nr:0,c1:0}, C:{rev:0,ins:0,fund:0,nr:0,c1:0}, D:{rev:0,ins:0,fund:0,nr:0,c1:0} };
+  DATA.buyers.forEach(b => {
+    const g = groups[b.rating];
+    g.rev += b.revenue; g.ins += b.insurance; g.fund += b.funding; g.nr += b.net_rev; g.c1 += b.c1;
+  });
+
+  new Chart(document.getElementById('waterfallChart'), {
+    type: 'bar',
+    data: {
+      labels: ['A','B','C','D'],
+      datasets: [
+        { label:'Gross Revenue', data:Object.values(groups).map(g=>+g.rev.toFixed(0)), backgroundColor:'rgba(249,115,22,0.7)', borderColor:'#f97316', borderWidth:1, borderRadius:3 },
+        { label:'Insurance', data:Object.values(groups).map(g=>+g.ins.toFixed(0)), backgroundColor:'rgba(239,68,68,0.5)', borderColor:'#ef4444', borderWidth:1, borderRadius:3 },
+        { label:'Funding Cost', data:Object.values(groups).map(g=>+g.fund.toFixed(0)), backgroundColor:'rgba(239,68,68,0.4)', borderColor:'#ef4444', borderWidth:1, borderRadius:3 },
+        { label:'Net Revenue', data:Object.values(groups).map(g=>+g.nr.toFixed(0)), backgroundColor:'rgba(16,185,129,0.6)', borderColor:'#10b981', borderWidth:1, borderRadius:3 },
+        { label:'C1', data:Object.values(groups).map(g=>+g.c1.toFixed(0)), backgroundColor:'rgba(16,185,129,0.85)', borderColor:'#10b981', borderWidth:1, borderRadius:3 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { ...defaultPlugin, datalabels:{display:false}, legend:{...defaultPlugin.legend, position:'bottom'} },
+      scales: {
+        x: { ticks:{color:'#94a3b8',font:{family:'Inter',size:11}}, grid:{color:'rgba(42,53,80,0.3)'} },
+        y: { ticks:{color:'#94a3b8',font:{family:'Inter',size:11}}, grid:{color:'rgba(42,53,80,0.3)'}, title:{display:true,text:'$K',color:'#64748b',font:{family:'Inter',size:10}} }
+      }
+    }
+  });
+})();
+
+// Lane Bar
+(function(){
+  const lanes = {};
+  DATA.buyers.forEach(b => { lanes[b.lane] = (lanes[b.lane]||0)+b.cap; });
+  const laneOrder=['Lane A','Lane B','Lane C','Lane D'];
+  const colors=['#10b981','#3b82f6','#f59e0b','#ef4444'];
+  new Chart(document.getElementById('laneBar'),{
+    type:'bar',
+    data:{labels:laneOrder,datasets:[{data:laneOrder.map(l=>+(lanes[l]||0).toFixed(2)),backgroundColor:colors,borderRadius:6,borderSkipped:false}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{ ...defaultPlugin, legend:{display:false}, datalabels:{color:'#f1f5f9',anchor:'end',align:'top',font:{family:'Inter',size:11,weight:'700'},formatter:v=>`$${v.toFixed(1)}M`} },
+      scales:{
+        x:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'}},
+        y:{ticks:{color:'#94a3b8',font:{family:'Inter',size:11}},grid:{color:'rgba(42,53,80,0.3)'},title:{display:true,text:'Cap ($M)',color:'#64748b',font:{family:'Inter',size:10}}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+})();
+
+// LF Split
+(function(){
+  const lfNames = ['3 Markets','LFFA','LFMU','Ross (LF)'];
+  let lfCap = 0, nonLfCap = 0;
+  DATA.buyers.forEach(b => {
+    if(lfNames.includes(b.name)) lfCap += b.cap;
+    else nonLfCap += b.cap;
+  });
+  const total = lfCap + nonLfCap;
+  document.getElementById('lfCap').textContent = `$${lfCap.toFixed(2)}M`;
+  document.getElementById('lfPct').textContent = `${(lfCap/total*100).toFixed(1)}% of portfolio`;
+  document.getElementById('nonLfCap').textContent = `$${nonLfCap.toFixed(2)}M`;
+  document.getElementById('nonLfPct').textContent = `${(nonLfCap/total*100).toFixed(1)}% of portfolio`;
+
+  new Chart(document.getElementById('lfDonut'),{
+    type:'doughnut',
+    data:{labels:['LF Group','Non-LF'],datasets:[{data:[+lfCap.toFixed(2),+nonLfCap.toFixed(2)],backgroundColor:['#f97316','#10b981'],borderColor:'#0a0f1c',borderWidth:3}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{
+        ...defaultPlugin,
+        datalabels:{color:'#fff',font:{family:'Inter',size:12,weight:'700'},formatter:v=>`$${v.toFixed(1)}M`},
+        tooltip:{...defaultPlugin.tooltip,callbacks:{label:ctx=>`${ctx.label}: $${ctx.raw.toFixed(2)}M (${(ctx.raw/total*100).toFixed(1)}%)`}}
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+})();
+
+// Concentration
+(function(){
+  const sorted = DATA.buyers.slice().sort((a,b)=>b.cap-a.cap);
+  const top5 = sorted.slice(0,5);
+  const total = DATA.summary.total_cap;
+  const concPct = top5.reduce((s,b)=>s+b.cap,0)/total*100;
+  const ratingColorMap = {A:'#10b981',B:'#f59e0b',C:'#f97316',D:'#ef4444'};
+
+  const container = document.getElementById('concentrationList');
+  container.innerHTML = top5.map(b => {
+    const pct = (b.cap/total*100).toFixed(1);
+    return `
+      <div class="conc-item">
+        <div class="conc-name">${b.name}</div>
+        <div class="conc-bar-track">
+          <div class="conc-bar-fill" style="width:${pct}%;background:${ratingColorMap[b.rating]}"></div>
+        </div>
+        <div class="conc-pct" style="color:${ratingColorMap[b.rating]}">${pct}%</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('concAlert').textContent =
+    `Top 5 buyers represent ${concPct.toFixed(1)}% of total capital. AEO alone = ${(top5[0].cap/total*100).toFixed(1)}%. ` +
+    (concPct > 70 ? 'Concentration risk is HIGH — single-buyer dependency elevated.' : 'Moderate concentration — review single-name limits.');
+})();
+
+// ── Tab Switching ─────────────────────────────────────────────────────────
+function switchTab(idx) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.tab-content').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  if (idx === 1) { setTimeout(()=>{ renderTreemap(); applyFilters(); }, 50); }
+}
+
+// Resize handler for treemap
+window.addEventListener('resize', ()=>{
+  const t1 = document.getElementById('tab-1');
+  if (t1.classList.contains('active')) renderTreemap();
+});
+</script>
+</body>
+</html>
