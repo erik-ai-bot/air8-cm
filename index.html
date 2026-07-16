@@ -648,6 +648,27 @@
   @media print { .print-value { display: inline !important; } input.editable[style*="none"] { display: none !important; } }
   .small-note { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
   .inline-flex { display: inline-flex; align-items: center; gap: 6px; }
+/* ===== UNDERLYING GOODS TYPE MULTI-SELECT ===== */
+.gt-widget { position: relative; }
+.gt-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; padding: 2px 0; }
+.gt-chip { display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 2px 8px; font-size: 11px; color: #1e40af; line-height: 1.4; }
+.gt-chip-x { cursor: pointer; color: #93c5fd; font-size: 12px; line-height: 1; padding: 0 1px; }
+.gt-chip-x:hover { color: #E5484D; }
+.gt-ai-badge { font-size: 10px; color: #7c3aed; background: #ede9fe; border-radius: 8px; padding: 1px 5px; margin-left: 2px; }
+.gt-search-wrap { position: relative; margin-top: 4px; }
+.gt-search { width: 100%; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; outline: none; color: #1a1a2e; background: #fff; }
+.gt-search:focus { border-color: #3b82f6; }
+.gt-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 180px; overflow-y: auto; z-index: 9999; display: none; }
+.gt-dropdown.open { display: block; }
+.gt-opt { padding: 6px 10px; font-size: 11px; cursor: pointer; color: #1a1a2e; display: flex; align-items: center; gap: 6px; }
+.gt-opt:hover { background: #f1f5f9; }
+.gt-opt.selected { background: #eff6ff; color: #1e40af; }
+.gt-opt.selected::before { content: '✓'; color: #3b82f6; font-size: 10px; }
+.gt-opt:not(.selected)::before { content: ''; width: 10px; display: inline-block; }
+.gt-error { font-size: 10px; color: #dc2626; margin-top: 4px; }
+.gt-loading { font-size: 10px; color: #64748b; margin-top: 4px; }
+.gt-status { font-size: 10px; color: #7c3aed; margin-top: 2px; }
+
 </style>
 </head>
 <body>
@@ -880,42 +901,35 @@
   <!-- SECTION 2: BUYER INFORMATION -->
   <div class="section">
     <div class="section-title"><span class="num">2</span> BUYER INFORMATION</div>
-    <div class="two-col">
-      <div class="info-box">
-        <div class="info-box-title">Company Details</div>
-        <div class="info-row">
-          <span class="info-label">Obligor Parent</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Obligor Legal Name</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-obligor" placeholder="Obligor Name"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Country</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-country" placeholder="Country of Incorporation"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Website</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-website" placeholder="https://"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Ticker / Exchange</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-ticker" placeholder="e.g. NYSE: BJ"></span>
-        </div>
+    <div class="info-box" style="max-width:100%;">
+      <div class="info-row">
+        <span class="info-label">Website</span>
+        <span class="info-value"><input type="text" class="editable" id="s2-website" placeholder="https://"></span>
       </div>
-      <div class="info-box">
-        <div class="info-box-title">Buyer's Core Business</div>
-        <div class="info-row">
-          <span class="info-label">Business Activities</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-biz" placeholder="Core business description"></span>
-        </div>
-        <div class="info-row" style="align-items:flex-start;">
-          <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
-          <span class="info-value">
-            <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
-          </span>
-        </div>
+      <div class="info-row">
+        <span class="info-label">Ticker / Exchange</span>
+        <span class="info-value"><input type="text" class="editable" id="s2-ticker" placeholder="e.g. NYSE: BJ"></span>
+      </div>
+      <div class="info-row" style="align-items:flex-start;">
+        <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
+        <span class="info-value">
+          <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
+        </span>
+      </div>
+      <div class="info-row" style="align-items:flex-start;">
+        <span class="info-label" style="padding-top:4px;">Underlying Goods Type</span>
+        <span class="info-value">
+          <div class="gt-widget" id="gt-widget">
+            <div class="gt-chips" id="gt-chips"><!-- chips inserted by JS --></div>
+            <div class="gt-status" id="gt-status" style="display:none;"></div>
+            <div class="gt-search-wrap">
+              <input type="text" class="gt-search" id="gt-search" placeholder="Search goods type…" autocomplete="off">
+              <div class="gt-dropdown" id="gt-dropdown"></div>
+            </div>
+            <div class="gt-error" id="gt-error" style="display:none;"></div>
+            <div class="gt-loading" id="gt-loading" style="display:none;">Loading dictionary…</div>
+          </div>
+        </span>
       </div>
     </div>
 
@@ -1933,13 +1947,9 @@ function loadBuyer(key) {
   document.getElementById('h-risk-proposed-score').value = b.risk_proposed_score || '';
   // s7 displays updated via applyRatingColors() which reads from h-risk-current/proposed
 
-  // Section 2
-  document.getElementById('s2-group').value = b.buyer_group || '';
-  document.getElementById('s2-obligor').value = b.buyer_name || '';
-  document.getElementById('s2-country').value = b.country || '';
+  // Section 2 (s2-group, s2-obligor, s2-country, s2-biz removed - now in Header)
   document.getElementById('s2-website').value = b.website || '';
   document.getElementById('s2-ticker').value = b.ticker || '';
-  document.getElementById('s2-biz').value = b.business || '';
   document.getElementById('s2-mktcap').value = b.mktcap || '';
   document.getElementById('s2-sp').value = b.sp_rating || '';
   document.getElementById('s2-moodys').value = b.moodys_rating || '';
@@ -2160,6 +2170,11 @@ function collectFormState() {
     });
   });
   if (risks.length > 0) state['_risks_json'] = JSON.stringify(risks);
+  // Include Underlying Goods Type selections
+  if (typeof _gtSelected !== 'undefined') {
+    state['_goods_type_json'] = JSON.stringify(_gtSelected);
+    state['_goods_type_provenance'] = _gtProvenance || '';
+  }
   return state;
 }
 
@@ -2247,6 +2262,14 @@ async function loadSaved() {
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
     else if (el.contentEditable === 'true') el.innerHTML = val;
   });
+  // Restore Underlying Goods Type (do NOT re-trigger AI)
+  if (data._goods_type_json) {
+    try {
+      _gtSelected = JSON.parse(data._goods_type_json) || [];
+      _gtProvenance = data._goods_type_provenance || null;
+      if (typeof gtRenderChips === 'function') gtRenderChips();
+    } catch(e) { _gtSelected = []; }
+  }
   if (typeof calcMetrics === 'function') calcMetrics();
   if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
   if (typeof calcLiqYoY === 'function') calcLiqYoY();
@@ -2581,8 +2604,7 @@ async function processScreenshotFile(file) {
     fillIfEmpty('h-buyer-group', ciq.buyer_group || ciq.buyer_name);
     fillIfEmpty('h-buyer-name', ciq.buyer_name);
     fillIfEmpty('h-country', ciq.country);
-    fillIfEmpty('s2-obligor', ciq.buyer_name);
-    fillIfEmpty('s2-country', ciq.country);
+    // s2-obligor, s2-country removed - now in Header
     fillIfEmpty('s2-ticker', ciq.ticker);
     fillIfEmpty('s2-mktcap', ciq.mktcap);
     fillIfEmpty('s2-sp', ciq.sp_rating);
@@ -3571,12 +3593,12 @@ async function generateCM() {
     }
     // Restore group display names if they were set (prevent AI from overwriting)
     if (window._obligorDisplayName) {
-      var _on = document.getElementById('s2-obligor'); if(_on) _on.value = window._obligorDisplayName;
+      /* s2-obligor removed - now in Header */
       var _hn = document.getElementById('h-buyer-name'); if(_hn) _hn.value = window._obligorDisplayName;
     }
     if (window._obligorParent) {
       var _hg = document.getElementById('h-buyer-group'); if(_hg) _hg.value = window._obligorParent;
-      var _sg = document.getElementById('s2-group'); if(_sg) _sg.value = window._obligorParent;
+      /* s2-group removed - now in Header */
     }
     applyRatingColors();
     // Load appendix using the resolved group (not AI-returned buyer_group which may differ)
@@ -3945,9 +3967,7 @@ function fillAir8Fields(db, product, oaDays) {
   sv('s1-exceptions', 'None.');
 
   // ── SECTION 2 — Buyer Information ──
-  sv('s2-group', db.buyer_group || db.buyer_name);
-  sv('s2-obligor', db.buyer_name);
-  sv('s2-country', db.country);
+  /* s2-group, s2-obligor, s2-country removed - now in Header */
   sv('s2-website', db.website);
   sv('s2-ticker', db.ticker);
   sv('s2-biz', db.business);
@@ -4546,6 +4566,129 @@ document.addEventListener('DOMContentLoaded', () => {
   var btn = document.getElementById('sidebar-toggle');
   if (sb) { sb.classList.add('open'); document.body.classList.add('sidebar-open'); }
   if (btn) btn.classList.add('active');
-});</script>
+});// ── UNDERLYING GOODS TYPE WIDGET ─────────────────────────────────────
+const CM_API_GT = typeof CM_API !== 'undefined' ? CM_API : 'https://air8-cm-api.erik-ai-bot-001.workers.dev';
+let _gtDict = null;
+let _gtSelected = [];
+let _gtProvenance = null;
+let _gtSuggested = false;
+
+async function gtLoadDict() {
+  if (_gtDict !== null) return _gtDict;
+  const loadEl = document.getElementById('gt-loading');
+  const errEl  = document.getElementById('gt-error');
+  if (loadEl) { loadEl.style.display = ''; loadEl.textContent = 'Loading dictionary…'; }
+  if (errEl)  errEl.style.display = 'none';
+  try {
+    const r = await fetch(CM_API_GT + '/product-dictionary', { signal: AbortSignal.timeout(10000) });
+    const d = await r.json();
+    if (loadEl) loadEl.style.display = 'none';
+    if (!d.ok || !d.data) {
+      const msg = d.error || 'dictionary load failed';
+      if (errEl) { errEl.style.display = ''; errEl.textContent = '⚠️ ' + msg; }
+      _gtDict = []; return _gtDict;
+    }
+    _gtDict = d.data; return _gtDict;
+  } catch(e) {
+    if (loadEl) loadEl.style.display = 'none';
+    if (errEl)  { errEl.style.display = ''; errEl.textContent = '⚠️ dictionary load failed'; }
+    _gtDict = []; return _gtDict;
+  }
+}
+
+function gtRenderChips() {
+  const chips = document.getElementById('gt-chips');
+  if (!chips) return;
+  chips.innerHTML = '';
+  _gtSelected.forEach(item => {
+    const chip = document.createElement('span');
+    chip.className = 'gt-chip';
+    chip.innerHTML = `${item.name}<span class="gt-chip-x" data-id="${item.id}" title="Remove">&#10005;</span>`;
+    chip.querySelector('.gt-chip-x').addEventListener('click', e => {
+      e.stopPropagation();
+      _gtSelected = _gtSelected.filter(x => x.id !== item.id);
+      _gtProvenance = 'manual';
+      gtRenderChips();
+    });
+    chips.appendChild(chip);
+  });
+}
+
+function gtRenderDropdown(filter) {
+  const dd = document.getElementById('gt-dropdown');
+  if (!dd || !_gtDict) return;
+  const q = (filter || '').toLowerCase();
+  const visible = _gtDict.filter(d => !q || d.name.toLowerCase().includes(q));
+  dd.innerHTML = '';
+  visible.forEach(item => {
+    const opt = document.createElement('div');
+    const isSel = _gtSelected.some(s => s.id === item.id);
+    opt.className = 'gt-opt' + (isSel ? ' selected' : '');
+    opt.textContent = item.name;
+    opt.addEventListener('mousedown', e => {
+      e.preventDefault();
+      if (isSel) { _gtSelected = _gtSelected.filter(s => s.id !== item.id); }
+      else { _gtSelected = [..._gtSelected, { id: item.id, name: item.name }]; }
+      _gtProvenance = 'manual';
+      gtRenderChips();
+      gtRenderDropdown(document.getElementById('gt-search')?.value || '');
+    });
+    dd.appendChild(opt);
+  });
+  dd.classList.toggle('open', visible.length > 0 && document.getElementById('gt-search') === document.activeElement);
+}
+
+function gtInitWidget() {
+  const search = document.getElementById('gt-search');
+  const dd     = document.getElementById('gt-dropdown');
+  if (!search || !dd) return;
+  search.addEventListener('focus', async () => { await gtLoadDict(); gtRenderDropdown(search.value); });
+  search.addEventListener('input', () => gtRenderDropdown(search.value));
+  search.addEventListener('blur', () => setTimeout(() => { dd.classList.remove('open'); }, 150));
+  document.addEventListener('click', e => {
+    if (!document.getElementById('gt-widget')?.contains(e.target)) dd.classList.remove('open');
+  });
+}
+
+async function gtSuggestOnce() {
+  if (_gtSuggested) return;
+  _gtSuggested = true;
+  const dict = await gtLoadDict();
+  if (!dict || dict.length === 0) return;
+  const biz      = document.getElementById('h-business')?.value || '';
+  const products = document.getElementById('h-products')?.value || '';
+  if (!biz && !products) return;
+  const statusEl = document.getElementById('gt-status');
+  if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✦ AI suggesting…'; }
+  try {
+    const r = await fetch(CM_API_GT + '/suggest-goods-type', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business: biz, products, dictionary: dict }),
+      signal: AbortSignal.timeout(20000)
+    });
+    const d = await r.json();
+    if (statusEl) statusEl.style.display = 'none';
+    if (d.suggestions && d.suggestions.length > 0) {
+      _gtSelected = d.suggestions;
+      _gtProvenance = 'ai_suggested_confirmed';
+      gtRenderChips();
+    }
+  } catch(e) {
+    if (statusEl) statusEl.style.display = 'none';
+    console.warn('[GT] AI suggestion failed:', e.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { gtInitWidget(); gtLoadDict(); });
+
+// Hook into fillAir8Fields to trigger AI suggestion once
+const _origFillAir8 = window.fillAir8Fields;
+window.fillAir8Fields = function(...args) {
+  if (_origFillAir8) _origFillAir8.apply(this, args);
+  setTimeout(() => gtSuggestOnce(), 100);
+};
+
+</script>
 </body>
 </html>
