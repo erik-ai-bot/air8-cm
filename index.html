@@ -648,28 +648,6 @@
   @media print { .print-value { display: inline !important; } input.editable[style*="none"] { display: none !important; } }
   .small-note { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
   .inline-flex { display: inline-flex; align-items: center; gap: 6px; }
-
-.header-mirror {
-  display: inline-block;
-  min-width: 160px;
-  color: #1e293b;
-  font-weight: 500;
-  font-size: 11px;
-}
-.header-mirror:empty::before {
-  content: attr(data-placeholder);
-  color: #94a3b8;
-}
-.risk-cat-display {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 13px;
-}
-.risk-cat-display .rc-cur { color: #b45309; }
-.risk-cat-display .rc-arrow { color: #64748b; }
-.risk-cat-display .rc-prop { color: #15803d; }
 </style>
 </head>
 <body>
@@ -811,7 +789,7 @@
     <div class="header-grid">
       <div class="header-row">
         <span class="header-label">Date</span>
-        <span class="header-value"><span class="header-mirror" id="h-date" data-placeholder="YYYY/MM/DD"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-date" placeholder="YYYY/MM/DD" style="width:120px;"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Approval Level</span>
@@ -825,41 +803,54 @@
       </div>
       <div class="header-row">
         <span class="header-label">Obligor Parent</span>
-        <span class="header-value"><span class="header-mirror" id="h-buyer-group" data-placeholder="Parent Company Name"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-buyer-group" placeholder="Parent Company Name"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Obligor Name</span>
-        <span class="header-value"><span class="header-mirror" id="h-buyer-name" data-placeholder="Obligor Legal Name"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-buyer-name" placeholder="Obligor Legal Name"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Market Cap / Ext Rating</span>
+        <span class="header-value"><input type="text" class="editable" id="h-mktcap" placeholder="e.g. USD 12B / BB+"></span>
       </div>
       <div class="header-row">
         <span class="header-label">Country of Incorporation</span>
-        <span class="header-value"><span class="header-mirror" id="h-country" data-placeholder="Country"></span></span>
+        <span class="header-value"><input type="text" class="editable" id="h-country" placeholder="Country"></span>
       </div>
       <div class="header-row">
-        <span class="header-label">Annual Review – Last</span>
-        <span class="header-value"><span class="header-mirror" id="h-review-last" data-placeholder="YYYY/MM/DD"></span></span>
+        <span class="header-label">Business Activities</span>
+        <span class="header-value"><input type="text" class="editable" id="h-business" placeholder="e.g. Membership Warehouse Club" style="white-space:normal;overflow:visible;"></span>
       </div>
       <div class="header-row">
-        <span class="header-label">Annual Review – Next</span>
-        <span class="header-value"><span class="header-mirror" id="h-review-next" data-placeholder="YYYY/MM/DD"></span></span>
+        <span class="header-label">Products Sourced</span>
+        <span class="header-value"><input type="text" class="editable" id="h-products" placeholder="e.g. Apparels, footwear..." style="white-space:normal;word-wrap:break-word;"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Annual Review - Last</span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" style="width:120px;"></span>
+      </div>
+      <div class="header-row">
+        <span class="header-label">Annual Review - Next</span>
+        <span class="header-value"><input type="text" class="editable" id="h-review-next" placeholder="YYYY/MM/DD" style="width:120px;"></span>
       </div>
     </div>
 
     <div class="risk-cat-row" style="margin-top:10px;">
       <span class="risk-cat-label">Risk Category</span>
-      <span class="risk-cat-display">
-        <span class="rc-cur" id="h-risk-current-display">-</span>
-        <span class="rc-arrow">→</span>
-        <span class="rc-prop" id="h-risk-proposed-display">-</span>
+      <span class="risk-badge current">
+        Current: <select class="editable keep-color" id="h-risk-current" style="background:transparent;border:none;font-weight:700;color:#b45309;width:auto;" onchange="applyRatingColors()">
+          <option value="" selected disabled>-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+        </select>
+        <input type="text" class="editable" id="h-risk-current-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
+      </span>
+      <span class="risk-badge proposed">
+        Proposed: <select class="editable keep-color" id="h-risk-proposed" style="background:transparent;border:none;font-weight:700;color:#15803d;width:auto;" onchange="applyRatingColors()">
+          <option value="" selected disabled>-</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+        </select>
+        <input type="text" class="editable" id="h-risk-proposed-score" placeholder="score" style="width:40px;font-size:11px;text-align:center;" oninput="applyRatingColors()">
       </span>
     </div>
   </div>
-
-  <!-- Hidden backing inputs for applyRatingColors / save / load compatibility -->
-  <input type="hidden" id="h-risk-current" class="editable">
-  <input type="hidden" id="h-risk-current-score" class="editable">
-  <input type="hidden" id="h-risk-proposed" class="editable">
-  <input type="hidden" id="h-risk-proposed-score" class="editable">
 
   <!-- SECTION 1: EXECUTIVE SUMMARY -->
   <div class="section">
@@ -894,15 +885,15 @@
         <div class="info-box-title">Company Details</div>
         <div class="info-row">
           <span class="info-label">Obligor Parent</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name" oninput="syncHeader()"></span>
+          <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
         </div>
         <div class="info-row">
           <span class="info-label">Obligor Legal Name</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-obligor" placeholder="Obligor Name" oninput="syncHeader()"></span>
+          <span class="info-value"><input type="text" class="editable" id="s2-obligor" placeholder="Obligor Name"></span>
         </div>
         <div class="info-row">
           <span class="info-label">Country</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-country" placeholder="Country of Incorporation" oninput="syncHeader()"></span>
+          <span class="info-value"><input type="text" class="editable" id="s2-country" placeholder="Country of Incorporation"></span>
         </div>
         <div class="info-row">
           <span class="info-label">Website</span>
@@ -919,28 +910,12 @@
           <span class="info-label">Business Activities</span>
           <span class="info-value"><input type="text" class="editable" id="s2-biz" placeholder="Core business description"></span>
         </div>
-        <div class="info-row">
-          <span class="info-label">Products Sourced</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-products" placeholder="e.g. Apparels, footwear, home goods"></span>
-        </div>
         <div class="info-row" style="align-items:flex-start;">
           <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
           <span class="info-value">
             <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
           </span>
         </div>
-      </div>
-    </div>
-
-    <div class="info-box" style="margin-top:10px;">
-      <div class="info-box-title">Annual Review</div>
-      <div class="info-row">
-        <span class="info-label">Annual Review – Last</span>
-        <span class="info-value"><input type="text" class="editable" id="s2-review-last" placeholder="YYYY/MM/DD" style="width:120px;" oninput="syncHeader()"></span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Annual Review – Next</span>
-        <span class="info-value"><input type="text" class="editable" id="s2-review-next" placeholder="YYYY/MM/DD" style="width:120px;" oninput="syncHeader()"></span>
       </div>
     </div>
 
@@ -981,13 +956,13 @@
       <thead>
         <tr>
           <th class="left" style="min-width:160px;">(US$'m)</th>
-          <th id="h-fy3-label">FY2024</th>
-          <th id="h-fy2-label">FY2023</th>
           <th id="h-fy1-label">FY2022</th>
-          <th id="h-yoy2-label" style="background:#374151;">24 vs 23%</th>
+          <th id="h-fy2-label">FY2023</th>
+          <th id="h-fy3-label">FY2024</th>
           <th id="h-yoy1-label" style="background:#374151;">23 vs 22%</th>
-          <th class="h-q-col" id="h-q-ly-label" style="display:none;">Same Q LY</th>
+          <th id="h-yoy2-label" style="background:#374151;">24 vs 23%</th>
           <th class="h-q-col" id="h-q-cur-label" style="display:none;">Latest Q</th>
+          <th class="h-q-col" id="h-q-ly-label" style="display:none;">Same Q LY</th>
           <th class="h-q-col" style="background:#374151;display:none;">% Chg</th>
         </tr>
       </thead>
@@ -1129,13 +1104,13 @@
         <thead>
           <tr>
             <th class="left" style="min-width:130px;">(US$'m)</th>
-            <th style="min-width:72px;" id="th-fy3">FY2024</th>
-            <th style="min-width:72px;" id="th-fy2">FY2023</th>
-            <th style="min-width:72px;" id="th-fy1">FY2022</th>
-            <th style="background:#374151;min-width:60px;" id="th-yoy2">24 vs 23%</th>
+            <th style="min-width:72px;" id="th-fy1" contenteditable="true" title="Click to edit period label">FY2022</th>
+            <th style="min-width:72px;" id="th-fy2" contenteditable="true" title="Click to edit period label">FY2023</th>
+            <th style="min-width:72px;" id="th-fy3" contenteditable="true" title="Click to edit period label">FY2024</th>
             <th class="annual-yoy1" id="th-yoy1-label" style="background:#374151;min-width:60px;">23 vs 22%</th>
-            <th class="q-col" style="min-width:72px;" id="th-q-ly" contenteditable="true" title="Click to edit">Same Q LY</th>
+            <th style="background:#374151;min-width:60px;" id="th-yoy2">24 vs 23%</th>
             <th class="q-col" style="min-width:72px;" id="th-q-cur" contenteditable="true" title="Click to edit">Latest Q</th>
+            <th class="q-col" style="min-width:72px;" id="th-q-ly" contenteditable="true" title="Click to edit">Same Q LY</th>
             <th class="q-col" style="background:#374151;min-width:55px;">% Chg</th>
             <th class="left" style="min-width:220px;white-space:normal;background:#1a1a2e;">Key Highlights</th>
 
@@ -1165,13 +1140,13 @@
       <thead>
         <tr>
           <th class="left">(US$'m)</th>
-          <th id="liq-th-fy3">FY2024</th>
-          <th id="liq-th-fy2">FY2023</th>
-          <th id="liq-th-fy1">FY2022</th>
-          <th id="liq-yoy-th" style="background:#374151;">24 vs 23%</th>
+          <th id="liq-th-fy1" contenteditable="true" title="Click to edit">FY2022</th>
+          <th id="liq-th-fy2" contenteditable="true" title="Click to edit">FY2023</th>
+          <th id="liq-th-fy3" contenteditable="true" title="Click to edit">FY2024</th>
           <th class="annual-yoy1" id="liq-yoy1-th" style="background:#374151;">23 vs 22%</th>
-          <th class="liq-q-col" id="liq-th-qly" style="min-width:80px;">Same Q LY</th>
+          <th id="liq-yoy-th" style="background:#374151;">24 vs 23%</th>
           <th class="liq-q-col" id="liq-th-qcur" style="min-width:80px;">Latest Q</th>
+          <th class="liq-q-col" id="liq-th-qly" style="min-width:80px;">Same Q LY</th>
           <th class="liq-q-col" id="liq-q-yoy-th" style="background:#374151;min-width:60px;">% Chg</th>
           <th class="left" style="min-width:200px;">Key Highlights</th>
         </tr>
@@ -1179,13 +1154,13 @@
       <tbody>
         <tr>
           <td class="label" id="liq-row-label" contenteditable="true" title="Click to rename">Facility Headroom</td>
-          <td class="num-cell"><input class="editable" id="liq-24" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
-          <td class="num-cell"><input class="editable" id="liq-23" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
           <td class="num-cell"><input class="editable" id="liq-22" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
-          <td class="pct-cell calc" id="liq-yoy">-</td>
+          <td class="num-cell"><input class="editable" id="liq-23" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell"><input class="editable" id="liq-24" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
           <td class="pct-cell calc annual-yoy1" id="liq-yoy1">-</td>
-          <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-ly" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
+          <td class="pct-cell calc" id="liq-yoy">-</td>
           <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-cur" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-ly" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
           <td class="pct-cell calc liq-q-col" id="liq-q-yoy">-</td>
           <td class="highlight-cell"><div contenteditable="true" class="rich-area" id="liq-kh" style="min-height:36px;" data-placeholder="Facility type, amount, maturity date, headroom details"></div></td>
         </tr>
@@ -1369,13 +1344,13 @@ function buildHighlightsTable() {
     const isDerived = row.derived === 'gp_pct';
     tr.innerHTML = `
       <td class="label">${row.label}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-24" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-23" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
       <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-22">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-22" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
-      <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-23" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-24" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
       <td class="pct-cell calc" id="${row.id}-yoy1">-</td>
-      <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-ly" placeholder="0.0" style="text-align:right;width:72px;"></td>
+      <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
       <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-cur" placeholder="0.0" style="text-align:right;width:72px;"></td>
+      <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-ly" placeholder="0.0" style="text-align:right;width:72px;"></td>
       <td class="pct-cell calc h-q-col" id="${row.id}-q-pct" style="display:none;">-</td>
     `;
     tbody.appendChild(tr);
@@ -1425,7 +1400,7 @@ function calcHighlightsYoY() {
 const METRIC_ROWS = [
   { id: 'rev', label: 'Turnover', group: 'P&L', placeholder: 'Drivers for revenue growth/flat/decline. Highlight extraordinary items. Outlook for next 12-18 months including tariff impacts.' },
   { id: 'gp', label: 'GP', group: 'P&L', placeholder: '' },
-  { id: 'gp_pct', label: 'GP%', group: 'P&L', derived: true, editableDerived: true, placeholder: '-' },
+  { id: 'gp_pct', label: 'GP%', group: 'P&L', derived: true, placeholder: '' },
   { id: 'ebitda', label: 'EBITDA', group: 'P&L', placeholder: 'EBITDA drivers. Margin trend. One-offs.' },
   { id: 'ebitda_m', label: 'EBITDA Margin %', group: 'P&L', derived: true, placeholder: '' },
   { id: 'np', label: 'Net Profit', group: 'P&L', placeholder: 'Net profit trend. Tax rate changes.' },
@@ -1465,20 +1440,18 @@ function buildMetricsTable() {
       lastGroup = row.group;
     }
     const tr = document.createElement('tr');
-    const isDerived = row.derived && !row.editableDerived;
-    const ph = row.placeholder || '0';
-    const annualPeriods = ['24','23','22']; // newest first
+    const isDerived = row.derived;
+    const annualPeriods = ['22','23','24'];
     const annualCells = annualPeriods.map(p => {
       if (isDerived) return `<td class="num-cell calc" id="m-${row.id}-${p}">-</td>`;
-      return `<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-${p}" style="width:66px;" placeholder="${ph}" style="text-align:right;" oninput="calcMetrics()"></td>`;
+      return `<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-${p}" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
     });
-    // q-ly (older) LEFT, q-cur (latest) RIGHT — newest period rightmost
-    const qLyCell = isDerived
-      ? `<td class="num-cell calc q-col" id="m-${row.id}-q-ly">-</td>`
-      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-ly" style="width:66px;" placeholder="${ph}" style="text-align:right;" oninput="calcMetrics()"></td>`;
     const qCurCell = isDerived
       ? `<td class="num-cell calc q-col" id="m-${row.id}-q-cur">-</td>`
-      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-cur" style="width:66px;" placeholder="${ph}" style="text-align:right;" oninput="calcMetrics()"></td>`;
+      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-cur" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
+    const qLyCell = isDerived
+      ? `<td class="num-cell calc q-col" id="m-${row.id}-q-ly">-</td>`
+      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-ly" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
     const sec = sectionKH[row.group];
     let khCell = '';
     if (sec && !sec.added) {
@@ -1492,9 +1465,9 @@ function buildMetricsTable() {
         <button onclick="insertMetricRowAfter(this)" title="Add row below" style="position:absolute;right:2px;top:50%;transform:translateY(-50%);background:none;border:1px solid #cbd5e1;border-radius:3px;color:#64748b;cursor:pointer;font-size:10px;padding:0 4px;line-height:16px;opacity:0;" class="insert-row-btn">+</button>
       </td>
       ${annualCells[0]}${annualCells[1]}${annualCells[2]}
-      <td class="pct-cell calc" id="m-${row.id}-yoy">-</td>
       <td class="pct-cell calc annual-yoy1" id="m-${row.id}-yoy1">-</td>
-      ${qLyCell}${qCurCell}
+      <td class="pct-cell calc" id="m-${row.id}-yoy">-</td>
+      ${qCurCell}${qLyCell}
       <td class="pct-cell calc q-col" id="m-${row.id}-qoq">-</td>
       ${khCell}
     `;
@@ -1529,10 +1502,7 @@ function fmtNum(n) {
 }
 
 function calcPct(a, b) {
-  // Treat null, undefined, NaN, Infinity all as missing → '-'
-  if (a == null || b == null || isNaN(a) || isNaN(b) || !isFinite(a) || !isFinite(b)) return '-';
-  // 0 base → % change undefined
-  if (a === 0) return '-';
+  if (!a || !b || isNaN(a) || isNaN(b)) return '-';
   const pct = ((b - a) / Math.abs(a)) * 100;
   return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
 }
@@ -1543,18 +1513,10 @@ function calcMetrics() {
   // Get raw values
   const g = (id, p) => getMetricVal(id, p);
 
-  // Derived: GP%, EBITDA%, NP%
+  // Derived: GP%
   periods.forEach(p => {
     const rev = g('rev', p); const gp = g('gp', p);
-    // GP%: editable input — auto-fill only if empty; show '-' (blank) when source missing
-    const gpPctEl = document.getElementById('m-gp_pct-' + p);
-    if (gpPctEl && gpPctEl.tagName === 'INPUT') {
-      if (!gpPctEl.value.trim()) {
-        gpPctEl.value = (rev && rev > 0 && gp !== null) ? (gp / rev * 100).toFixed(1) : '';
-      }
-    } else {
-      setDerived('gp_pct', p, (rev && rev > 0 && gp !== null) ? (gp / rev * 100) : null);
-    }
+    setDerived('gp_pct', p, rev ? (gp / rev * 100) : null);
     const ebitda = g('ebitda', p);
     setDerived('ebitda_m', p, rev ? (ebitda / rev * 100) : null);
     const np = g('np', p);
@@ -1598,14 +1560,6 @@ function calcMetrics() {
     if (yoy1El) yoy1El.textContent = calcPct(v22, v23);
     if (yoyEl) yoyEl.textContent = calcPct(v23, v24);
     if (qoqEl) qoqEl.textContent = calcPct(vly, vcur);
-  });
-  // Sync §3 GP% Q columns from §5 Q inputs (auto-fill only when empty)
-  ['q-cur','q-ly'].forEach(function(qp) {
-    var el3 = document.getElementById('h-gp-' + qp);
-    if (!el3 || el3.value.trim()) return;
-    var rv = parseFloat(((document.getElementById('m-rev-' + qp) || {}).value || '').replace(/,/g,'')) || 0;
-    var gv = parseFloat(((document.getElementById('m-gp-' + qp) || {}).value || '').replace(/,/g,'')) || 0;
-    if (rv > 0 && gv) el3.value = (gv / rv * 100).toFixed(1);
   });
 }
 
@@ -1865,10 +1819,10 @@ function _buildCustomRow(group) {
     ['22','23','24'].map(function(yr) {
       return '<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-' + yr + '" style="width:66px;text-align:right;" placeholder="0" oninput="calcMetrics()"></td>';
     }).join('') +
-    '<td class="pct-cell calc" id="m-' + id + '-yoy">-</td>' +
     '<td class="pct-cell calc annual-yoy1" id="m-' + id + '-yoy1">-</td>' +
-    '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-ly" style="width:66px;" placeholder="0"></td>' +
+    '<td class="pct-cell calc" id="m-' + id + '-yoy">-</td>' +
     '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-cur" style="width:66px;" placeholder="0"></td>' +
+    '<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-' + id + '-q-ly" style="width:66px;" placeholder="0"></td>' +
     '<td class="pct-cell calc q-col" id="m-' + id + '-qoq">-</td>';
   return tr;
 }
@@ -1957,8 +1911,8 @@ function loadBuyer(key) {
 
   // Header
   setDateField('h-date', new Date().toISOString().split('T')[0]);
-  (function(){ var el=document.getElementById('h-buyer-group'); if(el) { if(el.tagName==='SPAN') el.textContent=b.buyer_group||''; else el.value=b.buyer_group||''; } })();
-  (function(){ var el=document.getElementById('h-buyer-name'); if(el) { if(el.tagName==='SPAN') el.textContent=b.buyer_name||''; else el.value=b.buyer_name||''; } })();
+  document.getElementById('h-buyer-group').value = b.buyer_group || '';
+  document.getElementById('h-buyer-name').value = b.buyer_name || '';
   // Market cap — normalise number to formatted string (e.g. 762 → "~USD 762B")
   var mcRaw = b.mktcap;
   var mcStr = '';
@@ -1970,7 +1924,7 @@ function loadBuyer(key) {
                  .replace(/^(?!USD|~|$)([d])/, '~USD $1');
   }
   document.getElementById('h-mktcap').value = mcStr + (b.sp_rating ? ' / ' + b.sp_rating : '');
-  (function(){ var el=document.getElementById('h-country'); if(el) { if(el.tagName==='SPAN') el.textContent=b.country||''; else el.value=b.country||''; } })();
+  document.getElementById('h-country').value = b.country || '';
   document.getElementById('h-business').value = b.business || '';
   document.getElementById('h-products').value = b.products_sourced || '';
   document.getElementById('h-risk-current').value = b.risk_category_current || 'B';
@@ -2111,9 +2065,10 @@ function searchBuyer(val) {
 }
 
 function clearForm() {
-  if (!confirm('Clear all form data?\nThis resets everything — same as a fresh page load.')) return;
-  // Full session wipe: equivalent to page refresh (clears _ciqData, screenshots, all globals)
-  window.location.reload();
+  if (!confirm('Clear all form data?')) return;
+  document.querySelectorAll('input.editable, select.editable').forEach(el => { el.value = ''; });
+  document.querySelectorAll('[contenteditable="true"]:not(.rec-label)').forEach(el => { el.textContent = ''; });
+  calcMetrics(); calcHighlightsYoY(); calcLiqYoY();
 }
 
 // ===== LOCAL STORAGE =====
@@ -2144,11 +2099,11 @@ window.addEventListener('afterprint', function() {
 
 async function exportAndSave() {
   // PDF filename: Obligor Parent CM Date (or fall back to buyer name)
-  const obligorParent = document.getElementById('h-buyer-group')?.textContent || '';
-  const buyerName = document.getElementById('h-buyer-name')?.textContent ||
+  const obligorParent = document.getElementById('h-buyer-group')?.value || '';
+  const buyerName = document.getElementById('h-buyer-name')?.value ||
                    document.getElementById('buyer-search')?.value || '';
   const fileNameBase = (obligorParent || buyerName || 'CM').trim();
-  const date = document.getElementById('h-date')?.textContent ||
+  const date = document.getElementById('h-date')?.value ||
                new Date().toISOString().split('T')[0].replace(/-/g,'/');
   const oldTitle = document.title;
   if (fileNameBase) {
@@ -2205,56 +2160,49 @@ function collectFormState() {
     });
   });
   if (risks.length > 0) state['_risks_json'] = JSON.stringify(risks);
-  // ── Persist OCR/CIQ financials so drafts fully restore ──
-  if (window._ciqData && Object.keys(window._ciqData).length > 0) {
-    state['_ciq_data'] = JSON.stringify(window._ciqData);
-  }
-  state['_screenshot_count'] = String(_screenshotPasteCount || 0);
-  // ── Persist FY period labels (no longer contenteditable → must save explicitly) ──
-  try {
-    var _fyL = ['th-fy1','th-fy2','th-fy3'].map(function(id){return (document.getElementById(id)||{}).textContent||'';});
-    state['_fy_labels_json'] = JSON.stringify(_fyL); // [oldest, middle, newest]
-    var _tblM = document.getElementById('tbl-metrics');
-    if (_tblM && _tblM.classList.contains('has-quarterly')) {
-      state['_has_quarterly'] = '1';
-      var _qc=document.getElementById('th-q-cur'); if(_qc) state['_q_label']=_qc.textContent;
-      var _ql=document.getElementById('th-q-ly');  if(_ql) state['_q_label_ly']=_ql.textContent;
-    }
-  } catch(e) {}
   return state;
 }
 
 async function saveDraft() {
-  const buyer = document.getElementById('h-buyer-name')?.textContent ||
+  const buyer = document.getElementById('h-buyer-name')?.value ||
                 document.getElementById('buyer-search')?.value || '';
   if (!buyer) { alert('Please enter a buyer name first.'); return; }
   const rating = document.getElementById('h-risk-proposed')?.value || '';
-  // Always overwrite the latest draft — no orphan versions
-  let overrideId = window._lastDraftId || null;
-  if (!overrideId) {
-    try {
-      const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
-      const { drafts } = await resp.json();
-      if (drafts && drafts.length > 0) overrideId = drafts[0].id;
-    } catch(e) {}
+
+  // Check for existing drafts
+  const resp = await fetch(CM_API + '/drafts/list?buyer=' + encodeURIComponent(buyer));
+  const { drafts } = await resp.json();
+
+  let overrideId = null;
+  let action = 'new';
+
+  if (drafts && drafts.length > 0) {
+    const latest = drafts[0];
+    const choice = confirm(
+      'Found ' + drafts.length + ' existing draft(s) for "' + buyer + '"\n' +
+      'Latest: v' + latest.version + ' · ' + latest.date + ' · ' + latest.status + '\n\n' +
+      'Click OK to OVERRIDE latest\nClick Cancel to save as NEW version'
+    );
+    if (choice) { overrideId = latest.id; action = 'override'; }
   }
+
   const cmData = collectFormState();
   const r = await fetch(CM_API + '/drafts/save', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ buyer, cmData, rating, status: 'Draft', overrideId })
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ buyer, cmData, rating, status:'Draft', overrideId })
   });
   const result = await r.json();
+
   if (result.ok) {
+    const msg = action === 'override'
+      ? '✅ Draft overridden for ' + buyer
+      : '✅ Saved as new version v' + result.version + ' for ' + buyer;
+    document.getElementById('generate-msg').style.display = 'inline';
+    document.getElementById('generate-msg').textContent = msg;
+    document.getElementById('generate-msg').style.background = 'rgba(16,185,129,.1)';
+    document.getElementById('generate-msg').style.color = '#10b981';
     window._lastDraftId = result.id;
-    const msgEl = document.getElementById('generate-msg');
-    if (msgEl) {
-      msgEl.style.display = 'inline';
-      msgEl.textContent = '\u2705 Draft saved for ' + buyer;
-      msgEl.style.background = 'rgba(16,185,129,.1)';
-      msgEl.style.color = '#10b981';
-      setTimeout(function() { msgEl.style.display = 'none'; }, 3000);
-    }
   } else {
     alert('Save failed: ' + (result.error || 'unknown error'));
   }
@@ -2965,6 +2913,11 @@ function closeDraftDropdown() {
 async function loadDraft(id) {
   closeDraftDropdown();
   window._obligorDisplayName = null; window._obligorParent = null; window._groupSums = null;
+  // Remind user if no CIQ screenshot uploaded (non-blocking warning)
+  if (!window._ciqData && !window._previousCM && _screenshotPasteCount === 0) {
+    var proceed = confirm('No CIQ screenshot uploaded yet.\n\nThe tool will use AI web search for financial data, which may be less accurate.\n\nClick OK to continue with web search, or Cancel to upload a CIQ screenshot first.');
+    if (!proceed) return;
+  }
   try {
     const dataResp = await fetch(CM_API + '/drafts/get?id=' + id);
     const { data, meta } = await dataResp.json();
@@ -3002,39 +2955,6 @@ async function loadDraft(id) {
         }
       } catch(e) { console.warn('Risk restore failed:', e); }
     }
-    // ── Restore CIQ/OCR financials ──
-    if (data['_ciq_data']) {
-      try { window._ciqData = JSON.parse(data['_ciq_data']); } catch(e) { window._ciqData = null; }
-    }
-    _screenshotPasteCount = parseInt(data['_screenshot_count'] || '0') || 0;
-    // ── Restore FY period headers (not contenteditable, saved explicitly) ──
-    if (data['_fy_labels_json']) {
-      try {
-        var _fyL = JSON.parse(data['_fy_labels_json']); // [oldest, middle, newest]
-        ['th-fy1','liq-th-fy1','h-fy1-label'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=_fyL[0]||'';});
-        ['th-fy2','liq-th-fy2','h-fy2-label'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=_fyL[1]||'';});
-        ['th-fy3','liq-th-fy3','h-fy3-label'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=_fyL[2]||'';});
-        var _l1=(_fyL[0]||'').replace(/[^0-9]/g,'').slice(-2), _l2=(_fyL[1]||'').replace(/[^0-9]/g,'').slice(-2), _l3=(_fyL[2]||'').replace(/[^0-9]/g,'').slice(-2);
-        if (_l2&&_l3) { var _y2=document.getElementById('th-yoy2');if(_y2)_y2.textContent=_l3+' vs '+_l2+'%'; var _ly=document.getElementById('liq-yoy-th');if(_ly)_ly.textContent=_l3+' vs '+_l2+'%'; var _hy2=document.getElementById('h-yoy2-label');if(_hy2)_hy2.textContent=_l3+' vs '+_l2+'%'; }
-        if (_l1&&_l2) { var _y1=document.getElementById('th-yoy1-label');if(_y1)_y1.textContent=_l2+' vs '+_l1+'%'; var _hy1=document.getElementById('h-yoy1-label');if(_hy1)_hy1.textContent=_l2+' vs '+_l1+'%'; }
-      } catch(e) { console.warn('FY label restore:', e); }
-    }
-    // ── Restore quarterly mode ──
-    if (data['_has_quarterly'] === '1') {
-      var _tblM=document.getElementById('tbl-metrics'); if(_tblM) _tblM.classList.add('has-quarterly');
-      document.querySelectorAll('.h-q-col').forEach(function(el){el.style.display='table-cell';});
-      document.body.classList.add('has-quarterly-liq');
-      if (data['_q_label']) {
-        var _thQC=document.getElementById('th-q-cur');if(_thQC)_thQC.textContent=data['_q_label'];
-        var _lqcEl=document.getElementById('liq-th-qcur');if(_lqcEl)_lqcEl.textContent=data['_q_label'];
-        var _hqcEl=document.getElementById('h-q-cur-label');if(_hqcEl)_hqcEl.textContent=data['_q_label'];
-      }
-      if (data['_q_label_ly']) {
-        var _thQL=document.getElementById('th-q-ly');if(_thQL)_thQL.textContent=data['_q_label_ly'];
-        var _lqlEl=document.getElementById('liq-th-qly');if(_lqlEl)_lqlEl.textContent=data['_q_label_ly'];
-        var _hqlEl=document.getElementById('h-q-ly-label');if(_hqlEl)_hqlEl.textContent=data['_q_label_ly'];
-      }
-    }
     if (typeof calcMetrics === 'function') calcMetrics();
     if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
     if (typeof calcLiqYoY === 'function') calcLiqYoY();
@@ -3049,13 +2969,8 @@ async function loadDraft(id) {
     if (_rcs) { var _scsEl = document.getElementById('h-risk-current-score'); if(_scsEl) _scsEl.value = _rcs; }
     if (_rps) { var _spsEl = document.getElementById('h-risk-proposed-score'); if(_spsEl) _spsEl.value = _rps; }
     if (typeof applyRatingColors === 'function') applyRatingColors();
-    // Sync header spans from restored §2 inputs
-    if (typeof syncHeader === 'function') syncHeader();
     // Also run after a tick to catch any async DOM updates
-    setTimeout(function() {
-      if (typeof applyRatingColors === 'function') applyRatingColors();
-      if (typeof syncHeader === 'function') syncHeader();
-    }, 50);
+    setTimeout(function() { if (typeof applyRatingColors === 'function') applyRatingColors(); }, 50);
     window._lastDraftId = id;
     const msg = document.getElementById('generate-msg');
     msg.style.display = 'inline';
@@ -3122,10 +3037,7 @@ function setDateField(id, isoValue) {
   var hid = document.getElementById(id + '-hidden');
   if (!isoValue) return;
   var fmt = isoValue.replace(/-/g, '/');
-  if (vis) {
-    if (vis.tagName === 'SPAN') vis.textContent = fmt;
-    else vis.value = fmt;
-  }
+  if (vis) vis.value = fmt;
   if (hid) hid.value = isoValue;
 }
 
@@ -3553,10 +3465,10 @@ async function generateCM() {
         // Set display fields — ONLY s2-obligor and h-buyer-name for display
         // Do NOT change buyer-search (keep as original input "Newton" for all lookups)
         if (obligorEl) obligorEl.value = obligorText;
-        if (hNameEl) hNameEl.textContent = obligorText; // header span shows group name
+        if (hNameEl) hNameEl.value = obligorText; // header shows group name
         // Obligor Parent = the resolved parent group name
         var grpEl = document.getElementById('h-buyer-group');
-        if (grpEl) grpEl.textContent = resolvedGroup;
+        if (grpEl) grpEl.value = resolvedGroup;
         // Store for fillAir8Fields to not overwrite
         window._obligorDisplayName = obligorText;
         window._obligorParent = resolvedGroup;
@@ -3660,10 +3572,10 @@ async function generateCM() {
     // Restore group display names if they were set (prevent AI from overwriting)
     if (window._obligorDisplayName) {
       var _on = document.getElementById('s2-obligor'); if(_on) _on.value = window._obligorDisplayName;
-      var _hn = document.getElementById('h-buyer-name'); if(_hn) _hn.textContent = window._obligorDisplayName;
+      var _hn = document.getElementById('h-buyer-name'); if(_hn) _hn.value = window._obligorDisplayName;
     }
     if (window._obligorParent) {
-      var _hg = document.getElementById('h-buyer-group'); if(_hg) _hg.textContent = window._obligorParent;
+      var _hg = document.getElementById('h-buyer-group'); if(_hg) _hg.value = window._obligorParent;
       var _sg = document.getElementById('s2-group'); if(_sg) _sg.value = window._obligorParent;
     }
     applyRatingColors();
@@ -3758,37 +3670,6 @@ function applyRatingColors() {
   document.querySelectorAll('.risk-badge').forEach(function(badge) {
     badge.style.background = ''; badge.style.borderColor = ''; badge.style.color = '#1e293b';
   });
-  // Sync header risk display after colors applied
-  if (typeof syncHeader === 'function') syncHeader();
-}
-
-// ── syncHeader: propagate §2 inputs → header read-only spans ────────────────
-function syncHeader() {
-  // Mirror §2 → Header spans (read-only)
-  var fields = [
-    ['s2-group', 'h-buyer-group'],
-    ['s2-obligor', 'h-buyer-name'],
-    ['s2-country', 'h-country']
-  ];
-  fields.forEach(function(pair) {
-    var src = document.getElementById(pair[0]);
-    var dst = document.getElementById(pair[1]);
-    if (src && dst) dst.textContent = src.value || '';
-  });
-  // Annual Review mirrors
-  var rl = document.getElementById('s2-review-last');
-  var rlH = document.getElementById('h-review-last');
-  if (rl && rlH) rlH.textContent = rl.value || '';
-  var rn = document.getElementById('s2-review-next');
-  var rnH = document.getElementById('h-review-next');
-  if (rn && rnH) rnH.textContent = rn.value || '';
-  // Risk Category: read from hidden backing inputs (set by applyRatingColors / fillAir8Fields)
-  var cur = (document.getElementById('h-risk-current') || {}).value || '-';
-  var prop = (document.getElementById('h-risk-proposed') || {}).value || '-';
-  var curEl = document.getElementById('h-risk-current-display');
-  var propEl = document.getElementById('h-risk-proposed-display');
-  if (curEl) curEl.textContent = (cur && cur !== '-') ? cur.charAt(0).toUpperCase() : '-';
-  if (propEl) propEl.textContent = (prop && prop !== '-') ? prop.charAt(0).toUpperCase() : '-';
 }
 
 // ── Air8 Formula Calculator ─────────────────────────────────────────────
@@ -4055,7 +3936,7 @@ function fillAir8Fields(db, product, oaDays) {
   }
   if (db.air8_tenor_days || oaDays) { sv('cl-fin-term', (db.air8_tenor_days || oaDays) + ' days'); sv('cl-payment-term', 'OA ' + (db.air8_tenor_days || oaDays) + ' days from shipment date'); sv('cl-supplier-days', db.air8_tenor_days || oaDays); }
   if (db.air8_advance_ratio_pct || db.air8_indemnity_ratio) sv('cl-advance-rate', db.air8_advance_ratio_pct || db.air8_indemnity_ratio);
-  if (db.review_date_next) { sv('h-review-next', db.review_date_next); sv('s2-review-next', db.review_date_next); }
+  if (db.review_date_next) sv('h-review-next', db.review_date_next);
   if (db.air8_score) { sv('s2-air8-current', (db.air8_rating||rcat) + '/' + db.air8_score); sv('s2-air8-proposed', (db.air8_rating||rcat) + '/' + db.air8_score); }
   // Use master sp_rating if AI didn't return one
   if (!db.sp_rating && db.sp_rating_master) { sv('s2-sp', db.sp_rating_master.split('/')[0]?.trim()); sv('h-mktcap', (mktcapStr||'') + (db.sp_rating_master ? (mktcapStr?' / ':'')+db.sp_rating_master : '')); }
@@ -4070,7 +3951,6 @@ function fillAir8Fields(db, product, oaDays) {
   sv('s2-website', db.website);
   sv('s2-ticker', db.ticker);
   sv('s2-biz', db.business);
-  sv('s2-products', db.products_sourced);
   sv('s2-mktcap', db.mktcap);
   sv('s2-sp', db.sp_rating);
   sv('s2-moodys', db.moodys || db.moodys_rating || '');
@@ -4388,14 +4268,12 @@ function fillAir8Fields(db, product, oaDays) {
   if (typeof calcLiqYoY === 'function') calcLiqYoY();
   // Fill key highlights and outlook (shared with fillFromAPI)
   fillKHCells(db);
-  // Sync header display after all fields filled
-  if (typeof syncHeader === 'function') syncHeader();
 }
 
 function fillFromAPI(b, product, oaDays) {
   clearForm();
   // Helper
-  function set(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) { if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val; else if (el.contentEditable === 'true') el.textContent = val; else if (el.tagName === 'SPAN') el.textContent = String(val); } }
+  function set(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) { if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val; else if (el.contentEditable === 'true') el.textContent = val; } }
   function setHTML(id, val) { const el = document.getElementById(id); if (el && val) el.innerHTML = val; }
 
   // Header
@@ -4617,10 +4495,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Open sidebar by default
   if (typeof toggleSidebar === 'function') { toggleSidebar(); }
   // Auto-fill today's date (ISO format for date input)
-  // h-date is now a read-only span — set textContent directly
   var hdateEl = document.getElementById('h-date');
-  if (hdateEl) {
-    hdateEl.textContent = new Date().toISOString().split('T')[0].replace(/-/g,'/');
+  if (hdateEl && !hdateEl.value) {
+    hdateEl.value = new Date().toISOString().split('T')[0].replace(/-/g,'/');
   }
   // Apply rating colors from current select values
   var initRating = document.getElementById('h-risk-proposed')?.value || document.getElementById('h-risk-current')?.value || '';
@@ -4644,7 +4521,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // Initialize flatpickr date pickers with YYYY/MM/DD format
   var fpConfig = { dateFormat: 'Y/m/d', allowInput: true };
-  ['s2-review-last','s2-review-next'].forEach(function(id) {
+  ['h-date','h-review-last','h-review-next'].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el || typeof flatpickr === 'undefined') return;
     var fp = flatpickr(el, fpConfig);
