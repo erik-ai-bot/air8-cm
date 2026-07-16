@@ -648,6 +648,26 @@
   @media print { .print-value { display: inline !important; } input.editable[style*="none"] { display: none !important; } }
   .small-note { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 4px; }
   .inline-flex { display: inline-flex; align-items: center; gap: 6px; }
+/* ===== UNDERLYING GOODS TYPE MULTI-SELECT ===== */
+.gt-widget { position: relative; }
+.gt-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; padding: 2px 0; }
+.gt-chip { display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 2px 8px; font-size: 11px; color: #1e40af; line-height: 1.4; }
+.gt-chip-x { cursor: pointer; color: #93c5fd; font-size: 12px; line-height: 1; padding: 0 1px; }
+.gt-chip-x:hover { color: #E5484D; }
+.gt-search-wrap { position: relative; margin-top: 4px; }
+.gt-search { width: 100%; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; outline: none; color: #1a1a2e; background: #fff; }
+.gt-search:focus { border-color: #3b82f6; }
+.gt-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 180px; overflow-y: auto; z-index: 9999; display: none; }
+.gt-dropdown.open { display: block; }
+.gt-opt { padding: 6px 10px; font-size: 11px; cursor: pointer; color: #1a1a2e; display: flex; align-items: center; gap: 6px; }
+.gt-opt:hover { background: #f1f5f9; }
+.gt-opt.selected { background: #eff6ff; color: #1e40af; }
+.gt-opt.selected::before { content: '✓'; color: #3b82f6; font-size: 10px; }
+.gt-opt:not(.selected)::before { content: ''; width: 10px; display: inline-block; }
+.gt-error { font-size: 10px; color: #dc2626; margin-top: 4px; }
+.gt-loading { font-size: 10px; color: #64748b; margin-top: 4px; }
+.gt-status { font-size: 10px; color: #7c3aed; margin-top: 2px; }
+
 </style>
 </head>
 <body>
@@ -825,6 +845,21 @@
         <span class="header-label">Products Sourced</span>
         <span class="header-value"><input type="text" class="editable" id="h-products" placeholder="e.g. Apparels, footwear..." style="white-space:normal;word-wrap:break-word;"></span>
       </div>
+      <div class="header-row" style="align-items:flex-start;">
+        <span class="header-label" style="padding-top:3px;">Underlying Goods Type</span>
+        <span class="header-value" style="flex:1;min-width:0;">
+          <div class="gt-widget" id="gt-widget" style="max-width:480px;">
+            <div class="gt-chips" id="gt-chips"></div>
+            <div class="gt-status" id="gt-status" style="display:none;"></div>
+            <div class="gt-search-wrap">
+              <input type="text" class="gt-search" id="gt-search" placeholder="Search goods type…" autocomplete="off">
+              <div class="gt-dropdown" id="gt-dropdown"></div>
+            </div>
+            <div class="gt-error" id="gt-error" style="display:none;"></div>
+            <div class="gt-loading" id="gt-loading" style="display:none;">Loading…</div>
+          </div>
+        </span>
+      </div>
       <div class="header-row">
         <span class="header-label">Annual Review - Last</span>
         <span class="header-value"><input type="text" class="editable" id="h-review-last" placeholder="YYYY/MM/DD" style="width:120px;"></span>
@@ -880,42 +915,20 @@
   <!-- SECTION 2: BUYER INFORMATION -->
   <div class="section">
     <div class="section-title"><span class="num">2</span> BUYER INFORMATION</div>
-    <div class="two-col">
-      <div class="info-box">
-        <div class="info-box-title">Company Details</div>
-        <div class="info-row">
-          <span class="info-label">Obligor Parent</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-group" placeholder="Group Name"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Obligor Legal Name</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-obligor" placeholder="Obligor Name"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Country</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-country" placeholder="Country of Incorporation"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Website</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-website" placeholder="https://"></span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Ticker / Exchange</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-ticker" placeholder="e.g. NYSE: BJ"></span>
-        </div>
+    <div class="info-box">
+      <div class="info-row">
+        <span class="info-label">Website</span>
+        <span class="info-value"><input type="text" class="editable" id="s2-website" placeholder="https://"></span>
       </div>
-      <div class="info-box">
-        <div class="info-box-title">Buyer's Core Business</div>
-        <div class="info-row">
-          <span class="info-label">Business Activities</span>
-          <span class="info-value"><input type="text" class="editable" id="s2-biz" placeholder="Core business description"></span>
-        </div>
-        <div class="info-row" style="align-items:flex-start;">
-          <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
-          <span class="info-value">
-            <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
-          </span>
-        </div>
+      <div class="info-row">
+        <span class="info-label">Ticker / Exchange</span>
+        <span class="info-value"><input type="text" class="editable" id="s2-ticker" placeholder="e.g. NYSE: BJ"></span>
+      </div>
+      <div class="info-row" style="align-items:flex-start;">
+        <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
+        <span class="info-value">
+          <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
+        </span>
       </div>
     </div>
 
@@ -2160,6 +2173,14 @@ function collectFormState() {
     });
   });
   if (risks.length > 0) state['_risks_json'] = JSON.stringify(risks);
+  // UGT
+  try {
+    var gtS = window._gtState && window._gtState.getSelected();
+    if (gtS) {
+      state['_goods_type_json'] = JSON.stringify(gtS);
+      state['_goods_type_provenance'] = (window._gtState && window._gtState.getProvenance()) || '';
+    }
+  } catch(e) {}
   return state;
 }
 
@@ -2247,6 +2268,16 @@ async function loadSaved() {
     if (el.tagName === 'INPUT' || el.tagName === 'SELECT') el.value = val;
     else if (el.contentEditable === 'true') el.innerHTML = val;
   });
+  // Restore UGT from draft (do NOT re-trigger AI)
+  if (data._goods_type_json) {
+    try {
+      var arr = JSON.parse(data._goods_type_json) || [];
+      if (window._gtState) {
+        window._gtState.setSelected(arr);
+        window._gtState.setProvenance(data._goods_type_provenance || null);
+      }
+    } catch(e) {}
+  }
   if (typeof calcMetrics === 'function') calcMetrics();
   if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
   if (typeof calcLiqYoY === 'function') calcLiqYoY();
@@ -4546,6 +4577,151 @@ document.addEventListener('DOMContentLoaded', () => {
   var btn = document.getElementById('sidebar-toggle');
   if (sb) { sb.classList.add('open'); document.body.classList.add('sidebar-open'); }
   if (btn) btn.classList.add('active');
-});</script>
+});
+// ── UNDERLYING GOODS TYPE WIDGET ─────────────────────────────────────
+;(function() {
+  var GT_API = 'https://air8-cm-api.erik-ai-bot-001.workers.dev';
+  var gtDict = null;
+  var gtSelected = [];
+  var gtProvenance = null;
+  var gtFired = false;
+
+  function gtEl(id) { return document.getElementById(id); }
+
+  async function gtLoadDict() {
+    if (gtDict !== null) return gtDict;
+    var loadEl = gtEl('gt-loading');
+    var errEl  = gtEl('gt-error');
+    var statusEl = gtEl('gt-status');
+    if (loadEl) { loadEl.style.display = ''; loadEl.textContent = 'Loading…'; }
+    if (errEl)  errEl.style.display = 'none';
+    try {
+      var r = await fetch(GT_API + '/product-dictionary', { signal: AbortSignal.timeout(10000) });
+      var d = await r.json();
+      if (loadEl) loadEl.style.display = 'none';
+      if (!d.ok || !d.data) {
+        if (errEl) { errEl.style.display = ''; errEl.textContent = '⚠️ ' + (d.error || 'load failed'); }
+        gtDict = []; return gtDict;
+      }
+      gtDict = d.data; return gtDict;
+    } catch(e) {
+      if (loadEl) loadEl.style.display = 'none';
+      if (errEl)  { errEl.style.display = ''; errEl.textContent = '⚠️ load failed'; }
+      gtDict = []; return gtDict;
+    }
+  }
+
+  function gtRenderChips() {
+    var chips = gtEl('gt-chips');
+    if (!chips) return;
+    chips.innerHTML = '';
+    gtSelected.forEach(function(item) {
+      var chip = document.createElement('span');
+      chip.className = 'gt-chip';
+      chip.innerHTML = item.name + '<span class="gt-chip-x" data-id="' + item.id + '" title="Remove">&#10005;</span>';
+      chip.querySelector('.gt-chip-x').addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+        gtSelected = gtSelected.filter(function(x) { return x.id !== item.id; });
+        gtProvenance = 'manual';
+        gtRenderChips();
+      });
+      chips.appendChild(chip);
+    });
+  }
+
+  function gtRenderDropdown(filter) {
+    var dd = gtEl('gt-dropdown');
+    if (!dd || !gtDict) return;
+    var q = (filter || '').toLowerCase();
+    var visible = gtDict.filter(function(d) { return !q || d.name.toLowerCase().includes(q); });
+    dd.innerHTML = '';
+    visible.forEach(function(item) {
+      var opt = document.createElement('div');
+      var isSel = gtSelected.some(function(s) { return s.id === item.id; });
+      opt.className = 'gt-opt' + (isSel ? ' selected' : '');
+      opt.textContent = item.name;
+      opt.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        if (isSel) {
+          gtSelected = gtSelected.filter(function(s) { return s.id !== item.id; });
+        } else {
+          gtSelected = gtSelected.concat([{ id: item.id, name: item.name }]);
+        }
+        gtProvenance = 'manual';
+        gtRenderChips();
+        gtRenderDropdown(gtEl('gt-search') && gtEl('gt-search').value || '');
+      });
+      dd.appendChild(opt);
+    });
+    var searchEl = gtEl('gt-search');
+    dd.classList.toggle('open', visible.length > 0 && searchEl === document.activeElement);
+  }
+
+  function gtInit() {
+    var search = gtEl('gt-search');
+    var dd     = gtEl('gt-dropdown');
+    if (!search || !dd) return;
+    search.addEventListener('focus', function() { gtLoadDict().then(function() { gtRenderDropdown(search.value); }); });
+    search.addEventListener('input', function() { gtRenderDropdown(search.value); });
+    search.addEventListener('blur', function() { setTimeout(function() { dd.classList.remove('open'); }, 150); });
+    document.addEventListener('click', function(e) {
+      var w = gtEl('gt-widget');
+      if (!w || !w.contains(e.target)) dd.classList.remove('open');
+    });
+  }
+
+  async function gtSuggestOnce() {
+    if (gtFired) return;
+    gtFired = true;
+    var dict = await gtLoadDict();
+    if (!dict || !dict.length) return;
+    var biz      = (gtEl('h-business') && gtEl('h-business').value) || '';
+    var products = (gtEl('h-products') && gtEl('h-products').value) || '';
+    if (!biz && !products) return;
+    var statusEl = gtEl('gt-status');
+    if (statusEl) { statusEl.style.display = ''; statusEl.textContent = '✦ AI suggesting…'; }
+    try {
+      var r = await fetch(GT_API + '/suggest-goods-type', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business: biz, products: products, dictionary: dict }),
+        signal: AbortSignal.timeout(20000)
+      });
+      var d = await r.json();
+      if (statusEl) statusEl.style.display = 'none';
+      if (d.suggestions && d.suggestions.length > 0) {
+        gtSelected = d.suggestions;
+        gtProvenance = 'ai_suggested_confirmed';
+        gtRenderChips();
+      }
+    } catch(e) {
+      if (statusEl) statusEl.style.display = 'none';
+      console.warn('[GT] AI suggestion failed:', e.message);
+    }
+  }
+
+  // Init on DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', function() {
+    gtInit();
+    gtLoadDict(); // pre-warm cache
+  });
+
+  // Hook into fillAir8Fields to trigger AI suggestion once
+  var _origFillAir8 = window.fillAir8Fields;
+  window.fillAir8Fields = function() {
+    if (_origFillAir8) _origFillAir8.apply(this, arguments);
+    setTimeout(function() { gtSuggestOnce(); }, 100);
+  };
+
+  // Expose gtSelected for collectFormState / loadSaved
+  window._gtState = {
+    getSelected: function() { return gtSelected; },
+    setSelected: function(arr) { gtSelected = arr || []; gtProvenance = 'manual'; gtRenderChips(); },
+    getProvenance: function() { return gtProvenance; },
+    setProvenance: function(p) { gtProvenance = p; }
+  };
+})();
+
+</script>
 </body>
 </html>
