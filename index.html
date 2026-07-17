@@ -969,11 +969,11 @@
       <thead>
         <tr>
           <th class="left" style="min-width:160px;">(US$'m)</th>
-          <th id="h-fy1-label">FY2022</th>
+          <th id="h-fy1-label">FY2024</th>
           <th id="h-fy2-label">FY2023</th>
-          <th id="h-fy3-label">FY2024</th>
-          <th id="h-yoy1-label" style="background:#374151;">23 vs 22%</th>
-          <th id="h-yoy2-label" style="background:#374151;">24 vs 23%</th>
+          <th id="h-fy3-label">FY2022</th>
+          <th id="h-yoy1-label" style="background:#374151;">24 vs 23%</th>
+          <th id="h-yoy2-label" style="background:#374151;">23 vs 22%</th>
           <th class="h-q-col" id="h-q-cur-label" style="display:none;">Latest Q</th>
           <th class="h-q-col" id="h-q-ly-label" style="display:none;">Same Q LY</th>
           <th class="h-q-col" style="background:#374151;display:none;">% Chg</th>
@@ -1117,11 +1117,11 @@
         <thead>
           <tr>
             <th class="left" style="min-width:130px;">(US$'m)</th>
-            <th style="min-width:72px;" id="th-fy1" contenteditable="true" title="Click to edit period label">FY2022</th>
-            <th style="min-width:72px;" id="th-fy2" contenteditable="true" title="Click to edit period label">FY2023</th>
-            <th style="min-width:72px;" id="th-fy3" contenteditable="true" title="Click to edit period label">FY2024</th>
-            <th class="annual-yoy1" id="th-yoy1-label" style="background:#374151;min-width:60px;">23 vs 22%</th>
-            <th style="background:#374151;min-width:60px;" id="th-yoy2">24 vs 23%</th>
+            <th style="min-width:72px;" id="th-fy1">FY2024</th>
+            <th style="min-width:72px;" id="th-fy2">FY2023</th>
+            <th style="min-width:72px;" id="th-fy3">FY2022</th>
+            <th class="annual-yoy1" id="th-yoy1-label" style="background:#374151;min-width:60px;">24 vs 23%</th>
+            <th style="background:#374151;min-width:60px;" id="th-yoy2">23 vs 22%</th>
             <th class="q-col" style="min-width:72px;" id="th-q-cur" contenteditable="true" title="Click to edit">Latest Q</th>
             <th class="q-col" style="min-width:72px;" id="th-q-ly" contenteditable="true" title="Click to edit">Same Q LY</th>
             <th class="q-col" style="background:#374151;min-width:55px;">% Chg</th>
@@ -1153,11 +1153,11 @@
       <thead>
         <tr>
           <th class="left">(US$'m)</th>
-          <th id="liq-th-fy1" contenteditable="true" title="Click to edit">FY2022</th>
-          <th id="liq-th-fy2" contenteditable="true" title="Click to edit">FY2023</th>
-          <th id="liq-th-fy3" contenteditable="true" title="Click to edit">FY2024</th>
-          <th class="annual-yoy1" id="liq-yoy1-th" style="background:#374151;">23 vs 22%</th>
-          <th id="liq-yoy-th" style="background:#374151;">24 vs 23%</th>
+          <th id="liq-th-fy1">FY2024</th>
+          <th id="liq-th-fy2">FY2023</th>
+          <th id="liq-th-fy3">FY2022</th>
+          <th class="annual-yoy1" id="liq-yoy1-th" style="background:#374151;">24 vs 23%</th>
+          <th id="liq-yoy-th" style="background:#374151;">23 vs 22%</th>
           <th class="liq-q-col" id="liq-th-qcur" style="min-width:80px;">Latest Q</th>
           <th class="liq-q-col" id="liq-th-qly" style="min-width:80px;">Same Q LY</th>
           <th class="liq-q-col" id="liq-q-yoy-th" style="background:#374151;min-width:60px;">% Chg</th>
@@ -1167,9 +1167,9 @@
       <tbody>
         <tr>
           <td class="label" id="liq-row-label" contenteditable="true" title="Click to rename">Facility Headroom</td>
-          <td class="num-cell"><input class="editable" id="liq-22" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
-          <td class="num-cell"><input class="editable" id="liq-23" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
           <td class="num-cell"><input class="editable" id="liq-24" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell"><input class="editable" id="liq-23" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
+          <td class="num-cell"><input class="editable" id="liq-22" placeholder="0" type="text" style="text-align:right;width:72px;" oninput="calcLiqYoY()"></td>
           <td class="pct-cell calc annual-yoy1" id="liq-yoy1">-</td>
           <td class="pct-cell calc" id="liq-yoy">-</td>
           <td class="num-cell liq-q-col" style="padding:2px;"><input class="editable" id="liq-q-cur" placeholder="0" type="text" style="text-align:right;width:76px;" oninput="calcLiqYoY()"></td>
@@ -1357,9 +1357,9 @@ function buildHighlightsTable() {
     const isDerived = row.derived === 'gp_pct';
     tr.innerHTML = `
       <td class="label">${row.label}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-22">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-22" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-23" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
       <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-24" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-23" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-22">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-22" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
       <td class="pct-cell calc" id="${row.id}-yoy1">-</td>
       <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
       <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-cur" placeholder="0.0" style="text-align:right;width:72px;"></td>
@@ -1391,8 +1391,8 @@ function calcHighlightsYoY() {
     const v24 = parseFloat(document.getElementById(`${row.id}-24`)?.value);
     const el1 = document.getElementById(`${row.id}-yoy1`);
     const el2 = document.getElementById(`${row.id}-yoy2`);
-    if (el1) el1.textContent = calcPct(v22, v23);
-    if (el2) el2.textContent = calcPct(v23, v24);
+    if (el1) el1.textContent = calcPct(v23, v24);
+    if (el2) el2.textContent = calcPct(v22, v23);
   });
 
   // GP% derived — calculate from Section 5 (Key Financial Metrics table) GP and Revenue
@@ -1454,7 +1454,7 @@ function buildMetricsTable() {
     }
     const tr = document.createElement('tr');
     const isDerived = row.derived;
-    const annualPeriods = ['22','23','24'];
+    const annualPeriods = ['24','23','22'];
     const annualCells = annualPeriods.map(p => {
       if (isDerived) return `<td class="num-cell calc" id="m-${row.id}-${p}">-</td>`;
       return `<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-${p}" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
@@ -1570,8 +1570,8 @@ function calcMetrics() {
     }
     const v22 = g(row.id, '22'), v23 = g(row.id, '23'), v24 = g(row.id, '24');
     const vcur = g(row.id, 'q-cur'), vly = g(row.id, 'q-ly');
-    if (yoy1El) yoy1El.textContent = calcPct(v22, v23);
-    if (yoyEl) yoyEl.textContent = calcPct(v23, v24);
+    if (yoy1El) yoy1El.textContent = calcPct(v23, v24);
+    if (yoyEl) yoyEl.textContent = calcPct(v22, v23);
     if (qoqEl) qoqEl.textContent = calcPct(vly, vcur);
   });
 }
@@ -1605,9 +1605,9 @@ function calcLiqYoY() {
   const v23 = clean('liq-23');
   const v24 = clean('liq-24');
   const el1 = document.getElementById('liq-yoy1');
-  if (el1) el1.textContent = calcPct(v22, v23);
+  if (el1) el1.textContent = calcPct(v23, v24);
   const el = document.getElementById('liq-yoy');
-  if (el) el.textContent = calcPct(v23, v24);
+  if (el) el.textContent = calcPct(v22, v23);
   const qCur = clean('liq-q-cur');
   const qLy = clean('liq-q-ly');
   const qEl = document.getElementById('liq-q-yoy');
@@ -2582,7 +2582,7 @@ async function processScreenshotFile(file) {
       });
       // Step 3: update liq period headers
       if (ciq.fy_labels) {
-        [['liq-th-fy1',0],['liq-th-fy2',1],['liq-th-fy3',2]].forEach(function(p){ var el=document.getElementById(p[0]); if(el) el.textContent=ciq.fy_labels[p[1]]; });
+        [['liq-th-fy1',2],['liq-th-fy2',1],['liq-th-fy3',0]].forEach(function(p){ var el=document.getElementById(p[0]); if(el) el.textContent=ciq.fy_labels[p[1]]; });
       }
       if (ciq.q_label) { var lqc=document.getElementById('liq-th-qcur'); if(lqc) lqc.textContent=ciq.q_label; }
       if (ciq.q_label_ly) { var lql=document.getElementById('liq-th-qly'); if(lql) lql.textContent=ciq.q_label_ly; }
@@ -3846,13 +3846,13 @@ function updateTableMode(b) {
   if (!tbl) return;
   // Sync ALL period headers from fy_labels
   if (b && b.fy_labels) {
-    var fyMap = {'th-fy1':0,'th-fy2':1,'th-fy3':2,'liq-th-fy1':0,'liq-th-fy2':1,'liq-th-fy3':2};
+    var fyMap = {'th-fy1':2,'th-fy2':1,'th-fy3':0,'liq-th-fy1':2,'liq-th-fy2':1,'liq-th-fy3':0};
     Object.keys(fyMap).forEach(function(id){ var el=document.getElementById(id); if(el&&b.fy_labels[fyMap[id]]) el.textContent=b.fy_labels[fyMap[id]]; });
     // YoY headers
     var l1=b.fy_labels[0].replace(/[^0-9]/g,'').slice(-2), l2=b.fy_labels[1].replace(/[^0-9]/g,'').slice(-2), l3=b.fy_labels[2].replace(/[^0-9]/g,'').slice(-2);
     var y1=document.getElementById('th-yoy1-label'), y2=document.getElementById('th-yoy2'), ly=document.getElementById('liq-yoy-th');
-    if(y1&&l1&&l2) y1.textContent=l2+' vs '+l1+'%';
-    if(y2&&l2&&l3) y2.textContent=l3+' vs '+l2+'%';
+    if(y1&&l2&&l3) y1.textContent=l3+' vs '+l2+'%';
+    if(y2&&l1&&l2) y2.textContent=l2+' vs '+l1+'%';
     if(ly&&l2&&l3) ly.textContent=l3+' vs '+l2+'%';
   }
   // Check if any quarterly data exists
@@ -4208,23 +4208,23 @@ function fillAir8Fields(db, product, oaDays) {
   if (db.fy_labels && db.fy_labels.length >= 3) {
     var fyL = db.fy_labels;
     // Sync Liquidity table headers
-    var liqThs = [['liq-th-fy1', fyL[0]], ['liq-th-fy2', fyL[1]], ['liq-th-fy3', fyL[2]]];
+    var liqThs = [['liq-th-fy1', fyL[2]], ['liq-th-fy2', fyL[1]], ['liq-th-fy3', fyL[0]]];
     liqThs.forEach(function(pair) { var el = document.getElementById(pair[0]); if (el) el.textContent = pair[1]; });
     var lyEl = document.getElementById('liq-yoy-th');
     if (lyEl) { var l2 = fyL[1].replace(/[^0-9]/g,'').slice(-2), l3 = fyL[2].replace(/[^0-9]/g,'').slice(-2); lyEl.textContent = l3 + ' vs ' + l2 + '%'; }
     // Sync Section 3 Financial Highlights headers to match Section 5
-    var h1=document.getElementById('h-fy1-label'); if(h1) h1.textContent=fyL[0];
+    var h1=document.getElementById('h-fy1-label'); if(h1) h1.textContent=fyL[2];
     var h2=document.getElementById('h-fy2-label'); if(h2) h2.textContent=fyL[1];
-    var h3=document.getElementById('h-fy3-label'); if(h3) h3.textContent=fyL[2];
-    // Update Section 3 YoY headers
+    var h3=document.getElementById('h-fy3-label'); if(h3) h3.textContent=fyL[0];
+    // Update Section 3 YoY headers (newest-first order)
     var hy1=document.getElementById('h-yoy1-label');
     var hy2=document.getElementById('h-yoy2-label');
-    if (hy1) hy1.textContent = (fyL[1]||'FY2') + ' vs ' + (fyL[0]||'FY1') + '%';
-    if (hy2) hy2.textContent = (fyL[2]||'FY3') + ' vs ' + (fyL[1]||'FY2') + '%';
-    // Also sync Section 5 th headers (these are contenteditable)
-    var tf1=document.getElementById('th-fy1'); if(tf1) tf1.textContent=fyL[0];
+    if (hy1) hy1.textContent = (fyL[2]||'FY3') + ' vs ' + (fyL[1]||'FY2') + '%';
+    if (hy2) hy2.textContent = (fyL[1]||'FY2') + ' vs ' + (fyL[0]||'FY1') + '%';
+    // Also sync Section 5 th headers
+    var tf1=document.getElementById('th-fy1'); if(tf1) tf1.textContent=fyL[2];
     var tf2=document.getElementById('th-fy2'); if(tf2) tf2.textContent=fyL[1];
-    var tf3=document.getElementById('th-fy3'); if(tf3) tf3.textContent=fyL[2];
+    var tf3=document.getElementById('th-fy3'); if(tf3) tf3.textContent=fyL[0];
   }
   if (db.q_label) { var lqc = document.getElementById('liq-th-qcur'); if(lqc) lqc.textContent = db.q_label; }
   if (db.q_label_ly) { var lql = document.getElementById('liq-th-qly'); if(lql) lql.textContent = db.q_label_ly; }
@@ -4517,8 +4517,8 @@ function syncLiqHeaders() {
     var l3 = fy3.textContent.trim().replace(/[^0-9]/g,'').slice(-2);
     var yoy1El = document.getElementById('th-yoy1-label');
     var yoy2El = document.getElementById('th-yoy2');
-    if (yoy1El && l1 && l2) yoy1El.textContent = l2 + ' vs ' + l1 + '%';
-    if (yoy2El && l2 && l3) yoy2El.textContent = l3 + ' vs ' + l2 + '%';
+    if (yoy1El && l1 && l2) yoy1El.textContent = l1 + ' vs ' + l2 + '%';
+    if (yoy2El && l2 && l3) yoy2El.textContent = l2 + ' vs ' + l3 + '%';
   }
 }
 
