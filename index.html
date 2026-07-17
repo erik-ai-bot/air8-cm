@@ -1399,7 +1399,7 @@ const BUYERS = {}; // local buyer DB cleared for clean testing
 // ===== SECTION 3: HIGHLIGHTS TABLE ROWS =====
 const HIGHLIGHT_ROWS = [
   { id: 'h-turnover', label: 'Turnover', derived: false },
-  { id: 'h-gp', label: 'GP%', derived: 'gp_pct' },
+  { id: 'h-gp', label: 'GP%', derived: 'computed' },  // editable; auto-filled from §5 GP/Rev
   { id: 'h-ebitda', label: 'EBITDA', derived: false },
   { id: 'h-debt', label: 'Debt', derived: false },
   { id: 'h-equity', label: 'Equity', derived: false },
@@ -1411,12 +1411,16 @@ function buildHighlightsTable() {
   tbody.innerHTML = '';
   HIGHLIGHT_ROWS.forEach(row => {
     const tr = document.createElement('tr');
-    const isDerived = row.derived === 'gp_pct';
+    const isComputed = row.derived === 'computed';
+    function hlCell(yr) {
+      if (isComputed) return `<input type="text" inputmode="numeric" class="editable computed-cell" id="${row.id}-${yr}" placeholder="-" style="text-align:right;width:72px;" oninput="if(this.value.trim())this.dataset.manual='true';else delete this.dataset.manual;calcHighlightsYoY()">`;
+      return `<input type="text" inputmode="numeric" class="editable" id="${row.id}-${yr}" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`;
+    }
     tr.innerHTML = `
       <td class="label">${row.label}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-24">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-24" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-23">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-23" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
-      <td class="num-cell">${isDerived ? `<span class="calc" id="${row.id}-22">-</span>` : `<input type="text" inputmode="numeric" class="editable" id="${row.id}-22" placeholder="0.0" style="text-align:right;width:72px;" oninput="calcHighlightsYoY()">`}</td>
+      <td class="num-cell" style="padding:2px;">${hlCell('24')}</td>
+      <td class="num-cell" style="padding:2px;">${hlCell('23')}</td>
+      <td class="num-cell" style="padding:2px;">${hlCell('22')}</td>
       <td class="pct-cell calc" id="${row.id}-yoy1">-</td>
       <td class="pct-cell calc" id="${row.id}-yoy2">-</td>
       <td class="num-cell h-q-col" style="display:none;"><input type="text" inputmode="numeric" class="editable" id="${row.id}-q-cur" placeholder="0.0" style="text-align:right;width:72px;"></td>
@@ -1428,19 +1432,7 @@ function buildHighlightsTable() {
 }
 
 function calcHighlightsYoY() {
-  // GP%
-  ['22','23','24'].forEach(yr => {
-    const rev = parseFloat(document.getElementById(`h-turnover-${yr}`)?.value) || 0;
-    const gp = parseFloat(document.getElementById(`h-ebitda-${yr}`)?.value) || 0;
-    const gpEl = document.getElementById(`h-gp-${yr}`);
-    if (gpEl) {
-      // GP% uses h-gp_ but stored in separate conceptual field - use actual GP field
-      const gpInput = document.getElementById(`h-gp-input-${yr}`);
-      // fallback: skip if no dedicated GP input (simplified)
-    }
-  });
-
-  // YoY %
+  // YoY % (skip computed rows — they don’t participate in YoY)
   HIGHLIGHT_ROWS.forEach(row => {
     if (row.derived) return;
     const v22 = parseFloat(document.getElementById(`${row.id}-22`)?.value);
@@ -1452,17 +1444,22 @@ function calcHighlightsYoY() {
     if (el2) el2.textContent = calcPct(v22, v23);
   });
 
-  // GP% derived — calculate from Section 5 (Key Financial Metrics table) GP and Revenue
-  ['22','23','24'].forEach((yr, i) => {
-    const gpPctEl = document.getElementById(`h-gp-${yr}`);
-    if (!gpPctEl) return;
-    // Try to get GP and Revenue from Section 5 table inputs
-    const revVal = parseFloat(document.getElementById(`m-rev-${yr}`)?.value) || parseFloat(document.getElementById(`h-turnover-${yr}`)?.value) || 0;
-    const gpVal = parseFloat(document.getElementById(`m-gp-${yr}`)?.value) || 0;
-    if (revVal && gpVal) {
-      const pct = (gpVal / revVal * 100).toFixed(1) + '%';
-      gpPctEl.textContent = pct;
-    }
+  // GP% (computed-editable) — prefer §5 GP/Rev; skip if manually edited; show '-' when missing
+  function clean(id) { var el=document.getElementById(id); return el?parseFloat((el.value||'').replace(/,/g,''))||null:null; }
+  ['24','23','22'].forEach(function(yr) {
+    var el = document.getElementById('h-gp-' + yr);
+    if (!el || el.dataset.manual === 'true') return;
+    var rev = clean('m-rev-' + yr) || clean('h-turnover-' + yr);
+    var gp  = clean('m-gp-'  + yr);
+    el.value = (rev !== null && rev !== 0 && gp !== null) ? (gp / rev * 100).toFixed(1) : '';
+  });
+  // Also compute quarterly GP% in §3
+  ['q-cur','q-ly'].forEach(function(p) {
+    var el = document.getElementById('h-gp-' + p);
+    if (!el || el.dataset.manual === 'true') return;
+    var rev = clean('m-rev-' + p);
+    var gp  = clean('m-gp-'  + p);
+    el.value = (rev !== null && rev !== 0 && gp !== null) ? (gp / rev * 100).toFixed(1) : '';
   });
 }
 
@@ -1470,7 +1467,7 @@ function calcHighlightsYoY() {
 const METRIC_ROWS = [
   { id: 'rev', label: 'Turnover', group: 'P&L', placeholder: 'Drivers for revenue growth/flat/decline. Highlight extraordinary items. Outlook for next 12-18 months including tariff impacts.' },
   { id: 'gp', label: 'GP', group: 'P&L', placeholder: '' },
-  { id: 'gp_pct', label: 'GP%', group: 'P&L', derived: true, placeholder: '' },
+  { id: 'gp_pct', label: 'GP%', group: 'P&L', derived: 'computed', placeholder: '-' },  // editable; auto-computed
   { id: 'ebitda', label: 'EBITDA', group: 'P&L', placeholder: 'EBITDA drivers. Margin trend. One-offs.' },
   { id: 'ebitda_m', label: 'EBITDA Margin %', group: 'P&L', derived: true, placeholder: '' },
   { id: 'np', label: 'Net Profit', group: 'P&L', placeholder: 'Net profit trend. Tax rate changes.' },
@@ -1510,18 +1507,19 @@ function buildMetricsTable() {
       lastGroup = row.group;
     }
     const tr = document.createElement('tr');
-    const isDerived = row.derived;
+    const isDerived = row.derived === true;
+    const isComputed = row.derived === 'computed';
     const annualPeriods = ['24','23','22'];
-    const annualCells = annualPeriods.map(p => {
-      if (isDerived) return `<td class="num-cell calc" id="m-${row.id}-${p}">-</td>`;
-      return `<td class="num-cell" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-${p}" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
-    });
-    const qCurCell = isDerived
-      ? `<td class="num-cell calc q-col" id="m-${row.id}-q-cur">-</td>`
-      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-cur" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
-    const qLyCell = isDerived
-      ? `<td class="num-cell calc q-col" id="m-${row.id}-q-ly">-</td>`
-      : `<td class="num-cell q-col" style="padding:2px;"><input type="text" inputmode="numeric" class="editable" id="m-${row.id}-q-ly" style="width:66px;" placeholder="0" style="text-align:right;" oninput="calcMetrics()"></td>`;
+    function metCell(p, qcol) {
+      if (isDerived) return `<td class="num-cell calc${qcol?' q-col':''}" id="m-${row.id}-${p}">-</td>`;
+      const ph = isComputed ? '-' : '0';
+      const cls = isComputed ? 'editable computed-cell' : 'editable';
+      const extra = isComputed ? ` oninput="if(this.value.trim())this.dataset.manual='true';else delete this.dataset.manual;calcMetrics()"` : ` oninput="calcMetrics()"`;
+      return `<td class="num-cell${qcol?' q-col':''}" style="padding:2px;"><input type="text" inputmode="numeric" class="${cls}" id="m-${row.id}-${p}" style="width:66px;text-align:right;" placeholder="${ph}"${extra}></td>`;
+    }
+    const annualCells = annualPeriods.map(p => metCell(p, false));
+    const qCurCell = metCell('q-cur', true);
+    const qLyCell = metCell('q-ly', true);
     const sec = sectionKH[row.group];
     let khCell = '';
     if (sec && !sec.added) {
@@ -1557,12 +1555,12 @@ function getMetricVal(id, period) {
 function setDerived(id, period, val) {
   const el = document.getElementById(`m-${id}-${period}`);
   if (!el) return;
-  const formatted = val === null || val === undefined ? '-' : typeof val === 'number' ? fmtNum(val) : val;
   if (el.tagName === 'INPUT') {
-    // Non-derived row (e.g. CCC has an input) — use .value
-    el.value = (val === null || val === undefined) ? '' : val;
+    if (el.dataset.manual === 'true') return; // preserve manual entry
+    // For computed-editable cells (gp_pct etc.): show formatted value or clear
+    el.value = (val === null || val === undefined || (isNaN(val) && typeof val === 'number')) ? '' : fmtNum(val);
   } else {
-    el.textContent = formatted;
+    el.textContent = val === null || val === undefined ? '-' : typeof val === 'number' ? fmtNum(val) : val;
   }
 }
 
@@ -1583,10 +1581,12 @@ function calcMetrics() {
   // Get raw values
   const g = (id, p) => getMetricVal(id, p);
 
-  // Derived: GP%
+  // Derived: GP% — editable; auto-computed from GP/Revenue; null when either missing
   periods.forEach(p => {
     const rev = g('rev', p); const gp = g('gp', p);
-    setDerived('gp_pct', p, rev ? (gp / rev * 100) : null);
+    // Only compute when both rev and gp are non-null; never compute 0 from missing data
+    const computed = (rev !== null && rev !== 0 && gp !== null) ? (gp / rev * 100) : null;
+    setDerived('gp_pct', p, computed);
     const ebitda = g('ebitda', p);
     setDerived('ebitda_m', p, rev ? (ebitda / rev * 100) : null);
     const np = g('np', p);
