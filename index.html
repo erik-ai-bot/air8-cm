@@ -984,7 +984,9 @@ tr.custom-metric-row:focus-within .custom-row-btns {
       <div class="info-row" style="align-items:flex-start;">
         <span class="info-label" style="padding-top:2px;">Key Customers / Revenue %</span>
         <span class="info-value">
-          <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;" data-placeholder="Key customers and revenue % by country/segment..."></div>
+          <div contenteditable="true" class="rich-area" id="s2-customers" style="min-height:50px;"
+            data-placeholder="Major customers + revenue % from disclosures (e.g. Walmart 18%, Costco 12%; or Top-5 = 38%). Auto-searched on Generate. Shows &apos;Not disclosed&apos; when not publicly available."
+            oninput="this.dataset.manual='true'"></div>
         </span>
       </div>
     </div>
@@ -2188,8 +2190,9 @@ function resetToBlankCM() {
   window._skipDraftCheck = false;
   window._req1Text = null;
   window._localDbCache = null;
-  // _screenshotPasteCount is a module-level var (not in an IIFE) — reset directly
+  // _screenshotPasteCount / _custFired are module-level vars — reset directly
   try { _screenshotPasteCount = 0; } catch(e) {}
+  try { _custFired = false; } catch(e) {}
 
   // ── 2. UGT STATE ─────────────────────────────────────────────────
   if (window._gtState) {
@@ -2206,6 +2209,9 @@ function resetToBlankCM() {
   // ── 4. CONTENTEDITABLE AREAS (preserve rec-labels = section titles) ──
   document.querySelectorAll('[contenteditable="true"]:not(.rec-label)').forEach(function(el) {
     el.innerHTML = '';
+    // clear search/provenance state on s2-customers
+    delete el.dataset.manual;
+    delete el.dataset.provenance;
   });
 
   // ── 5. DATE FIELDS (Flatpickr-aware) ─────────────────────────────
@@ -4202,9 +4208,12 @@ function fillAir8Fields(db, product, oaDays) {
   sv('s2-fitch', db.fitch || db.fitch_rating || '');
   sv('s2-air8-current', rcat + (db.air8_score ? '/' + db.air8_score : ''));
   sv('s2-air8-proposed', rcat + (db.air8_score ? '/' + db.air8_score : ''));
-  // Key customers contenteditable
+  // Key customers: fill from key_customers (customer revenue concentration), NOT products_sourced
   const custEl = document.getElementById('s2-customers');
-  if (custEl && db.products_sourced) custEl.textContent = db.products_sourced;
+  if (custEl && db.key_customers && custEl.dataset.manual !== 'true') {
+    custEl.textContent = db.key_customers;
+    custEl.dataset.provenance = 'ai_generated';
+  }
 
   // ── SECTION 3 — Financial Highlights ──
   if (db.revenue) {
@@ -4792,6 +4801,54 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sb) { sb.classList.add('open'); document.body.classList.add('sidebar-open'); }
   if (btn) btn.classList.add('active');
 });
+// ── CUSTOMER CONCENTRATION SEARCH ────────────────────────────────────
+// Fires once per CM session; retrieves customer revenue concentration
+// from LLM web search; shows 'Not disclosed' when no public source found.
+// TODO: future split → customer_concentration (LLM, often missing) +
+//       geo_revenue_mix (S&P/CIQ API, high availability)
+var _custFired = false;
+async function custConcSearchOnce(buyerName) {
+  if (_custFired || !buyerName) return;
+  _custFired = true;
+  var custEl = document.getElementById('s2-customers');
+  if (!custEl) return;
+  // Don't overwrite manual edits or already-filled content
+  if (custEl.dataset.manual === 'true') return;
+  var existing = custEl.textContent.trim();
+  if (existing && existing !== 'Searching…') {
+    // Content from generate (key_customers field) — already good, mark provenance
+    if (!custEl.dataset.provenance) custEl.dataset.provenance = 'ai_generated';
+    return;
+  }
+  // Show searching status
+  custEl.style.color = '#94a3b8';
+  custEl.textContent = 'Searching public disclosures…';
+  try {
+    var r = await fetch(CM_API + '/customer-concentration', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buyer: buyerName }),
+      signal: AbortSignal.timeout(30000)
+    });
+    var d = await r.json();
+    custEl.style.color = '';
+    if (d.error) { custEl.textContent = 'Not disclosed'; custEl.dataset.provenance = 'search_failed'; return; }
+    var concentration = (d.concentration || '').trim();
+    var source = (d.source || '').trim();
+    if (!concentration || /not\s+disclose/i.test(concentration)) {
+      custEl.textContent = 'Not disclosed';
+      custEl.dataset.provenance = 'not_disclosed';
+    } else {
+      custEl.textContent = concentration + (source ? '\n[Source: ' + source + ']' : '');
+      custEl.dataset.provenance = 'ai_searched';
+    }
+  } catch(e) {
+    custEl.style.color = '';
+    custEl.textContent = 'Not disclosed';
+    custEl.dataset.provenance = 'search_error';
+  }
+}
+
 // ── UNDERLYING GOODS TYPE WIDGET ─────────────────────────────────────
 ;(function() {
   var GT_API = 'https://air8-cm-api.erik-ai-bot-001.workers.dev';
@@ -4920,11 +4977,16 @@ document.addEventListener('DOMContentLoaded', () => {
     gtLoadDict(); // pre-warm cache
   });
 
-  // Hook into fillAir8Fields to trigger AI suggestion once
+  // Hook into fillAir8Fields to trigger UGT suggestion + customer concentration search (both once per session)
   var _origFillAir8 = window.fillAir8Fields;
   window.fillAir8Fields = function() {
     if (_origFillAir8) _origFillAir8.apply(this, arguments);
-    setTimeout(function() { gtSuggestOnce(); }, 100);
+    var db = (arguments[0] && typeof arguments[0] === 'object') ? arguments[0] : {};
+    var buyerName = db.buyer_name || db.buyer_group || '';
+    setTimeout(function() {
+      gtSuggestOnce();
+      if (buyerName && typeof custConcSearchOnce === 'function') custConcSearchOnce(buyerName);
+    }, 150);
   };
 
   // Expose gtSelected for collectFormState / loadSaved
