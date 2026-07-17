@@ -691,24 +691,41 @@ tr.custom-metric-row:focus-within .custom-row-btns {
 .del-metric-btn:active { color: #E5484D; background: rgba(229,72,77,0.22); }
 
 /* ===== UNDERLYING GOODS TYPE MULTI-SELECT ===== */
-.gt-widget { position: relative; }
-.gt-chips { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; padding: 2px 0; }
-.gt-chip { display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 2px 8px; font-size: 11px; color: #1e40af; line-height: 1.4; }
+/* gt-widget: tag-input style — chips + search inline, constrained width */
+.gt-widget {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  min-height: 32px;
+  max-width: 420px;
+  cursor: text;
+  box-sizing: border-box;
+}
+.gt-widget:focus-within { border-color: #3b82f6; }
+/* chips flow inline in the flex row */
+.gt-chips { display: contents; }
+.gt-chip { display: inline-flex; align-items: center; gap: 4px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 2px 8px; font-size: 11px; color: #1e40af; line-height: 1.4; white-space: nowrap; }
 .gt-chip-x { cursor: pointer; color: #93c5fd; font-size: 12px; line-height: 1; padding: 0 1px; }
 .gt-chip-x:hover { color: #E5484D; }
-.gt-search-wrap { position: relative; margin-top: 4px; }
-.gt-search { width: 100%; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px 8px; outline: none; color: #1a1a2e; background: #fff; }
-.gt-search:focus { border-color: #3b82f6; }
-.gt-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 180px; overflow-y: auto; z-index: 9999; display: none; }
+/* search input sits after chips, takes remaining space */
+.gt-search { flex: 1; min-width: 100px; border: none; outline: none; background: transparent; font-size: 11px; padding: 2px 0; color: #1a1a2e; }
+.gt-dropdown { position: absolute; top: calc(100% + 2px); left: -1px; right: -1px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); max-height: 180px; overflow-y: auto; z-index: 9999; display: none; }
 .gt-dropdown.open { display: block; }
 .gt-opt { padding: 6px 10px; font-size: 11px; cursor: pointer; color: #1a1a2e; display: flex; align-items: center; gap: 6px; }
 .gt-opt:hover { background: #f1f5f9; }
 .gt-opt.selected { background: #eff6ff; color: #1e40af; }
 .gt-opt.selected::before { content: '✓'; color: #3b82f6; font-size: 10px; }
 .gt-opt:not(.selected)::before { content: ''; width: 10px; display: inline-block; }
-.gt-error { font-size: 10px; color: #dc2626; margin-top: 4px; }
-.gt-loading { font-size: 10px; color: #64748b; margin-top: 4px; }
-.gt-status { font-size: 10px; color: #7c3aed; margin-top: 2px; }
+/* status/error/loading span the full flex row */
+.gt-error { flex-basis: 100%; font-size: 10px; color: #dc2626; }
+.gt-loading { flex-basis: 100%; font-size: 10px; color: #64748b; }
+.gt-status { flex-basis: 100%; font-size: 10px; color: #7c3aed; }
 
 </style>
 </head>
@@ -892,11 +909,9 @@ tr.custom-metric-row:focus-within .custom-row-btns {
         <span class="header-value" style="flex:1;min-width:0;">
           <div class="gt-widget" id="gt-widget">
             <div class="gt-chips" id="gt-chips"></div>
+            <input type="text" class="gt-search" id="gt-search" placeholder="Search goods type…" autocomplete="off">
+            <div class="gt-dropdown" id="gt-dropdown"></div>
             <div class="gt-status" id="gt-status" style="display:none;"></div>
-            <div class="gt-search-wrap">
-              <input type="text" class="gt-search" id="gt-search" placeholder="Search goods type…" autocomplete="off">
-              <div class="gt-dropdown" id="gt-dropdown"></div>
-            </div>
             <div class="gt-error" id="gt-error" style="display:none;"></div>
             <div class="gt-loading" id="gt-loading" style="display:none;">Loading…</div>
           </div>
