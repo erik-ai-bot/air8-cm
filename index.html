@@ -2153,10 +2153,129 @@ function searchBuyer(val) {
 }
 
 function clearForm() {
-  if (!confirm('Clear all form data?')) return;
-  document.querySelectorAll('input.editable, select.editable').forEach(el => { el.value = ''; });
-  document.querySelectorAll('[contenteditable="true"]:not(.rec-label)').forEach(el => { el.textContent = ''; });
-  calcMetrics(); calcHighlightsYoY(); calcLiqYoY();
+  if (!window.confirm('Clear all form data and start fresh?')) return;
+  resetToBlankCM();
+}
+
+function resetToBlankCM() {
+  // ── 1. GLOBAL STATE ──────────────────────────────────────────────
+  window._ciqData = null;
+  window._previousCM = null;
+  window._lastDraftId = null;
+  window._obligorDisplayName = null;
+  window._obligorParent = null;
+  window._groupSums = null;
+  window._skipDraftCheck = false;
+  window._req1Text = null;
+  window._localDbCache = null;
+  // _screenshotPasteCount is a module-level var (not in an IIFE) — reset directly
+  try { _screenshotPasteCount = 0; } catch(e) {}
+
+  // ── 2. UGT STATE ─────────────────────────────────────────────────
+  if (window._gtState) {
+    window._gtState.setSelected([]);
+    window._gtState.setProvenance(null);
+    if (typeof window._gtState.resetFired === 'function') window._gtState.resetFired();
+  }
+
+  // ── 3. STANDARD FORM FIELDS ──────────────────────────────────────
+  document.querySelectorAll('input.editable, select.editable').forEach(function(el) {
+    el.value = '';
+  });
+
+  // ── 4. CONTENTEDITABLE AREAS (preserve rec-labels = section titles) ──
+  document.querySelectorAll('[contenteditable="true"]:not(.rec-label)').forEach(function(el) {
+    el.innerHTML = '';
+  });
+
+  // ── 5. DATE FIELDS (Flatpickr-aware) ─────────────────────────────
+  ['h-date', 'h-review-last', 'h-review-next'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el._flatpickr) el._flatpickr.clear(); else el.value = '';
+  });
+
+  // ── 6. §1 REQUESTS — keep 2, clear content ───────────────────────
+  var reqList = document.getElementById('requests-list');
+  if (reqList) {
+    var reqItems = Array.from(reqList.querySelectorAll('.req-item'));
+    reqItems.forEach(function(li, i) { if (i >= 2) li.remove(); });
+    reqList.querySelectorAll('.rich-area').forEach(function(el) { el.innerHTML = ''; });
+  }
+
+  // ── 7. §8 REC-POINTS — keep 4, clear content ─────────────────────
+  var recList = document.getElementById('rec-points-list');
+  if (recList) {
+    var recItems = Array.from(recList.querySelectorAll('.rec-point'));
+    recItems.forEach(function(li, i) { if (i >= 4) li.remove(); });
+    recList.querySelectorAll('.rich-area').forEach(function(el) { el.innerHTML = ''; });
+  }
+
+  // ── 8. §8 ACTION PLAN — keep 2, clear content ────────────────────
+  var apList = document.getElementById('action-plan-list');
+  if (apList) {
+    var apItems = Array.from(apList.querySelectorAll('.ap-item'));
+    apItems.forEach(function(item, i) { if (i >= 2) item.remove(); });
+    apList.querySelectorAll('[contenteditable]').forEach(function(el) { el.innerHTML = ''; });
+  }
+
+  // ── 9. §5 CUSTOM METRIC ROWS — remove all ────────────────────────
+  document.querySelectorAll('tr.custom-metric-row').forEach(function(tr) {
+    try {
+      var khId = (typeof _groupToKH === 'function' && typeof _rowGroup === 'function')
+        ? _groupToKH(_rowGroup(tr)) : null;
+      if (khId) {
+        var khEl = document.getElementById(khId);
+        if (khEl && parseInt(khEl.rowSpan, 10) > 1) khEl.rowSpan = parseInt(khEl.rowSpan, 10) - 1;
+      }
+    } catch(e) {}
+    if (tr.parentNode) tr.parentNode.removeChild(tr);
+  });
+  try { _customRowCount = 0; } catch(e) {}
+
+  // ── 10. §9 RISKS — clear and rebuild with defaults ────────────────
+  var risksBody = document.getElementById('risks-body');
+  if (risksBody) risksBody.innerHTML = '';
+  if (typeof buildRisksTable === 'function') buildRisksTable();
+
+  // ── 11. §3 §5 FINANCIAL TABLES — rebuild blank ───────────────────
+  if (typeof buildHighlightsTable === 'function') buildHighlightsTable();
+  if (typeof buildMetricsTable === 'function') buildMetricsTable();
+
+  // ── 12. CALC / DERIVED CELLS — reset to '-' ──────────────────────
+  document.querySelectorAll('td.calc, span.calc, .pct-cell.calc').forEach(function(el) {
+    el.textContent = '-';
+  });
+
+  // ── 13. APPENDIX + SOURCE DOCS — hide and clear ──────────────────
+  var appendix = document.getElementById('appendix-section');
+  if (appendix) appendix.style.display = 'none';
+  var appendixTbody = document.getElementById('appendix-tbody');
+  if (appendixTbody) appendixTbody.innerHTML = '';
+  var sourceDocs = document.getElementById('source-docs-section');
+  if (sourceDocs) sourceDocs.style.display = 'none';
+
+  // ── 14. STATUS INDICATORS — clear ────────────────────────────────
+  ['generate-msg', 'upload-status', 'paste-hint'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '';
+    el.innerHTML = '';
+    el.style.display = 'none';
+  });
+
+  // ── 15. RATING COLORS — reset ────────────────────────────────────
+  if (typeof applyRatingColors === 'function') applyRatingColors();
+
+  // ── 16. RECALCULATE ──────────────────────────────────────────────
+  if (typeof calcMetrics === 'function') calcMetrics();
+  if (typeof calcHighlightsYoY === 'function') calcHighlightsYoY();
+  if (typeof calcLiqYoY === 'function') calcLiqYoY();
+
+  // ── 17. TODAY'S DATE ─────────────────────────────────────────────
+  if (typeof setDateField === 'function') {
+    setDateField('h-date', new Date().toISOString().split('T')[0]);
+  }
 }
 
 // ===== LOCAL STORAGE =====
@@ -4793,7 +4912,8 @@ document.addEventListener('DOMContentLoaded', () => {
     getSelected: function() { return gtSelected; },
     setSelected: function(arr) { gtSelected = arr || []; gtProvenance = 'manual'; gtRenderChips(); },
     getProvenance: function() { return gtProvenance; },
-    setProvenance: function(p) { gtProvenance = p; }
+    setProvenance: function(p) { gtProvenance = p; },
+    resetFired: function() { gtFired = false; }  // allow clearForm to re-enable AI suggestion
   };
 })();
 
