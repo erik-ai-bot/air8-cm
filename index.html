@@ -1435,9 +1435,9 @@ function calcHighlightsYoY() {
   // YoY % (skip computed rows — they don’t participate in YoY)
   HIGHLIGHT_ROWS.forEach(row => {
     if (row.derived) return;
-    const v22 = parseFloat(document.getElementById(`${row.id}-22`)?.value);
-    const v23 = parseFloat(document.getElementById(`${row.id}-23`)?.value);
-    const v24 = parseFloat(document.getElementById(`${row.id}-24`)?.value);
+    const v22 = parseNum(document.getElementById(`${row.id}-22`)?.value);
+    const v23 = parseNum(document.getElementById(`${row.id}-23`)?.value);
+    const v24 = parseNum(document.getElementById(`${row.id}-24`)?.value);
     const el1 = document.getElementById(`${row.id}-yoy1`);
     const el2 = document.getElementById(`${row.id}-yoy2`);
     if (el1) el1.textContent = calcPct(v23, v24);
@@ -1445,7 +1445,7 @@ function calcHighlightsYoY() {
   });
 
   // GP% (computed-editable) — prefer §5 GP/Rev; skip if manually edited; show '-' when missing
-  function clean(id) { var el=document.getElementById(id); return el?parseFloat((el.value||'').replace(/,/g,''))||null:null; }
+  function clean(id) { return parseNum(document.getElementById(id)?.value); }
   ['24','23','22'].forEach(function(yr) {
     var el = document.getElementById('h-gp-' + yr);
     if (!el || el.dataset.manual === 'true') return;
@@ -1548,7 +1548,7 @@ function buildMetricsTable() {
 function getMetricVal(id, period) {
   const el = document.getElementById(`m-${id}-${period}`);
   if (!el) return null;
-  if (el.tagName === 'INPUT') return parseFloat((el.value||'').replace(/,/g,'')) || null;
+  if (el.tagName === 'INPUT') return parseNum(el.value);  // parseNum strips commas, handles negatives, returns null not 0
   return null; // derived cells don't store values
 }
 
@@ -1569,8 +1569,28 @@ function fmtNum(n) {
   return n.toFixed(1);
 }
 
+/**
+ * parseNum — shared safe parser for financial cell reads.
+ * Strips thousands commas, currency symbols (£$€¥), whitespace.
+ * Handles accounting parentheses: (1,234) → -1234.
+ * Returns null (not 0, not NaN) when input is absent or unparseable.
+ */
+function parseNum(raw) {
+  if (raw === null || raw === undefined) return null;
+  var s = String(raw).trim();
+  if (!s) return null;
+  // accounting negatives: (1,234) → -1234
+  var neg = s.charAt(0) === '(' && s.charAt(s.length - 1) === ')';
+  if (neg) s = s.slice(1, -1);
+  // strip currency symbols, non-numeric except minus/decimal
+  s = s.replace(/[\$£€¥\s]/g, '').replace(/,/g, '');
+  var n = parseFloat(s);
+  if (isNaN(n)) return null;
+  return neg ? -n : n;
+}
+
 function calcPct(a, b) {
-  if (!a || !b || isNaN(a) || isNaN(b)) return '-';
+  if (a === null || a === undefined || b === null || b === undefined || isNaN(a) || isNaN(b) || b === 0) return '-';
   const pct = ((b - a) / Math.abs(a)) * 100;
   return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
 }
@@ -1657,7 +1677,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function calcLiqYoY() {
-  const clean = id => parseFloat((document.getElementById(id)?.value||'').replace(/,/g,''));
+  const clean = id => parseNum(document.getElementById(id)?.value) ?? 0;
   const v22 = clean('liq-22');
   const v23 = clean('liq-23');
   const v24 = clean('liq-24');
