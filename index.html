@@ -543,8 +543,56 @@
   }
   .approval-label { font-size: 11px; color: #64748b; font-weight: 500; }
 
+  /* ===== FINANCIAL INSIGHT CARDS ===== */
+  .fin-insights-panel {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+    margin: 0 0 14px 0;
+  }
+  .fin-insight-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .fic-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .fic-body {
+    padding: 9px 11px;
+    font-size: 10.5px;
+    line-height: 1.75;
+    color: #334155;
+    min-height: 44px;
+  }
+  .fic-summary-line {
+    font-weight: 700;
+    font-size: 10.5px;
+    color: #0f172a;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #e2e8f0;
+  }
+  .fic-bullet {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 4px;
+    align-items: flex-start;
+  }
+  .fic-dot { flex-shrink: 0; font-weight: 700; margin-top: 1px; }
+
   /* ===== PRINT ===== */
   @media print {
+    .fin-insights-panel { display: none !important; }
     /* Force ALL elements to print backgrounds/colors exactly as shown */
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1171,6 +1219,23 @@ tr.custom-metric-row:focus-within .custom-row-btns {
     <div class="section-title"><span class="num">5</span> KEY FINANCIAL METRICS</div>
     <!-- Ratio inputs hidden (r-interest, r-ca, r-cl kept as hidden inputs) -->
     <input type='hidden' id='r-interest'><input type='hidden' id='r-ca'><input type='hidden' id='r-cl'>
+
+    <!-- FINANCIAL INSIGHT CARDS (auto-synced from KH cells after generate) -->
+    <div id="fin-insights-panel" class="fin-insights-panel" style="display:none;">
+      <div class="fin-insight-card">
+        <div class="fic-header" style="color:#2563eb;background:#eff6ff;"><span>📊</span><span>INCOME STATEMENT</span></div>
+        <div class="fic-body" id="ic-pl"><span style="color:#94a3b8;font-style:italic;font-size:10px;">Generate to populate</span></div>
+      </div>
+      <div class="fin-insight-card">
+        <div class="fic-header" style="color:#16a34a;background:#f0fdf4;"><span>📋</span><span>BALANCE SHEET</span></div>
+        <div class="fic-body" id="ic-bs"><span style="color:#94a3b8;font-style:italic;font-size:10px;">Generate to populate</span></div>
+      </div>
+      <div class="fin-insight-card">
+        <div class="fic-header" style="color:#d97706;background:#fffbeb;"><span>💵</span><span>CASH FLOW &amp; RATIOS</span></div>
+        <div class="fic-body" id="ic-cf"><span style="color:#94a3b8;font-style:italic;font-size:10px;">Generate to populate</span></div>
+      </div>
+    </div>
+
     <div style="overflow-x:auto;">
       <table id="tbl-metrics">
         <thead>
@@ -3457,15 +3522,65 @@ function buildAnalysisPrompt(buyerName, country, ticker, product, oaDays, fd, re
   'source_of_repayment: 2 sentences. How Air8 collects payment from this buyer.\n' +
   'action_plan: array of 2 strings. [0] = review schedule when financials published, include expected Month Year based on fiscal year end plus typical reporting lag. [1] = quarterly payment and dilution monitoring; for B/C buyers add specific trigger threshold.\n' +
   'KEY FINANCIAL HIGHLIGHTS — 3 section blocks, bullet points, key items only (not every metric needs a bullet):\n' +
-  'kh_pl: Income Statement bullets. Act as SENIOR CREDIT ANALYST. For revenue decline with no MD&A reason: apply industry context first (US apparel in 2025 = tariff headwinds likely). State specific $ and % changes. Quarterly bullet if Q data available. A=1-2 bullets max; B=2-3 bullets; C=3-4 bullets. No generic filler.\n' +
-  'kh_bs: Balance Sheet bullets. Cash + current ratio (structural note if sub-1x for A; risk flag for C). Debt total + net debt/EBITDA. Equity change. Rating A: 2 bullets. Rating B/C: 3 bullets.\n' +
-  'kh_cf: Cash Flow bullets. FCF MANDATORY format: driven by [positive], partially offset by [negative]. Include amounts. Quarterly if available. Rating A: 2 bullets. B/C: 3 bullets with trend.\n\n' +
+  'kh_pl: Income Statement analysis. FORMAT: Line 1 (no bullet) = SUMMARY HEADLINE e.g. "Revenue $Xbn (-X% YoY) | EBITDA Margin X.X% (±Xbps)". Then bullet lines starting with •. Each bullet must state specific $ amount AND % change. One fact per bullet. Quarterly bullet LAST if Q data. A=1-2 bullets; B=2-3 bullets; C=3-4 bullets. No generic filler like "performance was impacted".\n' +
+  'kh_bs: Balance Sheet analysis. FORMAT: Line 1 (no bullet) = SUMMARY HEADLINE e.g. "Cash $Xbn | Net Debt/EBITDA X.Xx | Current Ratio X.Xx". Then bullets for: cash & liquidity trend, debt structure & maturity, equity change. Rating A: 2 bullets. Rating B/C: 3 bullets. Flag structural risks.\n' +
+  'kh_cf: Cash Flow analysis. FORMAT: Line 1 (no bullet) = SUMMARY HEADLINE e.g. "OCF $Xbn | FCF $Xbn | Capex $Xbn". Then bullets. FCF bullet MANDATORY: "FCF $Xbn — driven by [specific positive], offset by [specific negative]". Include amounts. Quarterly if available. A: 2 bullets. B/C: 3 bullets with trend direction.\n\n' +
   'RISKS — EXACTLY 3. Risk 1 MUST be US tariff/Trump policy (mandatory ALL buyers). Risk 2-3: buyer-specific.\n' +
   'name: specific phrase. level: Low/Medium/High. mitigants: array with 1 specific mitigant.\n\n' +
   'CRITICAL JSON RULE: Do NOT use apostrophes in contractions. S&P, Moody\'s, Fitch are allowed. Output ONLY the JSON object.\n' +
   'Return ONLY minified JSON:\n' +
   '{"db_rating":"","risk_category_current":"","risk_current_score":0,"risk_category_proposed":"","risk_proposed_score":0,"exec_summary":"","obligor_rationale":"","rating_rationale":"","recommendation":"","rec_1":"","rec_2":"","rec_3":"","rec_4":"","source_of_repayment":"","analysis_cashflow":"","analysis_liquidity":"","kh_pl":"","kh_bs":"","kh_cf":"","risks":[{"name":"","level":"Low","mitigants":[""]},{"name":"","level":"Medium","mitigants":[""]},{"name":"","level":"Low","mitigants":[""]}],"action_plan":[]}';
 }
+
+// ── Financial Insight Cards (Source-Ready style) ──────────────────────
+function syncInsightCards() {
+  var pairs = [
+    ['kh-pl','ic-pl','#2563eb'],
+    ['kh-bs','ic-bs','#16a34a'],
+    ['kh-cf','ic-cf','#d97706']
+  ];
+  var anyContent = false;
+  pairs.forEach(function(pair) {
+    var srcId = pair[0], dstId = pair[1], dotColor = pair[2];
+    var srcEl = document.getElementById(srcId);
+    var dstEl = document.getElementById(dstId);
+    if (!srcEl || !dstEl) return;
+    var text = srcEl.textContent.trim();
+    if (!text) {
+      dstEl.innerHTML = '<span style="color:#94a3b8;font-style:italic;font-size:10px;">Generate to populate</span>';
+      return;
+    }
+    anyContent = true;
+    var lines = text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length;});
+    var html = '';
+    var firstNonBullet = true;
+    lines.forEach(function(line) {
+      var isBullet = /^[•\-\u2013\u25aa\u25b8\u2192]/.test(line);
+      var clean = line.replace(/^[•\-\u2013\u25aa\u25b8\u2192]\s*/,'');
+      if (isBullet) {
+        html += '<div class="fic-bullet"><span class="fic-dot" style="color:'+dotColor+'">•</span><span>'+clean+'</span></div>';
+      } else {
+        // First non-bullet line = summary headline
+        var cls = firstNonBullet ? 'fic-summary-line' : 'fic-bullet';
+        html += '<div class="'+cls+'">'+clean+'</div>';
+        firstNonBullet = false;
+      }
+    });
+    dstEl.innerHTML = html;
+  });
+  var panel = document.getElementById('fin-insights-panel');
+  if (panel) panel.style.display = anyContent ? 'grid' : 'none';
+}
+
+function initInsightCardSync() {
+  ['kh-pl','kh-bs','kh-cf'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var obs = new MutationObserver(function(){ syncInsightCards(); });
+    obs.observe(el, {characterData:true, childList:true, subtree:true});
+  });
+}
+// ───────────────────────────────────────────────────────────────────────
 
 function toggleSidebar() {
   var sb = document.getElementById('config-sidebar');
@@ -4023,6 +4138,8 @@ function fillKHCells(b) {
       el.appendChild(cite);
     });
   }
+  // Sync financial insight cards
+  syncInsightCards();
   // Toggle quarterly columns based on data availability
   updateTableMode(b);
   // Auto-generate Request 2 from AI rating data
@@ -4795,6 +4912,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildMetricsTable();
   buildCreditLimitsTables();
   buildRisksTable();
+  initInsightCardSync();
   // Auto-open sidebar on load
   var sb = document.getElementById('config-sidebar');
   var btn = document.getElementById('sidebar-toggle');
